@@ -7,6 +7,7 @@ This project will enable you deploy Clearwater project's components in a Docker 
 
 ### Installation and Deployment
 -  Update number of VMs that need to be create for each component of clearwater project in ```parameters.txt``` file.
+
     (Note: There should be only one Ellis container in order to pass the live-test.)
     (Note: To understand about fault tolerance of docker swarm,  please see the following link: https://docs.docker.com/engine/swarm/admin_guide/#add-manager-nodes-for-fault-tolerance )
 
