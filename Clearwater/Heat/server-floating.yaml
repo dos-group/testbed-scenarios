@@ -1,0 +1,107 @@
+heat_template_version: 2015-10-15
+
+description: One VM instance with a floating IP
+
+parameters:
+    stack_name:
+        type: string
+        description: Name of the heat stack
+    name:
+        type: string
+        label: Name of the VM
+    key_name:
+        type: string
+        label: Key Name
+        constraints:
+            - custom_constraint: nova.keypair
+    flavor:
+        type: string
+        label: Flavor
+        default: m1.small
+        constraints:
+            - custom_constraint: nova.flavor
+    image:
+        type: string
+        label: Image Name
+        default: Ubuntu
+        constraints:
+            - custom_constraint: glance.image
+    external_network:
+        type: string
+        label: Network
+        default: ext-net
+        constraints:
+            - custom_constraint: neutron.network
+    network:
+        type: string
+        label: Network
+        default: shared-net
+        constraints:
+            - custom_constraint: neutron.network
+    security_groups:
+        type: comma_delimited_list
+        label: Security Groups
+        default: ""
+    zone:
+        type: string
+        label: Availability Zone
+        default: "nova"
+    services:
+        type: string
+        label: Services running in this VM (content of file /home/ubuntu/services)
+        default: ""
+    setup:
+        type: string
+        label: Additional VM initialization script (executed as ubuntu)
+        default: ""
+    root_setup:
+        type: string
+        label: Additional VM initialization script (executed as root)
+        default: ""
+
+resources:
+    instance:
+        type: ./server.yaml
+        properties:
+            stack_name: { get_param: stack_name }
+            name: { get_param: name }
+            key_name: { get_param: key_name }
+            flavor: { get_param: flavor }
+            image: { get_param: image }
+            network: { get_param: network }
+            security_groups: { get_param: security_groups }
+            services: { get_param: services }
+            zone: { get_param: zone }
+            setup:
+                str_replace:
+                    template: { get_param: setup }
+                    params:
+                        __FLOATING_IP__: { get_attr: [ floating_ip, floating_ip_address ] }
+            root_setup:
+                str_replace:
+                    template: { get_param: root_setup }
+                    params:
+                        __FLOATING_IP__: { get_attr: [ floating_ip, floating_ip_address ] }
+
+    floating_ip:
+        type: OS::Neutron::FloatingIP
+        properties:
+            floating_network: { get_param: external_network }
+
+    association:
+        type: OS::Neutron::FloatingIPAssociation
+        properties:
+            floatingip_id: { get_resource: floating_ip }
+            port_id: { get_attr: [ instance, port ] }
+
+outputs:
+    ip:
+        description: IP of instance
+        value: { get_attr: [ instance, ip ] }
+    port:
+        description: Port ID of instance
+        value: { get_attr: [ instance, port ] }
+    public_ip:
+        description: Public IP
+        value: { get_attr: [ floating_ip, floating_ip_address ] }
+
