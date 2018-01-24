@@ -14,7 +14,7 @@ This project will enable you deploy Clearwater project's components in a Docker 
 
 - Run ```./swarm_init.sh``` file with passing stack name as an argument.
 
-- Wait for the swarm to be created and all clearwater containers are deployed. (Note: live-test container will also be deployed on bono VM(s).)
+- Wait for the swarm to be created and all clearwater containers are deployed.
 
     ~~The following steps (strikedthrough) are not needed for the new images.~~
     ~~After all containers are runing, to perform the live test, we need to do some manual steps:~~~
