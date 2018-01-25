@@ -23,7 +23,7 @@ get_manager_ips()
 	export SWARM_LEADER_PUBLIC="$(echo $MANAGERS_PUBLIC_IPS | jq -r '.[0]')"
 	export LC_SWARM_LEADER_PRIVATE="$(echo $MANAGERS_PRIVATE_IPS | jq -r '.[0]')"
 	#if there are more than one managers for swarm are created then get their ips so that they can join swarm as a manager
-	if [ $length_public_ips > 1 ]; 
+	if [ $length_public_ips -gt 1 ]; 
 		then
 		export REACHABLE_MANAGER_PUBLIC_IPS="$(echo $MANAGERS_PUBLIC_IPS | jq -r '.[1:]')"
 		export LC_REACHABLE_MANAGER_PRIVATE_IPS="$(echo $MANAGERS_PRIVATE_IPS | jq -r '.[1:]')"

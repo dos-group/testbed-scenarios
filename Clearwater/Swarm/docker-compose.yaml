@@ -201,8 +201,6 @@ services:
          - node.labels.comp==ellis
 
   #Wrapper to run privileged container. This container will start the collector container as child.
-  #All prots and volumes configurations are done statically inside the entry script of the container
-  #Command parameters are forewarded to the collector container 
   collector:
     image: alexanderacker/docker_wrapper
     environment:
@@ -213,41 +211,39 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock"
       - "/etc/hostname:/etc_host/hostname" 
     entrypoint: "/bin/bash"
-    command: -c 'exec docker run --init --rm --privileged=true --cap-add=ALL --pid=host -p "5010:5010" -p "7777:7777" -v "/opt/bitflow/data-collector:/bitflow/data-collector" -v "/etc/hostname:/etc_host/hostname" --entrypoint="/bin/bash" antongulenko/bitflow-collector -c "bitflow-collector -tag host=\"$SERVICE_NAME@$(cat /etc_host/hostname).ims4\" -exclude \"pcap|net-io/nic\" -proc vnf=\"clearwater|vnf_\" -include vnf/ -ci 500ms -si 500ms -api :7777 -o :5010 -o /bitflow/data-collector/data.bin"'
+    command: -c 'exec docker run --init --rm --privileged=true --cap-add=ALL --pid=host -p "5010:5010" -p "7777:7777" -v "/opt/bitflow/data-collector:/bitflow/data-collector" -v "/etc/hostname:/etc_host/hostname" --entrypoint="/bin/bash" antongulenko/bitflow-collector -c "bitflow-collector -tag host=\"$$SERVICE_NAME@$$(cat /etc_host/hostname).ims4\" -exclude \"pcap|net-io/nic\" -proc vnf=\"clearwater|vnf_\" -include vnf/ -ci 500ms -si 500ms -api :7777 -o :5010 -o /bitflow/data-collector/data.bin"'
     deploy:
       mode: global
       placement:
         constraints:
           - node.labels.comp!=sippstress
 
-  #Wrapper should not be needed. Problems with quotations and variable expanding though...
-  #Maybe (probably) there is a better solution
   injector_vm:
-    image: alexanderacker/docker_wrapper
-    networks: 
+    image: alexanderacker/anomaly_injector
+    ports:
+      - "7888:7888"
+    networks:
       - dummy_nw
     volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock"
-      - "/etc/hostname:/etc_host/hostname" 
+      - "/etc/hostname:/etc_host/hostname"
     entrypoint: "/bin/bash"
-    command: -c 'exec docker run --init --rm --pid=host -p "7888:7888" -v "/etc/hostname:/etc_host/hostname" --entrypoint="/bin/bash" alexanderacker/anomaly_injector -c "python3.6 ./injector_agent.py -host\"$SERVICE_NAME@$(cat /etc_host/hostname).ims4\" -api-port 7888"'
+    command: -c "python3.6 ./injector_agent.py -host $$(cat /etc_host/hostname).ims4 -api-port 7888"
     deploy:
       mode: global
       placement:
         constraints:
           - node.labels.comp!=sippstress
 
-  #Wrapper should not be needed. Problems with quotations and variable expanding though...
-  #Maybe (probably) there is a better solution
   injector_vnf:
-    image: alexanderacker/docker_wrapper
-    networks: 
+    image: alexanderacker/anomaly_injector
+    ports:
+      - "7889:7889"
+    networks:
       - dummy_nw
     volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock"
-      - "/etc/hostname:/etc_host/hostname" 
+      - "/etc/hostname:/etc_host/hostname"
     entrypoint: "/bin/bash"
-    command: -c 'exec docker run --init --rm --pid=host -p "7889:7889" -v "/etc/hostname:/etc_host/hostname" --entrypoint="/bin/bash" alexanderacker/anomaly_injector -c "python3.6 ./injector_agent.py -host \"$(cat /etc_host/hostname).ims4\" -api-port 7889"'
+    command: -c "python3.6 ./injector_agent.py -host $$SERVICE_NAME@$$(cat /etc_host/hostname).ims4 -api-port 7889"
     deploy:
       mode: global
       placement:
