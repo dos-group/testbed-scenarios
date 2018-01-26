@@ -1,0 +1,121 @@
+heat_template_version: 2015-10-15
+
+description: One VM instance
+
+parameters:
+    name:
+        type: string
+        label: Name of the VM
+    key_name:
+        type: string
+        label: Key Name
+        constraints:
+            - custom_constraint: nova.keypair
+    flavor:
+        type: string
+        label: Flavor
+        default: m1.small
+        constraints:
+            - custom_constraint: nova.flavor
+    image:
+        type: string
+        label: Image Name
+        constraints:
+            - custom_constraint: glance.image
+    network:
+        type: string
+        label: Network
+        default: shared-net
+        constraints:
+            - custom_constraint: neutron.network
+    security_groups:
+        type: comma_delimited_list
+        label: Security Group
+        default: ""
+    availability_zone:
+        type: string
+        label: Availability Zone
+        default: "nova"
+    setup:
+        type: string
+        label: Additional VM initialization script (executed as ubuntu)
+        default: ""
+    root_setup:
+        type: string
+        label: Additional VM initialization script (executed as root)
+        default: ""
+    stack_name:
+        type: string
+        label: Name of the stack this VM is instantiated in (optional). Will be stored as the "stack" metadata.
+        default: "unknown"
+
+resources:
+
+    cloud_init:
+        type: OS::Heat::CloudConfig
+        properties:
+            cloud_config:
+                runcmd:
+                    - str_replace:
+                        template: |
+                            echo '$PRIVATE_KEY' > /home/ubuntu/.ssh/id_rsa
+                            chmod 0600 /home/ubuntu/.ssh/id_rsa
+                        params:
+                            $PRIVATE_KEY: { get_file: keys/id_rsa }
+                    - str_replace:
+                        template: |
+                            echo '$AUTHORIZED_KEYS' >> /home/ubuntu/.ssh/authorized_keys
+                            chmod 0600 /home/ubuntu/.ssh/authorized_keys
+                        params:
+                            $AUTHORIZED_KEYS: { get_file: keys/id_rsa.pub }
+                    - chown -R ubuntu:ubuntu /home/ubuntu
+                    # - { get_file: 'https://gitlab.tubit.tu-berlin.de/anton.gulenko/scripts/raw/master/cloud-init-basic.sh' }
+                    - str_replace:
+                        template: |
+                            bash -s <<"xxx_CUSTOM_SETUP_CODE_xxx"
+                            $THE_CODE
+                            xxx_CUSTOM_SETUP_CODE_xxx
+                        params:
+                            $THE_CODE: { get_param: root_setup }
+                    - chown -R ubuntu:ubuntu /home/ubuntu
+                    - str_replace:
+                        template: |
+                            su ubuntu -c 'bash -s' <<"xxx_CUSTOM_SETUP_CODE_xxx"
+                            $THE_CODE
+                            xxx_CUSTOM_SETUP_CODE_xxx
+                        params:
+                            $THE_CODE: { get_param: setup }
+
+    port:
+        type: OS::Neutron::Port
+        properties:
+            network: { get_param: network }
+            name:
+                str_replace:
+                    template: port-VM_NAME
+                    params:
+                        VM_NAME: { get_param: name }
+            security_groups:
+                get_param: security_groups
+
+    instance:
+        type: OS::Nova::Server
+        properties:
+            name: { get_param: name }
+            key_name: { get_param: key_name }
+            image: { get_param: image }
+            flavor: { get_param: flavor }
+            networks:
+                - port: { get_resource: port }
+            user_data_format: RAW
+            user_data: { get_resource: cloud_init }
+            metadata: { "stack": { get_param: "stack_name" } }
+            availability_zone: { get_param : availability_zone }
+
+outputs:
+    ip:
+        description: IP of instance
+        value: { get_attr: [ instance, first_address ] }
+    port:
+        description: Port ID of instance
+        value: { get_resource: port }

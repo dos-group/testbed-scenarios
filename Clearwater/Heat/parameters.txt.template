@@ -1,10 +1,10 @@
---parameter public_net_cidr=10.0.42.0/24
---parameter key_name=alex_access
---parameter public_net_id=9eb3c72f-8b05-41b0-a3e0-7455c1762b45
---parameter internet_net_id=9eb3c72f-8b05-41b0-a3e0-7455c1762b45
+--parameter key_name=KEY_NAME
 --parameter flavor=t1.medium
 --parameter flavor_big=t1.medium
 --parameter image=ubuntu1604
+--parameter public_net_cidr=10.0.42.0/24
+--parameter public_net_id=9eb3c72f-8b05-41b0-a3e0-7455c1762b45
+--parameter internet_net_id=9eb3c72f-8b05-41b0-a3e0-7455c1762b45
 --parameter swarm_manager_size=0
 --parameter etcd_cluster_size=0
 --parameter ellis_cluster_size=0

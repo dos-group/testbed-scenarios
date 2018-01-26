@@ -203,7 +203,7 @@ resources:
       gateway_ip: 10.0.0.1
       host_routes:
         - nexthop: 10.0.0.2
-          destination: { get_param: public_net_cidr } 
+          destination: { get_param: public_net_cidr }
       allocation_pools:
         - start: { get_param: private_net_pool_start }
           end: { get_param: private_net_pool_end }
@@ -232,7 +232,7 @@ resources:
     properties:
       router_id: { get_resource: internet_router }
       port_id: { get_resource: internet_router_interface_port }
-  
+
   network_router:
     type: OS::Neutron::Router
     properties:
@@ -251,7 +251,7 @@ resources:
       fixed_ips:
         - ip_address: 10.0.0.2
           subnet: { get_resource: network_private_subnet }
-  
+
   network_router_interface:
     type: OS::Neutron::RouterInterface
     properties:
@@ -276,7 +276,7 @@ resources:
           ethertype: IPv4
         - direction: ingress
           ethertype: IPv6
-        
+
         # ICMP
         - protocol: icmp
         # SSH
@@ -297,7 +297,7 @@ resources:
           port_range_max: 2379
         - protocol: tcp
           port_range_min: 4001
-          port_range_max: 4001  
+          port_range_max: 4001
         - protocol: tcp
           port_range_min: 2380
           port_range_max: 2380
@@ -512,7 +512,7 @@ resources:
           port_range_max: 5060
           remote_mode: remote_group_id
           remote_group_id: { get_resource: security_groups_bono }
-        
+
         - protocol: tcp
           port_range_min: 8888
           port_range_max: 8888
@@ -570,12 +570,12 @@ resources:
   #  type: OS::Neutron::SecurityGroup
   #  properties:
   #    name: { str_replace: { params: { __name_prefix__: { get_param: "OS::stack_name" } }, template: __name_prefix__-etcd } }
-  #    description: Security group for ETCD 
+  #    description: Security group for ETCD
   #    rules:
   #      - protocol: tcp
   #        port_range_min: 4001
   #        port_range_max: 4001
-  #        remote_mode: remote_group_id      
+  #        remote_mode: remote_group_id
   #      - protocol: tcp
   #        port_range_min: 7001
   #        port_range_max: 7001
@@ -593,7 +593,7 @@ resources:
         - protocol: tcp
           port_range_min: 7001
           port_range_max: 7001
-          remote_mode: remote_group_id 
+          remote_mode: remote_group_id
         - protocol: tcp
           port_range_min: 9042
           port_range_max: 9042
@@ -615,7 +615,7 @@ resources:
         - protocol: tcp
           port_range_min: 7253
           port_range_max: 7253
-          remote_mode: remote_group_id 
+          remote_mode: remote_group_id
         - protocol: tcp
           port_range_min: 32776
           port_range_max: 32776
@@ -669,7 +669,7 @@ resources:
           #remote_mode: remote_group_id
         - protocol: tcp
           port_range_min: 4789
-          port_range_max: 4789  
+          port_range_max: 4789
           #remote_mode: remote_group_id
 
   swarm_manager:
@@ -693,10 +693,10 @@ resources:
           root_setup: |
             apt update
             apt install -y linux-image-extra-$(uname -r) linux-image-extra-virtual apt-transport-https ca-certificates curl software-properties-common
-            
+
             # Reduce the apt update/install timeout to 20 seconds
-            echo -e 'Acquire::http::Timeout "20";\nAcquire::ftp::Teimout "10";' > /etc/apt/apt.conf.d/99timeout
-            
+            echo -e 'Acquire::http::Timeout "20";\nAcquire::ftp::Timeout "10";' > /etc/apt/apt.conf.d/99timeout
+
             # Try to install docker-ce until it is done
             until type docker &> /dev/null; do
               curl --connect-timeout 10 -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
@@ -732,12 +732,12 @@ resources:
             - { get_resource: security_groups_base }
             - { get_resource: security_groups_swarm}
           root_setup: |
-            apt update    
+            apt update
             apt install -y linux-image-extra-$(uname -r) linux-image-extra-virtual apt-transport-https ca-certificates curl software-properties-common
-            
+
             # Reduce the apt update/install timeout to 20 seconds
-            echo -e 'Acquire::http::Timeout "20";\nAcquire::ftp::Teimout "10";' > /etc/apt/apt.conf.d/99timeout
-            
+            echo -e 'Acquire::http::Timeout "20";\nAcquire::ftp::Timeout "10";' > /etc/apt/apt.conf.d/99timeout
+
             # Try to install docker-ce until it is done
             until type docker &> /dev/null; do
               curl --connect-timeout 10 -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
@@ -775,12 +775,12 @@ resources:
             - { get_resource: security_groups_swarm }
             - { get_resource: security_groups_astaire }
           root_setup: |
-            apt update    
+            apt update
             apt install -y linux-image-extra-$(uname -r) linux-image-extra-virtual apt-transport-https ca-certificates curl software-properties-common
-            
+
             # Reduce the apt update/install timeout to 20 seconds
-            echo -e 'Acquire::http::Timeout "20";\nAcquire::ftp::Teimout "10";' > /etc/apt/apt.conf.d/99timeout
-            
+            echo -e 'Acquire::http::Timeout "20";\nAcquire::ftp::Timeout "10";' > /etc/apt/apt.conf.d/99timeout
+
             # Try to install docker-ce until it is done
             until type docker &> /dev/null; do
               curl --connect-timeout 10 -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
@@ -818,12 +818,12 @@ resources:
             - { get_resource: security_groups_swarm }
             - { get_resource: security_groups_cassandra }
           root_setup: |
-            apt update    
+            apt update
             apt install -y linux-image-extra-$(uname -r) linux-image-extra-virtual apt-transport-https ca-certificates curl software-properties-common
-            
+
             # Reduce the apt update/install timeout to 20 seconds
-            echo -e 'Acquire::http::Timeout "20";\nAcquire::ftp::Teimout "10";' > /etc/apt/apt.conf.d/99timeout
-            
+            echo -e 'Acquire::http::Timeout "20";\nAcquire::ftp::Timeout "10";' > /etc/apt/apt.conf.d/99timeout
+
             # Try to install docker-ce until it is done
             until type docker &> /dev/null; do
               curl --connect-timeout 10 -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
@@ -861,12 +861,12 @@ resources:
             - { get_resource: security_groups_swarm }
             - { get_resource: security_groups_chronos }
           root_setup: |
-            apt update    
+            apt update
             apt install -y linux-image-extra-$(uname -r) linux-image-extra-virtual apt-transport-https ca-certificates curl software-properties-common
-            
+
             # Reduce the apt update/install timeout to 20 seconds
-            echo -e 'Acquire::http::Timeout "20";\nAcquire::ftp::Teimout "10";' > /etc/apt/apt.conf.d/99timeout
-            
+            echo -e 'Acquire::http::Timeout "20";\nAcquire::ftp::Timeout "10";' > /etc/apt/apt.conf.d/99timeout
+
             # Try to install docker-ce until it is done
             until type docker &> /dev/null; do
               curl --connect-timeout 10 -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
@@ -904,12 +904,12 @@ resources:
             - { get_resource: security_groups_swarm }
             - { get_resource: security_groups_homestead }
           root_setup: |
-            apt update    
+            apt update
             apt install -y linux-image-extra-$(uname -r) linux-image-extra-virtual apt-transport-https ca-certificates curl software-properties-common
-            
+
             # Reduce the apt update/install timeout to 20 seconds
-            echo -e 'Acquire::http::Timeout "20";\nAcquire::ftp::Teimout "10";' > /etc/apt/apt.conf.d/99timeout
-            
+            echo -e 'Acquire::http::Timeout "20";\nAcquire::ftp::Timeout "10";' > /etc/apt/apt.conf.d/99timeout
+
             # Try to install docker-ce until it is done
             until type docker &> /dev/null; do
               curl --connect-timeout 10 -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
@@ -948,12 +948,12 @@ resources:
             - { get_resource: security_groups_swarm }
             - { get_resource: security_groups_homestead-prov }
           root_setup: |
-            apt update    
+            apt update
             apt install -y linux-image-extra-$(uname -r) linux-image-extra-virtual apt-transport-https ca-certificates curl software-properties-common
-            
+
             # Reduce the apt update/install timeout to 20 seconds
-            echo -e 'Acquire::http::Timeout "20";\nAcquire::ftp::Teimout "10";' > /etc/apt/apt.conf.d/99timeout
-            
+            echo -e 'Acquire::http::Timeout "20";\nAcquire::ftp::Timeout "10";' > /etc/apt/apt.conf.d/99timeout
+
             # Try to install docker-ce until it is done
             until type docker &> /dev/null; do
               curl --connect-timeout 10 -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
@@ -991,12 +991,12 @@ resources:
             - { get_resource: security_groups_swarm }
             - { get_resource: security_groups_homer }
           root_setup: |
-            apt update    
+            apt update
             apt install -y linux-image-extra-$(uname -r) linux-image-extra-virtual apt-transport-https ca-certificates curl software-properties-common
-            
+
             # Reduce the apt update/install timeout to 20 seconds
-            echo -e 'Acquire::http::Timeout "20";\nAcquire::ftp::Teimout "10";' > /etc/apt/apt.conf.d/99timeout
-            
+            echo -e 'Acquire::http::Timeout "20";\nAcquire::ftp::Timeout "10";' > /etc/apt/apt.conf.d/99timeout
+
             # Try to install docker-ce until it is done
             until type docker &> /dev/null; do
               curl --connect-timeout 10 -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
@@ -1034,12 +1034,12 @@ resources:
             - { get_resource: security_groups_swarm }
             - { get_resource: security_groups_ralf }
           root_setup: |
-            apt update    
+            apt update
             apt install -y linux-image-extra-$(uname -r) linux-image-extra-virtual apt-transport-https ca-certificates curl software-properties-common
-            
+
             # Reduce the apt update/install timeout to 20 seconds
-            echo -e 'Acquire::http::Timeout "20";\nAcquire::ftp::Teimout "10";' > /etc/apt/apt.conf.d/99timeout
-            
+            echo -e 'Acquire::http::Timeout "20";\nAcquire::ftp::Timeout "10";' > /etc/apt/apt.conf.d/99timeout
+
             # Try to install docker-ce until it is done
             until type docker &> /dev/null; do
               curl --connect-timeout 10 -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
@@ -1078,12 +1078,12 @@ resources:
             - { get_resource: security_groups_sprout }
             - { get_resource: security_groups_sprout2 }
           root_setup: |
-            apt update    
+            apt update
             apt install -y linux-image-extra-$(uname -r) linux-image-extra-virtual apt-transport-https ca-certificates curl software-properties-common
-            
+
             # Reduce the apt update/install timeout to 20 seconds
-            echo -e 'Acquire::http::Timeout "20";\nAcquire::ftp::Teimout "10";' > /etc/apt/apt.conf.d/99timeout
-            
+            echo -e 'Acquire::http::Timeout "20";\nAcquire::ftp::Timeout "10";' > /etc/apt/apt.conf.d/99timeout
+
             # Try to install docker-ce until it is done
             until type docker &> /dev/null; do
               curl --connect-timeout 10 -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
@@ -1121,12 +1121,12 @@ resources:
             - { get_resource: security_groups_swarm }
             - { get_resource: security_groups_bono }
           root_setup: |
-            apt update    
+            apt update
             apt install -y linux-image-extra-$(uname -r) linux-image-extra-virtual apt-transport-https ca-certificates curl software-properties-common
-            
+
             # Reduce the apt update/install timeout to 20 seconds
-            echo -e 'Acquire::http::Timeout "20";\nAcquire::ftp::Teimout "10";' > /etc/apt/apt.conf.d/99timeout
-            
+            echo -e 'Acquire::http::Timeout "20";\nAcquire::ftp::Timeout "10";' > /etc/apt/apt.conf.d/99timeout
+
             # Try to install docker-ce until it is done
             until type docker &> /dev/null; do
               curl --connect-timeout 10 -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
@@ -1164,12 +1164,12 @@ resources:
             - { get_resource: security_groups_swarm }
             - { get_resource: security_groups_ellis }
           root_setup: |
-            apt update    
+            apt update
             apt install -y linux-image-extra-$(uname -r) linux-image-extra-virtual apt-transport-https ca-certificates curl software-properties-common
-            
+
             # Reduce the apt update/install timeout to 20 seconds
-            echo -e 'Acquire::http::Timeout "20";\nAcquire::ftp::Teimout "10";' > /etc/apt/apt.conf.d/99timeout
-            
+            echo -e 'Acquire::http::Timeout "20";\nAcquire::ftp::Timeout "10";' > /etc/apt/apt.conf.d/99timeout
+
             # Try to install docker-ce until it is done
             until type docker &> /dev/null; do
               curl --connect-timeout 10 -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
@@ -1202,17 +1202,17 @@ resources:
           key_name: { get_param: key_name }
           external_network: { get_param: public_net_id }
           network: { get_resource: network_private_net }
-          zone: { get_param: load_generator_zone }
+          availability_zone: { get_param: load_generator_zone }
           security_groups:
             - { get_resource: security_groups_base }
             - { get_resource: security_groups_swarm }
           root_setup: |
-            apt update    
+            apt update
             apt install -y linux-image-extra-$(uname -r) linux-image-extra-virtual apt-transport-https ca-certificates curl software-properties-common
-            
+
             # Reduce the apt update/install timeout to 20 seconds
-            echo -e 'Acquire::http::Timeout "20";\nAcquire::ftp::Teimout "10";' > /etc/apt/apt.conf.d/99timeout
-            
+            echo -e 'Acquire::http::Timeout "20";\nAcquire::ftp::Timeout "10";' > /etc/apt/apt.conf.d/99timeout
+
             # Try to install docker-ce until it is done
             until type docker &> /dev/null; do
               curl --connect-timeout 10 -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
@@ -1226,7 +1226,7 @@ resources:
             wget -O /usr/local/bin/docker-compose -L https://github.com/docker/compose/releases/download/1.17.1/docker-compose-`uname -s`-`uname -m`
             chmod +x /usr/local/bin/docker-compose
 
-            apt install -y jq            
+            apt install -y jq
             apt-get -y update && apt-get -y upgrade
             shutdown -r now
 

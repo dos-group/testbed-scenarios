@@ -1,10 +1,10 @@
-public_net_cidr=10.0.42.0/24
-key_name=access
-public_net_id=25fe17bd-c5a2-44c6-af49-fe93aad066b7
-internet_net_id=25fe17bd-c5a2-44c6-af49-fe93aad066b7
+key_name=KEY_NAME
 flavor=m1.medium
 flavor_big=m1.medium
 image=ubuntu-16.04
+public_net_cidr=10.0.42.0/24
+public_net_id=25fe17bd-c5a2-44c6-af49-fe93aad066b7
+internet_net_id=25fe17bd-c5a2-44c6-af49-fe93aad066b7
 swarm_manager_size=0
 etcd_cluster_size=0
 ellis_cluster_size=0
