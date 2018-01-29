@@ -8,4 +8,5 @@ collector:
   extra_command_params: -tag host="$$(cat {{ collector_hostname_mounted }}).ims4"
 
 injector:
+  host_name: "$$(cat {{ collector_hostname_mounted }}).ims4"
   api_port: 7888

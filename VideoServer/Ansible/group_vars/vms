@@ -1,14 +1,17 @@
+service_name: service
+service_regex: service
+hostname_mounted: /etc_host/hostname
+
 collector:
   data_output_port: 5010
   api_port: 7777
   interval: 500ms
   data: /bitflow/data-collector
   data_mounted: /opt/bitflow/data-collector
-  hostname_mounted: /etc_host/hostname
-  service_name: service
-  service_regex: service
-  extra_command_params: -proc vnf="{{ service_regex }}|vnf_" -include vnf/ -tag host="{{ service_name }}@$$(cat {{ collector_hostname_mounted }}).ims4"
+  extra_command_params: -proc vnf="{{ service_regex }}|vnf_" -include vnf/ -tag host="{{ service_name }}@$$(cat {{ hostname_mounted }}).ims4"
 
 injector:
+  host_name: "$$(cat {{ hostname_mounted }}).ims4"
+  host_name_vnf: "{{ service_name }}@$$(cat {{ hostname_mounted }}).ims4"
   api_port: 7888
   api_port_vnf: 7889
