@@ -1,2 +1,2 @@
-collector_port: 5010
 injector_port: 7888
+collector_extra_args: "-exclude 'pcap|net-io/nic' -proc "

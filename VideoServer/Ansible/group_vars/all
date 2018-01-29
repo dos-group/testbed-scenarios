@@ -1,0 +1,7 @@
+collector:
+  interval: 500ms
+  api_port: 7777
+  port: 5010
+  file_name: data.bin
+  data: /opt/bitflow/data-collector
+  data_mounted: /bitflow/data-collector

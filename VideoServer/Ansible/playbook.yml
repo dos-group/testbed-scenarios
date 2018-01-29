@@ -19,11 +19,6 @@
     - vms:!client
   tags: [ collector ]
   become: True
-  vars:
-    interval: 500ms
-    api_port: 7777
-    collector_data: /opt/bitflow/data-collector
-    collector_data_mounted: /bitflow/data-collector
   tasks:
     - name: Create local collector data directory
       file:
@@ -37,14 +32,14 @@
         privileged: yes
         ports:
           - "{{ collector_port }}:{{ collector_port }}"
-          - "{{ api_port }}:{{ api_port }}"
+          - "{{ collector_api_port }}:{{ collector_api_port }}"
         volumes:
           - "{{ collector_data }}:{{ collector_data_mounted }}"
         command: |
-            -exclude 'pcap|net-io/nic'
-            -api :{{ api_port }}
-            -ci {{ interval }} -si {{ interval }}
-            -o :{{ collector_port }} -o {{ collector_data_mounted }}/data.bin
+            {{ collector.extra_args }}
+            -api :{{ collector_api_port }}
+            -ci {{ collector_interval }} -si {{ collector_interval }}
+            -o :{{ collector_port }} -o {{ collector_data_mounted }}/{{ collector_file_name }}
 
 - name: Install the backend video server
   hosts: backend
