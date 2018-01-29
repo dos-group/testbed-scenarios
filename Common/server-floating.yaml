@@ -53,7 +53,11 @@ parameters:
     stack_name:
         type: string
         label: Name of the stack this VM is instantiated in (optional). Will be stored as the "stack" metadata.
-        default: "unknown"
+        default: ""
+    group:
+        type: string
+        label: Value for the "group" metadata item of the new VM. Used by the generate-ansible-inventory.sh script.
+        default: ""
 
 resources:
     instance:
@@ -67,6 +71,7 @@ resources:
             security_groups: { get_param: security_groups }
             availability_zone: { get_param: availability_zone }
             stack_name: { get_param: stack_name }
+            group: { get_param: group }
             setup:
                 str_replace:
                     template: { get_param: setup }
