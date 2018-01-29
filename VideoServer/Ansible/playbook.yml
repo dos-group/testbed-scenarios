@@ -18,6 +18,7 @@
     - hypervisors
     - vms:!client
   tags: [ collector ]
+  become: True
   vars:
     interval: 500ms
     api_port: 7777
