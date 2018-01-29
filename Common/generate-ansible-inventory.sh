@@ -19,9 +19,7 @@ function output_host() {
     NAME="$1"
     IP="$2"
     echo -e "\n[$NAME]"
-    echo "$NAME"
-    echo "[$NAME:vars]"
-    echo "ansible_host=$IP"
+    echo "$NAME ansible_host=$IP"
 }
 
 declare -A VM_GROUPS
