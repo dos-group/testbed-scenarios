@@ -1,4 +1,18 @@
 
+- name: Install prerequisites for managing docker over Ansible
+  hosts: all
+  tags: [ bootstrap ]
+  become: True
+  tasks:
+    - name: Install pip
+      package:
+        name: python-pip
+        state: present
+    - name: Install docker-py
+      pip:
+        name: docker-py
+        state: present
+
 - name: Install the Bitflow data collector
   hosts:
     - hypervisors
@@ -7,8 +21,8 @@
   vars:
     interval: 500ms
     api_port: 7777
-    collector_data: /bitflow/data-collector
-    collector_data_mounted: /opt/bitflow/data-collector
+    collector_data: /opt/bitflow/data-collector
+    collector_data_mounted: /bitflow/data-collector
   tasks:
     - name: Create local collector data directory
       file:
