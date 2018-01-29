@@ -694,6 +694,9 @@ resources:
             apt update
             apt install -y linux-image-extra-$(uname -r) linux-image-extra-virtual apt-transport-https ca-certificates curl software-properties-common
 
+            #Set service name environment variable
+            echo -e '\nSERVICE_NAME=$(echo $(hostname) | tr "-" "\n" | sed -n "1p")' >> /etc/environment
+
             # Reduce the apt update/install timeout to 20 seconds
             echo -e 'Acquire::http::Timeout "20";\nAcquire::ftp::Timeout "10";' > /etc/apt/apt.conf.d/99timeout
 
@@ -722,6 +725,7 @@ resources:
         type: server-floating.yaml
         properties:
           stack_name: { get_param: stack_name }
+          group: etcd
           name: { str_replace: { params: { __index__: "%index%", __zone__: { get_param: zone } }, template: etcd_node-__index__.__zone__ } }
           image: { get_param: image }
           flavor: { get_param: flavor }
@@ -734,6 +738,9 @@ resources:
           root_setup: |
             apt update
             apt install -y linux-image-extra-$(uname -r) linux-image-extra-virtual apt-transport-https ca-certificates curl software-properties-common
+
+            #Set service name environment variable
+            echo -e '\nSERVICE_NAME=$(echo $(hostname) | tr "-" "\n" | sed -n "1p")' >> /etc/environment
 
             # Reduce the apt update/install timeout to 20 seconds
             echo -e 'Acquire::http::Timeout "20";\nAcquire::ftp::Timeout "10";' > /etc/apt/apt.conf.d/99timeout
@@ -764,6 +771,7 @@ resources:
         type: server-floating.yaml
         properties:
           stack_name: { get_param: stack_name }
+          group: astaire
           name: { str_replace: { params: { __index__: "%index%", __zone__: { get_param: zone } }, template: astaire_node-__index__.__zone__ } }
           image: { get_param: image }
           flavor: { get_param: flavor }
@@ -777,6 +785,9 @@ resources:
           root_setup: |
             apt update
             apt install -y linux-image-extra-$(uname -r) linux-image-extra-virtual apt-transport-https ca-certificates curl software-properties-common
+
+            #Set service name environment variable
+            echo -e '\nSERVICE_NAME=$(echo $(hostname) | tr "-" "\n" | sed -n "1p")' >> /etc/environment
 
             # Reduce the apt update/install timeout to 20 seconds
             echo -e 'Acquire::http::Timeout "20";\nAcquire::ftp::Timeout "10";' > /etc/apt/apt.conf.d/99timeout
@@ -807,6 +818,7 @@ resources:
         type: server-floating.yaml
         properties:
           stack_name: { get_param: stack_name }
+          group: cassandra
           name: { str_replace: { params: { __index__: "%index%", __zone__: { get_param: zone } }, template: cassandra_node-__index__.__zone__ } }
           image: { get_param: image }
           flavor: { get_param: flavor_big }
@@ -820,6 +832,9 @@ resources:
           root_setup: |
             apt update
             apt install -y linux-image-extra-$(uname -r) linux-image-extra-virtual apt-transport-https ca-certificates curl software-properties-common
+
+            #Set service name environment variable
+            echo -e '\nSERVICE_NAME=$(echo $(hostname) | tr "-" "\n" | sed -n "1p")' >> /etc/environment
 
             # Reduce the apt update/install timeout to 20 seconds
             echo -e 'Acquire::http::Timeout "20";\nAcquire::ftp::Timeout "10";' > /etc/apt/apt.conf.d/99timeout
@@ -850,6 +865,7 @@ resources:
         type: server-floating.yaml
         properties:
           stack_name: { get_param: stack_name }
+          group: chronos
           name: { str_replace: { params: { __index__: "%index%", __zone__: { get_param: zone } }, template: chronos_node-__index__.__zone__ } }
           image: { get_param: image }
           flavor: { get_param: flavor }
@@ -863,6 +879,9 @@ resources:
           root_setup: |
             apt update
             apt install -y linux-image-extra-$(uname -r) linux-image-extra-virtual apt-transport-https ca-certificates curl software-properties-common
+
+            #Set service name environment variable
+            echo -e '\nSERVICE_NAME=$(echo $(hostname) | tr "-" "\n" | sed -n "1p")' >> /etc/environment
 
             # Reduce the apt update/install timeout to 20 seconds
             echo -e 'Acquire::http::Timeout "20";\nAcquire::ftp::Timeout "10";' > /etc/apt/apt.conf.d/99timeout
@@ -893,6 +912,7 @@ resources:
         type: server-floating.yaml
         properties:
           stack_name: { get_param: stack_name }
+          group: homestead
           name: { str_replace: { params: { __index__: "%index%", __zone__: { get_param: zone } }, template: homestead_node-__index__.__zone__ } }
           image: { get_param: image }
           flavor: { get_param: flavor }
@@ -906,6 +926,9 @@ resources:
           root_setup: |
             apt update
             apt install -y linux-image-extra-$(uname -r) linux-image-extra-virtual apt-transport-https ca-certificates curl software-properties-common
+
+            #Set service name environment variable
+            echo -e '\nSERVICE_NAME=$(echo $(hostname) | tr "-" "\n" | sed -n "1p")' >> /etc/environment
 
             # Reduce the apt update/install timeout to 20 seconds
             echo -e 'Acquire::http::Timeout "20";\nAcquire::ftp::Timeout "10";' > /etc/apt/apt.conf.d/99timeout
@@ -937,6 +960,7 @@ resources:
         type: server-floating.yaml
         properties:
           stack_name: { get_param: stack_name }
+          group: homesteadprov
           name: { str_replace: { params: { __index__: "%index%", __zone__: { get_param: zone } }, template: homesteadprov_node-__index__.__zone__ } }
           image: { get_param: image }
           flavor: { get_param: flavor }
@@ -950,6 +974,9 @@ resources:
           root_setup: |
             apt update
             apt install -y linux-image-extra-$(uname -r) linux-image-extra-virtual apt-transport-https ca-certificates curl software-properties-common
+
+            #Set service name environment variable
+            echo -e '\nSERVICE_NAME=$(echo $(hostname) | tr "-" "\n" | sed -n "1p")' >> /etc/environment
 
             # Reduce the apt update/install timeout to 20 seconds
             echo -e 'Acquire::http::Timeout "20";\nAcquire::ftp::Timeout "10";' > /etc/apt/apt.conf.d/99timeout
@@ -980,6 +1007,7 @@ resources:
         type: server-floating.yaml
         properties:
           stack_name: { get_param: stack_name }
+          group: homer
           name: { str_replace: { params: { __index__: "%index%", __zone__: { get_param: zone } }, template: homer_node-__index__.__zone__ } }
           image: { get_param: image }
           flavor: { get_param: flavor }
@@ -993,6 +1021,9 @@ resources:
           root_setup: |
             apt update
             apt install -y linux-image-extra-$(uname -r) linux-image-extra-virtual apt-transport-https ca-certificates curl software-properties-common
+
+            #Set service name environment variable
+            echo -e '\nSERVICE_NAME=$(echo $(hostname) | tr "-" "\n" | sed -n "1p")' >> /etc/environment
 
             # Reduce the apt update/install timeout to 20 seconds
             echo -e 'Acquire::http::Timeout "20";\nAcquire::ftp::Timeout "10";' > /etc/apt/apt.conf.d/99timeout
@@ -1023,6 +1054,7 @@ resources:
         type: server-floating.yaml
         properties:
           stack_name: { get_param: stack_name }
+          group: ralf
           name: { str_replace: { params: { __index__: "%index%", __zone__: { get_param: zone } }, template: ralf_node-__index__.__zone__ } }
           image: { get_param: image }
           flavor: { get_param: flavor }
@@ -1036,6 +1068,9 @@ resources:
           root_setup: |
             apt update
             apt install -y linux-image-extra-$(uname -r) linux-image-extra-virtual apt-transport-https ca-certificates curl software-properties-common
+
+            #Set service name environment variable
+            echo -e '\nSERVICE_NAME=$(echo $(hostname) | tr "-" "\n" | sed -n "1p")' >> /etc/environment
 
             # Reduce the apt update/install timeout to 20 seconds
             echo -e 'Acquire::http::Timeout "20";\nAcquire::ftp::Timeout "10";' > /etc/apt/apt.conf.d/99timeout
@@ -1066,6 +1101,7 @@ resources:
         type: server-floating.yaml
         properties:
           stack_name: { get_param: stack_name }
+          group: sprout
           name: { str_replace: { params: { __index__: "%index%", __zone__: { get_param: zone } }, template: sprout_node-__index__.__zone__ } }
           image: { get_param: image }
           flavor: { get_param: flavor }
@@ -1080,6 +1116,9 @@ resources:
           root_setup: |
             apt update
             apt install -y linux-image-extra-$(uname -r) linux-image-extra-virtual apt-transport-https ca-certificates curl software-properties-common
+
+            #Set service name environment variable
+            echo -e '\nSERVICE_NAME=$(echo $(hostname) | tr "-" "\n" | sed -n "1p")' >> /etc/environment
 
             # Reduce the apt update/install timeout to 20 seconds
             echo -e 'Acquire::http::Timeout "20";\nAcquire::ftp::Timeout "10";' > /etc/apt/apt.conf.d/99timeout
@@ -1110,6 +1149,7 @@ resources:
         type: server-floating.yaml
         properties:
           stack_name: { get_param: stack_name }
+          group: bono
           name: { str_replace: { params: { __index__: "%index%", __zone__: { get_param: zone } }, template: bono_node-__index__.__zone__ } }
           image: { get_param: image }
           flavor: { get_param: flavor }
@@ -1123,6 +1163,9 @@ resources:
           root_setup: |
             apt update
             apt install -y linux-image-extra-$(uname -r) linux-image-extra-virtual apt-transport-https ca-certificates curl software-properties-common
+
+            #Set service name environment variable
+            echo -e '\nSERVICE_NAME=$(echo $(hostname) | tr "-" "\n" | sed -n "1p")' >> /etc/environment
 
             # Reduce the apt update/install timeout to 20 seconds
             echo -e 'Acquire::http::Timeout "20";\nAcquire::ftp::Timeout "10";' > /etc/apt/apt.conf.d/99timeout
@@ -1153,6 +1196,7 @@ resources:
         type: server-floating.yaml
         properties:
           stack_name: { get_param: stack_name }
+          group: ellis
           name: { str_replace: { params: { __index__: "%index%", __zone__: { get_param: zone } }, template: ellis_node-__index__.__zone__ } }
           image: { get_param: image }
           flavor: { get_param: flavor }
@@ -1166,6 +1210,9 @@ resources:
           root_setup: |
             apt update
             apt install -y linux-image-extra-$(uname -r) linux-image-extra-virtual apt-transport-https ca-certificates curl software-properties-common
+
+            #Set service name environment variable
+            echo -e '\nSERVICE_NAME=$(echo $(hostname) | tr "-" "\n" | sed -n "1p")' >> /etc/environment
 
             # Reduce the apt update/install timeout to 20 seconds
             echo -e 'Acquire::http::Timeout "20";\nAcquire::ftp::Timeout "10";' > /etc/apt/apt.conf.d/99timeout
@@ -1196,6 +1243,7 @@ resources:
         type: server-floating.yaml
         properties:
           stack_name: { get_param: stack_name }
+          group: sippstress
           name: { str_replace: { params: { __index__: "%index%", __zone__: { get_param: zone } }, template: sippstress-__index__.__zone__ } }
           image: { get_param: image }
           flavor: { get_param: flavor }
@@ -1209,6 +1257,9 @@ resources:
           root_setup: |
             apt update
             apt install -y linux-image-extra-$(uname -r) linux-image-extra-virtual apt-transport-https ca-certificates curl software-properties-common
+
+            #Set service name environment variable
+            echo -e '\nSERVICE_NAME=$(echo $(hostname) | tr "-" "\n" | sed -n "1p")' >> /etc/environment
 
             # Reduce the apt update/install timeout to 20 seconds
             echo -e 'Acquire::http::Timeout "20";\nAcquire::ftp::Timeout "10";' > /etc/apt/apt.conf.d/99timeout

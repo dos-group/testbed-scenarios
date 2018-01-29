@@ -1,18 +1,4 @@
 
-- name: Install prerequisites for managing docker over Ansible
-  hosts: all
-  tags: [ bootstrap ]
-  become: True
-  tasks:
-    - name: Install pip
-      package:
-        name: python-pip
-        state: present
-    - name: Install docker-py
-      pip:
-        name: docker-py
-        state: present
-
 - name: Install the Bitflow data collector
   hosts:
     - hypervisors
@@ -20,26 +6,8 @@
   tags: [ collector ]
   become: True
   tasks:
-    - name: Create local collector data directory
-      file:
-        path: "{{ collector_data }}"
-        state: directory
-    - name: Run bitflow-collector docker container
-      docker_container:
-        name: bitflow-collector
-        image: antongulenko/bitflow-collector
-        pid_mode: host
-        privileged: yes
-        ports:
-          - "{{ collector_port }}:{{ collector_port }}"
-          - "{{ collector_api_port }}:{{ collector_api_port }}"
-        volumes:
-          - "{{ collector_data }}:{{ collector_data_mounted }}"
-        command: |
-            {{ collector.extra_args }}
-            -api :{{ collector_api_port }}
-            -ci {{ collector_interval }} -si {{ collector_interval }}
-            -o :{{ collector_port }} -o {{ collector_data_mounted }}/{{ collector_file_name }}
+    - include_tasks: ../../Common/Ansible/prepare-docker-tasks.yml
+    - include_tasks: ../../Common/Ansible/bitflow-collector-tasks.yml
 
 - name: Install the backend video server
   hosts: backend

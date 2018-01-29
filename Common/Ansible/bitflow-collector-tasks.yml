@@ -1,0 +1,23 @@
+
+- name: Create local collector data directory
+  file:
+    path: "{{ collector.data_path }}"
+    state: directory
+
+- name: Run bitflow-collector docker container
+  docker_container:
+    name: bitflow-collector
+    image: antongulenko/bitflow-collector
+    pid_mode: host
+    privileged: yes
+    ports:
+      - "{{ collector.data_output_port }}:{{ collector.data_output_port }}"
+      - "{{ collector.api_port }}:{{ collector.api_port }}"
+    volumes:
+      - "{{ collector.data_path }}:{{ collector.data_path_mounted }}"
+      - "/etc/hostname:{{ hostname_mounted }}"
+    command: >
+      {{ collector.extra_args }}
+      -api :{{ collector.api_port }}
+      -ci {{ collector.interval }} -si {{ collector.interval }}
+      -o :{{ collector.data_output_port }} -o {{ collector.data_path_mounted }}/{{ collector.file_name }}
