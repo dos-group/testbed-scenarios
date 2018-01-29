@@ -1,19 +1,27 @@
 
-- include: ../../Common/Ansible/collector.yml
-            
-- name: Install prerequisites for managing docker over Ansible
-  hosts: all
-  tags: [ bootstrap ]
+- name: Install the Bitflow data collector and injector
+  hosts:
+    - hypervisors
+    - vms:!client
+  tags: [ collector, injector ]
   become: True
   tasks:
-    - name: Install pip
-      package:
-        name: python-pip
-        state: present
-    - name: Install docker-py
-      pip:
-        name: docker-py
-        state: present
+    - include_tasks: ../../Common/Ansible/prepare-docker-tasks.yml
+    - include_tasks: ../../Common/Ansible/bitflow-collector-tasks.yml
+    - include_tasks: ../../Common/Ansible/injector-tasks.yml
+
+- name: Install the VNF injector
+  hosts:
+    - localhost
+  tags: [ injector_vnf ]
+  become: True
+  vars:
+    injector:
+      container_name: "{{ injector_vnf.container_name_vnf }}"
+      hostname: "{{ injector_vnf.hostname_vnf }}"
+      api_port: "{{ injector_vnf.api_port_vnf }}"
+  tasks:
+    - include_tasks: ../../Common/Ansible/injector-tasks.yml
 
 - name: Install the backend video server
   hosts: backend
