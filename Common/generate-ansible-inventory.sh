@@ -79,7 +79,7 @@ done
 for group in ${!VM_GROUPS[@]}; do
     output_group $group ${VM_GROUPS[$group]}
 done
-output_meta_group vms ${!VM_GROUPS[@]}
+output_meta_group vms:children ${!VM_GROUPS[@]}
 
 # Create sections for hypervisors
 HYPERVISORS=$(echo "$HYPERVISORS" | tr ' ' '\n' | sort | uniq | tr '\n' ' ')

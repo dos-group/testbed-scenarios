@@ -1,6 +1,19 @@
 
 - include: ../../Common/Ansible/collector.yml
             
+- name: Install prerequisites for managing docker over Ansible
+  hosts: all
+  tags: [ bootstrap ]
+  become: True
+  tasks:
+    - name: Install pip
+      package:
+        name: python-pip
+        state: present
+    - name: Install docker-py
+      pip:
+        name: docker-py
+        state: present
 
 - name: Install the backend video server
   hosts: backend
