@@ -1,35 +1,6 @@
 
-- name: Install the Bitflow data collector
-  hosts:
-    - hypervisors
-    - vms:!client
-  tags: [ collector ]
-  vars:
-    interval: 500ms
-    api_port: 7777
-    collector_data: /bitflow/data-collector
-    collector_data_mounted: /opt/bitflow/data-collector
-  tasks:
-    - name: Create local collector data directory
-      file:
-        path: "{{ collector_data }}"
-        state: directory
-    - name: Run bitflow-collector docker container
-      docker_container:
-        name: bitflow-collector
-        image: antongulenko/bitflow-collector
-        pid_mode: host
-        privileged: yes
-        ports:
-          - "{{ collector_port }}:{{ collector_port }}"
-          - "{{ api_port }}:{{ api_port }}"
-        volumes:
-          - "{{ collector_data }}:{{ collector_data_mounted }}"
-        command: |
-            -exclude 'pcap|net-io/nic'
-            -api :{{ api_port }}
-            -ci {{ interval }} -si {{ interval }}
-            -o :{{ collector_port }} -o {{ collector_data_mounted }}/data.bin
+- include: ../../Common/Ansible/collector.yml
+            
 
 - name: Install the backend video server
   hosts: backend
