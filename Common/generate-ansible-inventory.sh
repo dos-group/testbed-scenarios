@@ -8,21 +8,29 @@ VM_PREFIX="$1"
 IP_PREFIX="$2"
 
 function output_group() {
-    echo -e "\n[$1:children]"
+    NAME="$1"
+    echo -e "\n[$NAME]"
+    shift
+    for host in $@; do
+        IP="${HOST_IPS[$host]}"
+        if [ -z "$IP" ]; then
+            warn "Warning: No IP found for host $host. Not adding to group $NAME"
+        else
+            echo "$host ansible_host=$IP"
+        fi
+    done
+}
+
+function output_meta_group() {
+    echo -e "\n[$1]"
     shift
     for child in $@; do
         echo "$child"
     done
 }
 
-function output_host() {
-    NAME="$1"
-    IP="$2"
-    echo -e "\n[$NAME]"
-    echo "$NAME ansible_host=$IP"
-}
-
 declare -A VM_GROUPS
+declare -A HOST_IPS
 HYPERVISORS=""
 ALL_VMS=""
 
@@ -64,20 +72,15 @@ for ID in $VM_IDS; do
     HYPERVISORS="$HYPERVISORS $HYPERVISOR"
     VM_GROUPS[$VM_GROUP]="${VM_GROUPS[$VM_GROUP]} $NAME"
     ALL_VMS="$ALL_VMS $NAME"
-
-    # Create section for the VM
-    output_host $NAME $FOUND_IP
+    HOST_IPS[$NAME]="$FOUND_IP"
 done
 
 # Create sections for VM_GROUPS
 for group in ${!VM_GROUPS[@]}; do
     output_group $group ${VM_GROUPS[$group]}
 done
-output_group vms ${VM_GROUPS[@]}
+output_meta_group vms ${!VM_GROUPS[@]}
 
 # Create sections for hypervisors
 HYPERVISORS=$(echo "$HYPERVISORS" | tr ' ' '\n' | sort | uniq | tr '\n' ' ')
-for HOST in $HYPERVISORS; do
-    output_host $HOST $HOST
-done
-output_group hypervisors $HYPERVISORS
+output_meta_group hypervisors $HYPERVISORS
