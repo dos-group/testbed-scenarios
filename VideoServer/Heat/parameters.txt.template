@@ -1,0 +1,10 @@
+--parameter internet_net_id=95ee9286-6543-4070-9188-efa53d5a769b
+--parameter public_net_id=9eb3c72f-8b05-41b0-a3e0-7455c1762b45
+--parameter public_net_cidr=10.0.42.0/24
+--parameter key_name=KEY_NAME
+--parameter flavor=t1.medium
+--parameter image=ubuntu1604
+--parameter load_generator_zone=Load-Generators
+--parameter num_backend_servers=4
+--parameter num_balancers=2
+--parameter num_clients=2

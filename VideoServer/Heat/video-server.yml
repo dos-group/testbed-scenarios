@@ -1,0 +1,253 @@
+heat_template_version: 2013-05-23
+
+description: >
+  Deployment of a range of dockerized video stream servers
+
+parameters:
+  internet_net_id:
+    type: string
+    description: ID of internet network
+    constraints:
+      - custom_constraint: neutron.network
+        description: Must be a valid network ID
+  public_net_id:
+    type: string
+    description: ID of public network
+    constraints:
+      - custom_constraint: neutron.network
+        description: Must be a valid network ID
+  public_net_cidr:
+    type: string
+    description: Subnet address of public network
+  flavor:
+    type: string
+    description: Flavor to use for all VMs
+    constraints:
+      - custom_constraint: nova.flavor
+        description: Must be a valid flavor name
+  image:
+    type: string
+    description: Name of image to use
+    constraints:
+      - custom_constraint: glance.image
+        description: Must be a valid image name
+  key_name:
+    type: string
+    description: Name of keypair to assign
+    constraints:
+      - custom_constraint: nova.keypair
+        description: Must be a valid keypair name
+  load_generator_zone:
+    type: string
+    description: Availability Zone to spawn load generation VMs
+    default: "Load-Generators"
+  num_backend_servers:
+    type: number
+    description: Number of video server backends
+    default: 1
+  num_balancers:
+    type: number
+    description: Number of load balancer frontends
+    default: 1
+  num_clients:
+    type: number
+    description: Number of load generation clients
+    default: 1
+
+  install_docker_script:
+    type: string
+    description: Setup script for Docker. This parameter should not be set, it is here to reuse the code for multiple VMs.
+    default: >
+        apt update
+        apt install -y linux-image-extra-$(uname -r) linux-image-extra-virtual apt-transport-https ca-certificates curl software-properties-common
+
+        # Reduce the apt update/install timeout to 20 seconds
+        echo -e 'Acquire::http::Timeout "20";\nAcquire::ftp::Timeout "10";' > /etc/apt/apt.conf.d/99timeout
+
+        # Try to install docker-ce until it is done
+        until type docker &> /dev/null; do
+          curl --connect-timeout 10 -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+          apt-key fingerprint 0EBFCD88
+          add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+          apt update
+          apt install -y docker-ce
+        done
+
+        service docker restart
+        wget -O /usr/local/bin/docker-compose -L https://github.com/docker/compose/releases/download/1.17.1/docker-compose-`uname -s`-`uname -m`
+        chmod +x /usr/local/bin/docker-compose
+        apt install -y jq
+        apt-get -y update && apt-get -y upgrade
+        shutdown -r now
+
+resources:
+
+  # ===============
+  # === Network ===
+  # ===============
+
+  net:
+    type: OS::Neutron::Net
+    properties:
+      name: { str_replace: { params: { __stack__: { get_param: "OS::stack_name" } }, template: __stack__-net } }
+
+  subnet:
+    type: OS::Neutron::Subnet
+    properties:
+      name: { str_replace: { params: { __stack__: { get_param: "OS::stack_name" } }, template: __stack__-subnet } }
+      network_id: { get_resource: net }
+      cidr: 10.0.0.0/24
+      #dns_nameservers:
+      #  - 193.174.75.142
+      #  - 130.149.7.7
+      gateway_ip: 10.0.0.1
+      host_routes:
+        - nexthop: 10.0.0.2
+          destination: { get_param: public_net_cidr }
+      allocation_pools:
+        - start: 10.0.0.3
+          end: 10.0.0.254
+
+  internet_router:
+    type: OS::Neutron::Router
+    properties:
+      name: { str_replace: { params: { __stack__: { get_param: "OS::stack_name" } }, template: __stack__-internet-router } }
+
+  internet_router_gateway:
+    type: OS::Neutron::RouterGateway
+    properties:
+      router_id: { get_resource: internet_router }
+      network_id: { get_param: internet_net_id }
+
+  internet_router_interface_port:
+    type: OS::Neutron::Port
+    properties:
+      network: { get_resource: net }
+      fixed_ips:
+        - ip_address: 10.0.0.1
+          subnet: { get_resource: subnet }
+
+  internet_router_interface:
+    type: OS::Neutron::RouterInterface
+    properties:
+      router_id: { get_resource: internet_router }
+      port_id: { get_resource: internet_router_interface_port }
+
+  network_router:
+    type: OS::Neutron::Router
+    properties:
+      name: { str_replace: { params: { __stack__: { get_param: "OS::stack_name" } }, template: __stack__-router } }
+
+  network_router_gateway:
+    type: OS::Neutron::RouterGateway
+    properties:
+      router_id: { get_resource: network_router }
+      network_id: { get_param: public_net_id }
+
+  network_router_interface_port:
+    type: OS::Neutron::Port
+    properties:
+      network: { get_resource: net }
+      fixed_ips:
+        - ip_address: 10.0.0.2
+          subnet: { get_resource: subnet }
+
+  network_router_interface:
+    type: OS::Neutron::RouterInterface
+    properties:
+      router_id: { get_resource: network_router }
+      port_id: { get_resource: network_router_interface_port }
+
+  security_group:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      name: { str_replace: { params: { __name_prefix__: { get_param: "OS::stack_name" } }, template: __name_prefix__-security-group } }
+      description: Security group for all
+      rules:
+        # All egress traffic
+        - direction: egress
+          ethertype: IPv4
+        - direction: egress
+          ethertype: IPv6
+
+          # ICMP and SSH
+        - protocol: icmp
+        - protocol: tcp
+          port_range_min: 22
+          port_range_max: 22
+
+        # TODO For the time being open it all, later figure it out which ports to open
+        - direction: ingress
+          ethertype: IPv4
+        - direction: ingress
+          ethertype: IPv6
+
+        # Data-Collection-Agent
+        - protocol: tcp
+          port_range_min: 7777
+          port_range_max: 7777
+
+  # ================
+  # === Servers  ===
+  # ================
+
+  backend_server:
+    depends_on: [ network_router_interface_port, network_router_gateway ]
+    type: OS::Heat::ResourceGroup
+    properties:
+      count: { get_param: num_backend_servers }
+      resource_def:
+        type: server-floating.yaml
+        properties:
+          name: { str_replace: { params: { __index__: "%index%", __stack__: { get_param: "OS::stack_name" } }, template: __stack__-video-__index__ } }
+          image: { get_param: image }
+          flavor: { get_param: flavor }
+          key_name: { get_param: key_name }
+          external_network: { get_param: public_net_id }
+          network: { get_resource: net }
+          stack_name: { get_param: "OS::stack_name" }
+          group: backend
+          security_groups:
+            - { get_resource: security_group }
+          root_setup: { get_param: install_docker_script }
+
+  load_balancer:
+    depends_on: [ network_router_interface_port, network_router_gateway ]
+    type: OS::Heat::ResourceGroup
+    properties:
+      count: { get_param: num_balancers }
+      resource_def:
+        type: server-floating.yaml
+        properties:
+          name: { str_replace: { params: { __index__: "%index%", __stack__: { get_param: "OS::stack_name" } }, template: __stack__-balancer-__index__ } }
+          image: { get_param: image }
+          flavor: { get_param: flavor }
+          key_name: { get_param: key_name }
+          external_network: { get_param: public_net_id }
+          network: { get_resource: net }
+          stack_name: { get_param: "OS::stack_name" }
+          group: load-balancer
+          security_groups:
+            - { get_resource: security_group }
+          root_setup: { get_param: install_docker_script }
+
+  client:
+    depends_on: [ network_router_interface_port, network_router_gateway ]
+    type: OS::Heat::ResourceGroup
+    properties:
+      count: { get_param: num_clients }
+      resource_def:
+        type: server-floating.yaml
+        properties:
+          name: { str_replace: { params: { __index__: "%index%", __stack__: { get_param: "OS::stack_name" } }, template: __stack__-client-__index__ } }
+          image: { get_param: image }
+          flavor: { get_param: flavor }
+          key_name: { get_param: key_name }
+          external_network: { get_param: public_net_id }
+          network: { get_resource: net }
+          availability_zone: { get_param: load_generator_zone }
+          stack_name: { get_param: "OS::stack_name" }
+          group: client
+          security_groups:
+            - { get_resource: security_group }
+          root_setup: { get_param: install_docker_script }

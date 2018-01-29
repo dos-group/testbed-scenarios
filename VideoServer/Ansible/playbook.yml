@@ -1,0 +1,75 @@
+
+- name: Install the Bitflow data collector
+  hosts:
+    - hypervisors
+    - vms:!client
+  tags: [ collector ]
+  vars:
+    interval: 500ms
+    api_port: 7777
+    collector_data: /bitflow/data-collector
+    collector_data_mounted: /opt/bitflow/data-collector
+  tasks:
+    - name: Create local collector data directory
+      file:
+        path: "{{ collector_data }}"
+        state: directory
+    - name: Run bitflow-collector docker container
+      docker_container:
+        name: bitflow-collector
+        image: antongulenko/bitflow-collector
+        pid_mode: host
+        privileged: yes
+        ports:
+          - "{{ collector_port }}:{{ collector_port }}"
+          - "{{ api_port }}:{{ api_port }}"
+        volumes:
+          - "{{ collector_data }}:{{ collector_data_mounted }}"
+        command: |
+            -exclude 'pcap|net-io/nic'
+            -api :{{ api_port }}
+            -ci {{ interval }} -si {{ interval }}
+            -o :{{ collector_port }} -o {{ collector_data_mounted }}/data.bin
+
+- name: Install the backend video server
+  hosts: backend
+  tags: [ docker, backend ]
+  tasks:
+    - name: Run backend video server docker container
+      docker_container:
+        name: rtmp-server
+        image: antongulenko/rtmp-nginx-server
+        ports:
+          - 8080:8080
+          - 1935:1935
+
+- name: Install the load balancer
+  hosts: load-balancer
+  tags: [ docker, load-balancer ]
+  tasks:
+    - name: Run load balancer docker container
+      docker_container:
+        name: rtmp-balancer
+        image: antongulenko/rtmp-haproxy-balancer
+        ports:
+          - 1935:1935
+        command: ?? # TODO
+
+- name: Install the load generation client
+  hosts: client
+  tags: [ docker, client ]
+  vars:
+    data_directory: /opt/bitflow/rtmp-client
+    data_directory_mounted: /rtmp-client-data
+  tasks:
+    - name: Create local service quality data directory
+      file:
+        path: "{{ data_directory }}"
+        state: directory
+    - name: Run client docker container
+      docker_container:
+        name: rtmp-client
+        image: antongulenko/rtmp-client
+        volumes:
+          - "{{ data_directory }}:{{ data_directory_mounted }}"
+        command: ?? # TODO
