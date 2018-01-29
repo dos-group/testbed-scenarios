@@ -1,0 +1,12 @@
+
+- name: Run injector docker container VM
+  docker_container:
+    name: "{{ injector.container_name }}"
+    image: alexanderacker/anomaly_injector
+    ports:
+      - "{{ injector.api_port }}:{{ injector.api_port }}"
+    volumes:
+      - "/etc/hostname:{{ hostname_mounted }}"
+    command: > 
+      -host '{{ injector.hostname }}'
+      -api-port {{ injector.api_port }}

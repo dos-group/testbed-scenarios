@@ -6,4 +6,3 @@
   tasks:
     - name: Install python-minial
       raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
-

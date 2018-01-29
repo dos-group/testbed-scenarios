@@ -1,12 +1,6 @@
 collector:
-  data_output_port: 5010
-  api_port: 7777
-  interval: 500ms
-  data: /bitflow/data-collector
-  data_mounted: /opt/bitflow/data-collector
-  hostname_mounted: /etc_host/hostname
-  extra_command_params: -tag host="$$(cat {{ collector_hostname_mounted }}).ims4"
+  extra_args: -tag host=$(cat {{ hostname_mounted }}).ims4
 
 injector:
-  host_name: "$$(cat {{ collector_hostname_mounted }}).ims4"
+  host_name: $(cat {{ hostname_mounted }}).ims4
   api_port: 7888
