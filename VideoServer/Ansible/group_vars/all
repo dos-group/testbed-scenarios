@@ -9,7 +9,6 @@ collector:
   file_name: data.bin
   data_path: /opt/bitflow/data-collector
   data_path_mounted: /bitflow/data-collector
-  extra_args: -tag "host=$(cat {{ hostname_mounted }}).ims4"
 
 injector:
   container_name: "injector"
