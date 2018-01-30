@@ -4,6 +4,7 @@
   docker_container:
     name: "{{ collector.container_name }}"
     image: antongulenko/bitflow-collector
+    pull: true
     pid_mode: host
     privileged: yes
     ports:

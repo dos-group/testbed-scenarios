@@ -4,6 +4,7 @@
   docker_container:
     name: "{{ injector.container_name }}"
     image: alexanderacker/anomaly_injector
+    pull: true
     ports:
       - "{{ injector.api_port }}:{{ injector.api_port }}"
     command: >

@@ -1,6 +1,6 @@
 
 hostname_general: "{{ hostname.stdout }}"
-hostname_service: "{{ ansible_group }}@{{ hostname_general }}"
+hostname_service: "{{ group_names[0] }}@{{ hostname_general }}"
 
 rtmp:
   port: 1935
@@ -9,8 +9,8 @@ rtmp:
   backend_http_port: 8080
   request_path: "/vod/example-11s.flv"
   client_log_file: rtmp-client-output
-  client_log_dir:
-  client_log_dir_mounted:
+  client_log_dir: /opt/bitflow/rtmp-client
+  client_log_dir_mounted: /bitflow/rtmp-client
 
 collector:
   container_name: bitflow-collector

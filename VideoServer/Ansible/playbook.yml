@@ -48,9 +48,10 @@
       docker_container:
         name: rtmp-server
         image: antongulenko/rtmp-nginx-server
+        pull: true
         ports:
           # The container ports are hardcoded because they cannot be configured
-          - "{{ backend_http_port }}:8080"
+          - "{{ rtmp.backend_http_port }}:8080"
           - "{{ rtmp.port }}:1935"
 
 - name: Install the load balancer
@@ -62,6 +63,7 @@
       docker_container:
         name: rtmp-balancer
         image: antongulenko/rtmp-haproxy-balancer
+        pull: true
         ports:
           - "{{ rtmp.port }}:{{ rtmp.port }}"
           - "{{ rtmp.balancer_stats_port }}:{{ rtmp.balancer_stats_port }}"
@@ -86,6 +88,7 @@
       docker_container:
         name: rtmp-client-{{ item }}
         image: antongulenko/rtmp-client
+        pull: true
         volumes:
           - "{{ rtmp.client_log_dir }}:{{ rtmp.client_log_dir_mounted }}"
         env:
