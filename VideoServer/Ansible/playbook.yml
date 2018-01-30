@@ -1,4 +1,10 @@
 
+- name: Install general requirements
+  hosts: all
+  tags: [ boostrap ]
+  tasks:
+    - include_tasks: ../../Common/Ansible/prepare-docker-tasks.yml
+
 - name: Install the Bitflow data collector
   hosts:
     - hypervisors
@@ -6,7 +12,6 @@
   tags: [ collector ]
   become: True
   tasks:
-    - include_tasks: ../../Common/Ansible/prepare-docker-tasks.yml
     - include_tasks: ../../Common/Ansible/bitflow-collector-tasks.yml
 
 - name: Install the backend video server
@@ -18,8 +23,9 @@
         name: rtmp-server
         image: antongulenko/rtmp-nginx-server
         ports:
-          - 8080:8080
-          - 1935:1935
+          # The container ports are hardcoded because they cannot be configured
+          - "{{ backend_http_port }}:8080"
+          - "{{ rtmp_port }}:1935"
 
 - name: Install the load balancer
   hosts: load-balancer
@@ -30,8 +36,12 @@
         name: rtmp-balancer
         image: antongulenko/rtmp-haproxy-balancer
         ports:
-          - 1935:1935
-        command: ?? # TODO
+          - "{{ rtmp_port }}:{{ rtmp_port }}"
+          - "{{ balancer_stats_port }}:{{ balancer_stats_port }}"
+        env:
+          RTMP_PORT: "{{ rtmp_port }}"
+          STATS_PORT: "{{ balancer_stats_port }}"
+          RTMP_SERVERS: "{{ groups['backend'] | map('extract', hostvars, ['ansible_host']) | join(' ') }}"
 
 - name: Install the load generation client
   hosts: client
@@ -46,8 +56,15 @@
         state: directory
     - name: Run client docker container
       docker_container:
-        name: rtmp-client
+        name: rtmp-client-{{ item }}
         image: antongulenko/rtmp-client
         volumes:
           - "{{ data_directory }}:{{ data_directory_mounted }}"
-        command: ?? # TODO
+        env:
+          MRL_PORT: "{{ rtmp_port }}"
+          MRL_PATH: "{{ rtmp_path }}"
+          LOOP: -1
+          PARALLEL: 1
+          MRL_LOG: "{{ data_directory_mounted }}/{{ rtmp_log_file }}-{{ item }}"
+          MRL_SERVER: "{{ groups['load-balancer'] | map('extract', hostvars, ['ansible_host']) | join(' ') }}"
+      with_sequence: count={{ clients_per_host }}

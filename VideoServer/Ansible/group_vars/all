@@ -1,4 +1,13 @@
 
+clients_per_host: 2
+
+rtmp_port: 1935
+balancer_stats_port: 8080
+backend_http_port: 8080
+
+rtmp_path: "/vod/example-11s.flv"
+rtmp_log_file: rtmp-client-output
+
 collector:
   interval: 500ms
   api_port: 7777

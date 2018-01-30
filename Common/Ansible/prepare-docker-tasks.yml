@@ -1,9 +1,11 @@
 
 - name: Install pip
+  become: True
   package:
     name: python-pip
     state: present
 - name: Install docker-py
+  become: True
   pip:
     name: docker-py
     state: present
