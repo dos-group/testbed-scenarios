@@ -9,8 +9,6 @@
   hosts:
     - hypervisors
     - vms:!client
-  tags: [ collector ]
-  become: True
   tasks:
     - include_tasks: ../../Common/Ansible/bitflow-collector-tasks.yml
 
@@ -18,21 +16,15 @@
   hosts:
     - hypervisors
     - vms:!client
-  tags: [ injector ]
-  become: True
   tasks:
     - include_tasks: ../../Common/Ansible/injector-tasks.yml
 
 - name: Install the VNF injector
   hosts:
     - vms:!client
-  tags: [ docker, injector_vnf ]
-  become: True
+  tags: [ injector_vnf ]
   vars:
-    injector:
-      container_name: "{{ injector_vnf.container_name_vnf }}"
-      hostname: "{{ injector_vnf.hostname_vnf }}"
-      api_port: "{{ injector_vnf.api_port_vnf }}"
+    injector: "{{ injector_vnf }}"
   tasks:
     - include_tasks: ../../Common/Ansible/injector-tasks.yml
 
