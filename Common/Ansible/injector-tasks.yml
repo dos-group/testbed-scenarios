@@ -1,6 +1,6 @@
 
-- name: Run the anomaly injector docker container
-  tag: [ docker, injector ]
+- name: Run anomaly injection docker container
+  tags: [ docker, injector ]
   docker_container:
     name: "{{ injector.container_name }}"
     image: alexanderacker/anomaly_injector
@@ -9,5 +9,5 @@
     volumes:
       - "/etc/hostname:{{ hostname_mounted }}"
     command: >
-      -host '{{ injector.hostname }}'
+      -host "{{ injector.hostname }}"
       -api-port {{ injector.api_port }}

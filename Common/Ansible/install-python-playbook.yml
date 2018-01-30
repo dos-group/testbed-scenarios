@@ -2,7 +2,7 @@
 # This can be used to install python (which is required for most Ansible operations) on all hosts in an inventory
 - hosts: all
   gather_facts: False
-  tag: [ bootstrap ]
+  tags: [ bootstrap ]
   tasks:
     - name: Install python-minial
       raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)

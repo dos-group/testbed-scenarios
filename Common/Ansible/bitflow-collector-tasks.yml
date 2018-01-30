@@ -1,6 +1,6 @@
 
 - name: Run bitflow-collector docker container
-  tag: [ docker, collector ]
+  tags: [ docker, collector ]
   docker_container:
     name: "{{ collector.container_name }}"
     image: antongulenko/bitflow-collector
