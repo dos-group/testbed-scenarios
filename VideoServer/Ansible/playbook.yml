@@ -9,7 +9,9 @@
 - name: Install general requirements
   hosts: all
   tasks:
-    - include_tasks: ../../Common/Ansible/prepare-docker-tasks.yml
+    - include_tasks: ../../Common/Ansible/bootstrap-docker-tasks.yml
+      become: true
+    - include_tasks: ../../Common/Ansible/bootstrap-python.yml
       become: true
 
 - name: Install the Bitflow data collector

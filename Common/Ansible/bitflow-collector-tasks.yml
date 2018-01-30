@@ -1,4 +1,9 @@
 
+- name: Create local data collection directory
+  file:
+    path: "{{ collector.data_path }}"
+    state: directory
+
 - name: Run bitflow-collector docker container
   tags: [ docker, collector ]
   docker_container:
