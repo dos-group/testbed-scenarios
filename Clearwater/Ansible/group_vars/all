@@ -1,6 +1,9 @@
+
 service_name: service
 service_regex: service
-hostname_mounted: /etc_host/hostname
+
+hostname_general: "{{ hostname.stdout }}"
+hostname_service: "{{ service_name }}@{{ hostname_general }}"
 
 collector:
   interval: 500ms
@@ -10,12 +13,12 @@ collector:
   data_path: /opt/bitflow/data-collector
   data_path_mounted: /bitflow/data-collector
 
-injector:
+injector_general:
   container_name: "injector"
-  hostname: $(cat {{ hostname_mounted }}).ims4
+  hostname: "{{ hostname_general }}"
   api_port: 7888
 
 injector_vnf:
-  container_name_vnf: "injector_vnf"
-  hostname_vnf: "{{ service_name }}@$(cat {{ hostname_mounted }}).ims4"
-  api_port_vnf: 7889
+  container_name: "injector_vnf"
+  hostname: "{{ hostname_service }}"
+  api_port: 7889

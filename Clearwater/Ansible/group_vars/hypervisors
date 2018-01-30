@@ -1,6 +1,3 @@
-collector:
-  extra_args: -tag host=$(cat {{ hostname_mounted }}).ims4
 
-injector:
-  host_name: $(cat {{ hostname_mounted }}).ims4
-  api_port: 7888
+collector:
+  extra_args: -tag host={{ hostname_general }}

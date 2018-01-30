@@ -1,10 +1,21 @@
 
+- name: Query the hostname
+  hosts: all
+  tasks:
+    - command: cat /etc/hostname
+      register: hostname
+      changed_when: False
+
 - name: Install the Bitflow data collector and injector
   hosts:
     - hypervisors
   tags: [ collector, injector ]
-  become: True
+  vars:
+    injector: "{{ injector_general }}"
   tasks:
-    - include_tasks: ../../Common/Ansible/prepare-docker-tasks.yml
+    - include_tasks: ../../Common/Ansible/bootstrap-docker-tasks.yml
+      become: True
     - include_tasks: ../../Common/Ansible/bitflow-collector-tasks.yml
+      become: True
     - include_tasks: ../../Common/Ansible/injector-tasks.yml
+      become: True
