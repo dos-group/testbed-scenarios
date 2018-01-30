@@ -1,7 +1,6 @@
 
-hostname_mounted: /etc_host/hostname
-hostname_cmd: "$(cat {{ hostname_mounted }}).ims4"
-hostname_cmd_service: service@{{ hostname_cmd }}
+hostname_general: "{{ hostname.stdout }}"
+hostname_service: "{{ ansible_group }}@{{ hostname_general }}"
 
 rtmp:
   port: 1935
@@ -24,11 +23,11 @@ collector:
   extra_args: ""
 
 injector_vm_phys:
-  container_name: "injector_vm"
-  hostname: "{{ hostname_cmd }}"
+  container_name: "injector"
+  hostname: "{{ hostname_general }}"
   api_port: 7888
 
 injector_service:
   container_name: "injector_service"
-  hostname: "{{ hostname_cmd_service }}"
+  hostname: "{{ hostname_service }}"
   api_port: 7889
