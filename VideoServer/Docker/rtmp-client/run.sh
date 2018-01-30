@@ -39,7 +39,8 @@ function loop_ffmpeg() {
 				echo "Running ffmpeg $ffmpeg_num of $LOOP loading $ONE_MRL..."
 			fi
 			ffmpeg_num=$((ffmpeg_num+1))
-			ffmpeg -i "$ONE_MRL" -f null /dev/null -loglevel 23 -stats $@ &>> "$MRL_LOG" </dev/null || return
+			ffmpeg -i "$ONE_MRL" -f null /dev/null -loglevel 23 -stats $@ &>> "$MRL_LOG" </dev/null
+			sleep 0.1 # Allow user to end this loop with CTRL-C
 		done
 		i=$((i+1))
 	done
