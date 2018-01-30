@@ -1,43 +1,45 @@
 
 - name: Install general requirements
   hosts: all
-  become: true
   tags: [ boostrap ]
   tasks:
     - include_tasks: ../../Common/Ansible/prepare-docker-tasks.yml
+      become: true
 
 - name: Install the Bitflow data collector
   hosts:
     - hypervisors
     - vms:!client
-  become: true
   tasks:
     - include_tasks: ../../Common/Ansible/bitflow-collector-tasks.yml
+      become: true
 
 - name: Install the Bitflow data collector
   hosts:
     - hypervisors
     - vms:!client
-  become: true
+  vars:
+    injector: "{{ injector_vm }}"
   tasks:
     - include_tasks: ../../Common/Ansible/injector-tasks.yml
+      become: true
 
-- name: Install the VNF injector
+- name: Install the service layer injector
   hosts:
     - vms:!client
-  become: true
-  tags: [ injector_vnf ]
+  tags: [ injector_service ]
   vars:
-    injector: "{{ injector_vnf }}"
+    injector: "{{ injector_service }}"
   tasks:
     - include_tasks: ../../Common/Ansible/injector-tasks.yml
+      become: true
 
 - name: Install the backend video server
   hosts: backend
   tags: [ docker, backend ]
-  become: true
   tasks:
     - name: Run backend video server docker container
+      become: true
       docker_container:
         name: rtmp-server
         image: antongulenko/rtmp-nginx-server
@@ -49,9 +51,9 @@
 - name: Install the load balancer
   hosts: load-balancer
   tags: [ docker, load-balancer ]
-  become: true
   tasks:
     - name: Run load balancer docker container
+      become: true
       docker_container:
         name: rtmp-balancer
         image: antongulenko/rtmp-haproxy-balancer
@@ -66,7 +68,6 @@
 - name: Install the load generation client
   hosts: client
   tags: [ docker, client ]
-  become: true
   vars:
     data_directory: /opt/bitflow/rtmp-client
     data_directory_mounted: /rtmp-client-data
@@ -76,6 +77,7 @@
         path: "{{ rtmp.client_log_dir }}"
         state: directory
     - name: Run client docker container
+      become: true
       docker_container:
         name: rtmp-client-{{ item }}
         image: antongulenko/rtmp-client
