@@ -1,7 +1,7 @@
 
-service_name: service
-service_regex: service
 hostname_mounted: /etc_host/hostname
+hostname_cmd: "$(cat {{ hostname_mounted }}).ims4"
+hostname_cmd_service: service@{{ hostname_cmd }}
 
 rtmp:
   port: 1935
@@ -21,13 +21,14 @@ collector:
   file_name: data.bin
   data_path: /opt/bitflow/data-collector
   data_path_mounted: /bitflow/data-collector
+  extra_args: ""
 
-injector_vm:
+injector_vm_phys:
   container_name: "injector_vm"
-  hostname: $(cat {{ hostname_mounted }}).ims4
+  hostname: "{{ hostname_cmd }}"
   api_port: 7888
 
 injector_service:
   container_name: "injector_service"
-  hostname: "{{ service_name }}@$(cat {{ hostname_mounted }}).ims4"
+  hostname: "{{ hostname_cmd_service }}"
   api_port: 7889

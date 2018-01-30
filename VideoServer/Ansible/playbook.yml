@@ -1,7 +1,6 @@
 
 - name: Install general requirements
   hosts: all
-  tags: [ boostrap ]
   tasks:
     - include_tasks: ../../Common/Ansible/prepare-docker-tasks.yml
       become: true
@@ -14,12 +13,12 @@
     - include_tasks: ../../Common/Ansible/bitflow-collector-tasks.yml
       become: true
 
-- name: Install the Bitflow data collector
+- name: Install the VM and physical layer injector
   hosts:
     - hypervisors
     - vms:!client
   vars:
-    injector: "{{ injector_vm }}"
+    injector: "{{ injector_vm_phys }}"
   tasks:
     - include_tasks: ../../Common/Ansible/injector-tasks.yml
       become: true
@@ -27,7 +26,6 @@
 - name: Install the service layer injector
   hosts:
     - vms:!client
-  tags: [ injector_service ]
   vars:
     injector: "{{ injector_service }}"
   tasks:
