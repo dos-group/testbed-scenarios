@@ -82,6 +82,7 @@
     data_directory_mounted: /rtmp-client-data
   tasks:
     - name: Create local service quality data directory
+      become: true
       file:
         path: "{{ rtmp.client_log_dir }}"
         state: directory
