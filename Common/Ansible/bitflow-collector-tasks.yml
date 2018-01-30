@@ -11,7 +11,6 @@
       - "{{ collector.api_port }}:{{ collector.api_port }}"
     volumes:
       - "{{ collector.data_path }}:{{ collector.data_path_mounted }}"
-      - "/etc/hostname:{{ hostname_mounted }}"
     command: >
       {{ collector.extra_args }}
       -api :{{ collector.api_port }}

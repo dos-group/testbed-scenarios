@@ -1,10 +1,10 @@
 
 - name: Query the hostname
-  host: all
+  hosts: all
   tasks:
-    command: cat /etc/hostname
-    register: hostname
-    changed_when: False
+    - command: cat /etc/hostname
+      register: hostname
+      changed_when: False
 
 - name: Install general requirements
   hosts: all
