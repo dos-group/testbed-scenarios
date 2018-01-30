@@ -1,0 +1,10 @@
+
+- name: Install the Bitflow data collector and injector
+  hosts:
+    - hypervisors
+  tags: [ collector, injector ]
+  become: True
+  tasks:
+    - include_tasks: ../../Common/Ansible/prepare-docker-tasks.yml
+    - include_tasks: ../../Common/Ansible/bitflow-collector-tasks.yml
+    - include_tasks: ../../Common/Ansible/injector-tasks.yml

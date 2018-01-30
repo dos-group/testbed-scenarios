@@ -14,6 +14,28 @@
   tasks:
     - include_tasks: ../../Common/Ansible/bitflow-collector-tasks.yml
 
+- name: Install the Bitflow data collector
+  hosts:
+    - hypervisors
+    - vms:!client
+  tags: [ injector ]
+  become: True
+  tasks:
+    - include_tasks: ../../Common/Ansible/injector-tasks.yml
+
+- name: Install the VNF injector
+  hosts:
+    - vms:!client
+  tags: [ docker, injector_vnf ]
+  become: True
+  vars:
+    injector:
+      container_name: "{{ injector_vnf.container_name_vnf }}"
+      hostname: "{{ injector_vnf.hostname_vnf }}"
+      api_port: "{{ injector_vnf.api_port_vnf }}"
+  tasks:
+    - include_tasks: ../../Common/Ansible/injector-tasks.yml
+
 - name: Install the backend video server
   hosts: backend
   tags: [ docker, backend ]
@@ -25,7 +47,7 @@
         ports:
           # The container ports are hardcoded because they cannot be configured
           - "{{ backend_http_port }}:8080"
-          - "{{ rtmp_port }}:1935"
+          - "{{ rtmp.port }}:1935"
 
 - name: Install the load balancer
   hosts: load-balancer
@@ -36,11 +58,11 @@
         name: rtmp-balancer
         image: antongulenko/rtmp-haproxy-balancer
         ports:
-          - "{{ rtmp_port }}:{{ rtmp_port }}"
-          - "{{ balancer_stats_port }}:{{ balancer_stats_port }}"
+          - "{{ rtmp.port }}:{{ rtmp.port }}"
+          - "{{ rtmp.balancer_stats_port }}:{{ rtmp.balancer_stats_port }}"
         env:
-          RTMP_PORT: "{{ rtmp_port }}"
-          STATS_PORT: "{{ balancer_stats_port }}"
+          RTMP_PORT: "{{ rtmp.port }}"
+          STATS_PORT: "{{ rtmp.balancer_stats_port }}"
           RTMP_SERVERS: "{{ groups['backend'] | map('extract', hostvars, ['ansible_host']) | join(' ') }}"
 
 - name: Install the load generation client
@@ -52,19 +74,19 @@
   tasks:
     - name: Create local service quality data directory
       file:
-        path: "{{ data_directory }}"
+        path: "{{ rtmp.client_log_dir }}"
         state: directory
     - name: Run client docker container
       docker_container:
         name: rtmp-client-{{ item }}
         image: antongulenko/rtmp-client
         volumes:
-          - "{{ data_directory }}:{{ data_directory_mounted }}"
+          - "{{ rtmp.client_log_dir }}:{{ rtmp.client_log_dir_mounted }}"
         env:
-          MRL_PORT: "{{ rtmp_port }}"
-          MRL_PATH: "{{ rtmp_path }}"
+          MRL_PORT: "{{ rtmp.port }}"
+          MRL_PATH: "{{ rtmp.request_path }}"
           LOOP: -1
           PARALLEL: 1
-          MRL_LOG: "{{ data_directory_mounted }}/{{ rtmp_log_file }}-{{ item }}"
+          MRL_LOG: "{{ rtmp.client_log_dir_mounted }}/{{ rtmp.client_log_file }}-{{ item }}"
           MRL_SERVER: "{{ groups['load-balancer'] | map('extract', hostvars, ['ansible_host']) | join(' ') }}"
-      with_sequence: count={{ clients_per_host }}
+      with_sequence: count={{ rtmp.clients_per_host }}
