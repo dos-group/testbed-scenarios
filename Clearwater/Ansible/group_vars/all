@@ -6,12 +6,14 @@ hostname_general: "{{ hostname.stdout }}"
 hostname_service: "{{ service_name }}@{{ hostname_general }}"
 
 collector:
+  container_name: bitflow-collector
   interval: 500ms
   api_port: 7777
   port: 5010
   file_name: data.bin
   data_path: /opt/bitflow/data-collector
   data_path_mounted: /bitflow/data-collector
+  extra_args: ""
 
 injector_general:
   container_name: "injector"

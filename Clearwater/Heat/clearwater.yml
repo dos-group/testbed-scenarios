@@ -103,7 +103,7 @@ parameters:
   zone:
     type: string
     description: DNS zone
-    default: .ims4
+    default: ims4
   dn_range_start:
     type: string
     description: First directory number in pool
