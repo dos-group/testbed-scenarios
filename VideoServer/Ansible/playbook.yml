@@ -6,34 +6,25 @@
     - include_tasks: ../../Common/Ansible/bootstrap-python.yml
       become: true
 
-- name: Query the hostname
+- name: Preparation
   hosts: all
   tasks:
-    - command: cat /etc/hostname
+    - name: Query hostname
+      command: cat /etc/hostname
       register: hostname
       changed_when: False
-
-- name: Install general requirements
-  hosts: all
-  tasks:
     - include_tasks: ../../Common/Ansible/bootstrap-docker-tasks.yml
       become: true
 
-- name: Install the Bitflow data collector
-  hosts:
-    - hypervisors
-    - vms:!client
-  tasks:
-    - include_tasks: ../../Common/Ansible/bitflow-collector-tasks.yml
-      become: true
-
-- name: Install the VM and physical layer injector
+- name: Install the Bitflow collector and injector
   hosts:
     - hypervisors
     - vms:!client
   vars:
     injector: "{{ injector_vm_phys }}"
   tasks:
+    - include_tasks: ../../Common/Ansible/bitflow-collector-tasks.yml
+      become: true
     - include_tasks: ../../Common/Ansible/injector-tasks.yml
       become: true
 
