@@ -1,4 +1,11 @@
 
+- name: Install Python
+  hosts: all
+  gather_facts: false
+  tasks:
+    - include_tasks: ../../Common/Ansible/bootstrap-python.yml
+      become: true
+
 - name: Query the hostname
   hosts: all
   tasks:
@@ -10,8 +17,6 @@
   hosts: all
   tasks:
     - include_tasks: ../../Common/Ansible/bootstrap-docker-tasks.yml
-      become: true
-    - include_tasks: ../../Common/Ansible/bootstrap-python.yml
       become: true
 
 - name: Install the Bitflow data collector
