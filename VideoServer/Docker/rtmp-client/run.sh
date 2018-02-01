@@ -53,7 +53,7 @@ while $INFINITE || [ $i -le $LOOP ]; do
 	# Pipe the output to the logfile, do not output the video anywhere.
 	ffmpeg -i "$MRL_TARGET" -f null /dev/null -loglevel 23 -stats $@ &>> "$MRL_LOG" </dev/null
 
-	sleep 0.1 # Allow user to end this loop with CTRL-C
+	sleep 1 || exit 0 # Allow user to end this loop with CTRL-C
 	ffmpeg_num=$((ffmpeg_num+1))
 	i=$((i+1))
 done
