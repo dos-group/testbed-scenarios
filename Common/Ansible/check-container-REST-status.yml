@@ -1,4 +1,4 @@
-- name: Check {{ endpoints.name }} status
+- name: Check {{ item.name }} status
   uri:
-    url: {{ item }}
-    with_items: {{ endpoints.endpoint }}
+    url: {{ item.endpoint }}
+    with_items: {{ endpoints }}
