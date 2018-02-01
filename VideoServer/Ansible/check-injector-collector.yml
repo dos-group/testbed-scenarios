@@ -1,0 +1,25 @@
+
+- name: Check injector and collector container status for VM and Host layer
+  hosts:
+    - hypervisors
+    - vms:!client
+  vars:
+    injector: "{{ injector_vm_phys }}"
+    endpoints: 
+      - { name: "{{ collector.container_name }}", endpoint: "http://0.0.0.0:{{ collector.api_port }}/{{ collector.status_path }}" }
+      - { name: "{{ injector.container_name }}", endpoint: "http://0.0.0.0:{{ injector.api_port }}/{{ injector.status_path }}" }
+  tasks:
+    - include_tasks: ../../Common/Ansible/check-container-REST-status.yml
+      become: true
+        
+
+- name: Check injector and collector container status for Service layer
+  hosts:
+    - vms:!client
+  vars:
+    injector: "{{ injector_service }}"
+    endpoints: 
+      - { "{{ injector.container_name }}", "http://0.0.0.0:{{ injector.api_port }}/{{ injector.status_path }}" }
+  tasks:
+    - include_tasks: ../../Common/Ansible/check-container-REST-status.yml
+      become: true

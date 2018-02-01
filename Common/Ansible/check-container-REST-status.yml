@@ -1,0 +1,4 @@
+- name: Check {{ endpoints.name }} status
+  uri:
+    url: {{ item }}
+    with_items: {{ endpoints.endpoint }}
