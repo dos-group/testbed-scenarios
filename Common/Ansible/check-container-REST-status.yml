@@ -1,3 +1,4 @@
+
 - name: Check "{{ item.name }}" status
   uri:
     url: "{{ item.endpoint }}"

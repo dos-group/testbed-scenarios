@@ -1,4 +1,14 @@
 
+- name: Preparation
+  hosts: all
+  tasks:
+    - name: Query hostname
+      command: cat /etc/hostname
+      register: hostname
+      changed_when: False
+    - include_tasks: ../../Common/Ansible/bootstrap-docker-tasks.yml
+      become: true
+
 - name: Check injector and collector container status for VM and Host layer
   hosts:
     - hypervisors
