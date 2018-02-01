@@ -1,7 +1,7 @@
 
 - name: Install pip
   tags: [ bootstrap ]
-  raw: type pip &> /dev/null && exit 77 || { apt update -y && apt install -y python-pip; exit 66; }
+  raw: "type pip &> /dev/null && exit 77 || { apt update && apt install -y python-pip && exit 66; }"
   args:
     executable: /bin/bash
   register: install_python_pip

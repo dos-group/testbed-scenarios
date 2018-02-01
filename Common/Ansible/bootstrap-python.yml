@@ -3,7 +3,7 @@
 # 'gather_facts: false' must be set on the play that includes this, and it should be the first play in the playbook
 - name: Install python-minimal
   tags: [ bootstrap ]
-  raw: "if type python &> /dev/null; then exit 77; else apt update -y && apt install -y python-minimal; exit 66; fi"
+  raw: "type python &> /dev/null && then exit 77 || { apt update && apt install -y python-minimal && exit 66; }"
   args:
     executable: /bin/bash
   register: install_python_minimal
