@@ -25,7 +25,7 @@ collector:
   data_path_mounted: /bitflow/data-collector
   extra_args: ""
   tags_path: api/tags
-  file_output_path: /api/file_output
+  file_output_path: api/file_output
 
 injector_vm_phys:
   container_name: "injector"
