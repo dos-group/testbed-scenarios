@@ -27,7 +27,7 @@ injector_vm_phys:
   container_name: "injector"
   hostname: "{{ hostname_general }}"
   api_port: 7888
-  status_path: /api/status/
+  status_path: api/status/
 
 injector_service:
   container_name: "injector_service"
