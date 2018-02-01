@@ -2,9 +2,10 @@
 hostname_general: "{{ hostname.stdout }}"
 hostname_service: "{{ group_names[0] }}@{{ hostname_general }}"
 
+rtmp_clients_per_host: 2
+
 rtmp:
   port: 1935
-  clients_per_host: 2
   balancer_stats_port: 8080
   backend_http_port: 8080
   default_request_path: "/vod/example-11s.flv"
