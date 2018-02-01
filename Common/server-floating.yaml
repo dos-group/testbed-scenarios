@@ -60,47 +60,82 @@ parameters:
         default: ""
 
 resources:
+
+    cloud_init:
+        type: OS::Heat::CloudConfig
+        properties:
+            cloud_config:
+                runcmd:
+                    - str_replace:
+                        template: |
+                            echo '$PRIVATE_KEY' > /home/ubuntu/.ssh/id_rsa
+                            chmod 0600 /home/ubuntu/.ssh/id_rsa
+                        params:
+                            $PRIVATE_KEY: { get_file: keys/id_rsa }
+                    - str_replace:
+                        template: |
+                            echo '$AUTHORIZED_KEYS' >> /home/ubuntu/.ssh/authorized_keys
+                            chmod 0600 /home/ubuntu/.ssh/authorized_keys
+                        params:
+                            $AUTHORIZED_KEYS: { get_file: keys/id_rsa.pub }
+                    - chown -R ubuntu:ubuntu /home/ubuntu
+                    # - { get_file: 'https://gitlab.tubit.tu-berlin.de/anton.gulenko/scripts/raw/master/cloud-init-basic.sh' }
+                    - str_replace:
+                        template: |
+                            bash -s <<"xxx_CUSTOM_SETUP_CODE_xxx"
+                            $THE_CODE
+                            xxx_CUSTOM_SETUP_CODE_xxx
+                        params:
+                            $THE_CODE:
+                                str_replace:
+                                    template: { get_param: root_setup }
+                                    params:
+                                        __FLOATING_IP__: { get_attr: [ floating_ip, floating_ip_address ] }
+                    - chown -R ubuntu:ubuntu /home/ubuntu
+                    - str_replace:
+                        template: |
+                            su ubuntu -c 'bash -s' <<"xxx_CUSTOM_SETUP_CODE_xxx"
+                            $THE_CODE
+                            xxx_CUSTOM_SETUP_CODE_xxx
+                        params:
+                            $THE_CODE:
+                                str_replace:
+                                    template: { get_param: setup }
+                                    params:
+                                        __FLOATING_IP__: { get_attr: [ floating_ip, floating_ip_address ] }
+
     instance:
-        type: ./server.yaml
+        type: OS::Nova::Server
         properties:
             name: { get_param: name }
             key_name: { get_param: key_name }
-            flavor: { get_param: flavor }
             image: { get_param: image }
-            network: { get_param: network }
+            flavor: { get_param: flavor }
+            networks:
+                - network: { get_param: network }
             security_groups: { get_param: security_groups }
-            availability_zone: { get_param: availability_zone }
-            stack_name: { get_param: stack_name }
-            group: { get_param: group }
-            setup:
-                str_replace:
-                    template: { get_param: setup }
-                    params:
-                        __FLOATING_IP__: { get_attr: [ floating_ip, floating_ip_address ] }
-            root_setup:
-                str_replace:
-                    template: { get_param: root_setup }
-                    params:
-                        __FLOATING_IP__: { get_attr: [ floating_ip, floating_ip_address ] }
+            user_data_format: RAW
+            user_data: { get_resource: cloud_init }
+            metadata:
+                stack: { get_param: stack_name }
+                group: { get_param: group }
+            availability_zone: { get_param : availability_zone }
 
     floating_ip:
         type: OS::Neutron::FloatingIP
         properties:
             floating_network: { get_param: external_network }
 
-    association:
+    floating_ip_association:
         type: OS::Neutron::FloatingIPAssociation
         properties:
             floatingip_id: { get_resource: floating_ip }
-            port_id: { get_attr: [ instance, port ] }
+            port_id: { get_attr: [ instance, addresses, { get_param: network }, 0, port ] }
 
 outputs:
     ip:
         description: IP of instance
-        value: { get_attr: [ instance, ip ] }
-    port:
-        description: Port ID of instance
-        value: { get_attr: [ instance, port ] }
+        value: { get_attr: [ instance, first_address ] }
     public_ip:
         description: Public IP
         value: { get_attr: [ floating_ip, floating_ip_address ] }

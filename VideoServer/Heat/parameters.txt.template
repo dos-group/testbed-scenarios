@@ -5,6 +5,8 @@
 --parameter flavor=t1.medium
 --parameter image=ubuntu1604
 --parameter load_generator_zone=Load-Generators
---parameter num_backend_servers=4
---parameter num_balancers=2
---parameter num_clients=2
+--parameter backend_zone=Video-Backends
+--parameter balancer_zone=Video-Frontends
+--parameter num_backend_servers=20
+--parameter num_balancers=6
+--parameter num_clients=10
