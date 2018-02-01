@@ -83,6 +83,7 @@
         path: "{{ rtmp.client_log_dir }}"
         state: directory
     - name: Create default load generation targets file
+      become: true
       copy:
         dest: "{{ rtmp.client_targets_file }}"
         force: false
