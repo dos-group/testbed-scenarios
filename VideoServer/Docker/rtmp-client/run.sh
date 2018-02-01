@@ -22,10 +22,10 @@ else
 		test -z "$MRL_PATH" && MRL_PATH="/vod/example-11s.flv"
 		test -z "$MRL_PROTO" && MRL_PROTO="rtmp"
 		for s in $MRL_SERVER; do
-			MRL="$MRL $MRL_PROTO://$s:$MRL_PORT$MRL_PATH"
+			MRL="$MRL\n$MRL_PROTO://$s:$MRL_PORT$MRL_PATH"
 		done
 	fi
-	mapfile -d " " -t MRL_BATCH_TARGETS <<< "$MRL"
+	mapfile -t MRL_BATCH_TARGETS <<< $(echo -e "$MRL")
 fi
 
 test -z "$MRL_LOG" && MRL_LOG=/tmp/rtmp.log
