@@ -1,0 +1,6 @@
+
+- name: Send "{{ method }}" request to "{{ item.name }}"
+  uri:
+    url: "{{ item.endpoint }}"
+    method: "{{ method }}"
+  with_items: "{{ endpoints }}"
