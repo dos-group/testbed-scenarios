@@ -27,7 +27,7 @@
   vars:
     injector: "{{ injector_service }}"
     endpoints: 
-      - { "{{ injector.container_name }}", "http://0.0.0.0:{{ injector.api_port }}/{{ injector.status_path }}" }
+      - { name: "{{ injector.container_name }}", endpoint: "http://0.0.0.0:{{ injector.api_port }}/{{ injector.status_path }}" }
   tasks:
     - include_tasks: ../../Common/Ansible/check-container-REST-status.yml
       become: true
