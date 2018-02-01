@@ -47,7 +47,7 @@ get_node_private_ips()
 # to be executed on client system
 get_zone()
 {
-	export ZONE=$(openstack stack output show  clearwater zone -c output_value -f value)
+	export ZONE=$(openstack stack output show  $STACK zone -c output_value -f value)
 }
 
 get_manager_ips
