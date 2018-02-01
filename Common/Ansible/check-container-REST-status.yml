@@ -1,0 +1,5 @@
+
+- name: Check "{{ item.name }}" status
+  uri:
+    url: "{{ item.endpoint }}"
+  with_items: "{{ endpoints }}"
