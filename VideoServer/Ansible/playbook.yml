@@ -82,6 +82,11 @@
       file:
         path: "{{ rtmp.client_log_dir }}"
         state: directory
+    - name: Create load generation target file
+      copy:
+        dest: "{{ rtmp.client_targets_file }}"
+        force: false
+        content: "{{ groups['backend'] | map('extract', hostvars, ['ansible_host']) | map('map_format', 'rtmp://%s:' + str(rtmp.port) + rtmp.default_request_path) | join('\n') }}"
     - name: Run client docker container
       become: true
       docker_container:
@@ -90,11 +95,31 @@
         pull: true
         volumes:
           - "{{ rtmp.client_log_dir }}:{{ rtmp.client_log_dir_mounted }}"
+          - "{{ rtmp.client_targets_file }}:{{ rtmp.client_targets_file_mounted }}"
         env:
-          MRL_PORT: "{{ rtmp.port }}"
-          MRL_PATH: "{{ rtmp.request_path }}"
-          LOOP: -1
-          PARALLEL: 1
           MRL_LOG: "{{ rtmp.client_log_dir_mounted }}/{{ rtmp.client_log_file }}-{{ item }}"
-          MRL_SERVER: "{{ groups['load-balancer'] | map('extract', hostvars, ['ansible_host']) | join(' ') }}"
+          LOOP: -1
+          MRL_BATCH_FILE: "{{ rtmp.client_targets_file_mounted }}"
       with_sequence: count={{ rtmp.clients_per_host }}
+
+- name: Kill excess load generation client containers
+  hosts: client
+  tags: [ docker, client ]
+  tasks:
+    - name: Query names of client containers
+      command: |
+        mapfile -t CONTAINERS <<< $(docker ps --no-trunc --format '{{.ID}} {{.Names}}' --filter 'Name=rtmp-client-*')
+        for i in ${!CONTAINERS[*]}; do
+          IFS=' ' read -r id name <<< "${CONTAINERS[$i]}"
+          client_num="${name:12}" # 12 is the length of 'rtmp-client-'
+          # Output the IDs of all containers with numbers outside of the configured range
+          test "$client_num" -lt 0 -o "$client_num" -ge {{ rtmp.clients_per_host}} && echo "$ID"
+        done
+      args:
+        executable: /bin/bash
+      register: client_containers
+    - name: Kill client containers
+      docker_container:
+        name: $item
+        state: absend
+      with_items: "client_containers.stdout_lines"
