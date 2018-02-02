@@ -13,17 +13,15 @@
 - name: Fetch client statistics data
   hosts: client
   tasks:
-    - fetch:
-        flat: true
-        fail_on_missing: true
+    - synchronize:
+        mode: pull
         src: "{{ rtmp.client_log_dir }}"
         dest: "{{ fetch_dir }}/{{ inventory_hostname }}/"
 
 - name: Fetch data collector data from remote hosts
-  hosts: all
+  hosts: all:!client
   tasks:
-    - fetch:
-        flat: true
-        fail_on_missing: true
+    - synchronize:
+        mode: pull
         src: "{{ collector.data_path }}"
         dest: "{{ fetch_dir }}/{{ inventory_hostname }}/"

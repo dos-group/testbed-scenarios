@@ -1,3 +1,4 @@
+#!/usr/bin/env ansible-playbook
 
 - name: Update the load targets file on client containers
   hosts: client

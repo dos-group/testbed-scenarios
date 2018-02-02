@@ -1,0 +1,15 @@
+#!/usr/bin/env ansible-playbook
+
+- include: reset-collector-injector.yml
+
+- name: Delete collector data
+  hosts: all:!client
+  tasks:
+    - file: path={{ collector.data_path }} state=absent
+    - file: path={{ collector.data_path }} state=directory
+
+- name: Delete client statistics data
+  hosts: client
+  tasks:
+    - file: path={{ rtmp.client_log_dir }} state=absent
+    - file: path={{ rtmp.client_log_dir }} state=directory
