@@ -80,7 +80,7 @@
     - name: Create local client directories
       become: true
       file:
-        path: "{{ rtmp.client_log_dir }}"
+        path: "{{ item }}"
         state: directory
       with_items:
         - "{{ rtmp.client_log_dir }}"

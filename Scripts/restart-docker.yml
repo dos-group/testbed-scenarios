@@ -3,7 +3,8 @@
   hosts: all
   tags: [ docker ]
   tasks:
-    - become: true
+    - name: Restart docker daemon
+      become: true
       service:
           name: docker
           state: restarted
