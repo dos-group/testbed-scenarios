@@ -7,6 +7,8 @@
     pull: true
     ports:
       - "{{ injector.api_port }}:{{ injector.api_port }}"
+    network_mode: host
+    privileged: yes
     command: >
       -host "{{ injector.hostname }}"
       -api-port {{ injector.api_port }}

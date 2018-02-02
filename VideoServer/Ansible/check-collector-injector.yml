@@ -13,11 +13,12 @@
     - vms:!client
   vars:
     injector: "{{ injector_vm_phys }}"
+    method: GET
     endpoints: 
-      - { name: "{{ collector.container_name }}", endpoint: "http://0.0.0.0:{{ collector.api_port }}/{{ collector.status_path }}" }
+      - { name: "{{ collector.container_name }}", endpoint: "http://0.0.0.0:{{ collector.api_port }}/{{ collector.tags_path }}" }
       - { name: "{{ injector.container_name }}", endpoint: "http://0.0.0.0:{{ injector.api_port }}/{{ injector.status_path }}" }
   tasks:
-    - include_tasks: ../../Common/Ansible/check-container-REST-status.yml
+    - include_tasks: ../../Common/Ansible/sent-request.yml
       become: true
         
 
@@ -26,8 +27,9 @@
     - vms:!client
   vars:
     injector: "{{ injector_service }}"
+    method: GET
     endpoints: 
       - { name: "{{ injector.container_name }}", endpoint: "http://0.0.0.0:{{ injector.api_port }}/{{ injector.status_path }}" }
   tasks:
-    - include_tasks: ../../Common/Ansible/check-container-REST-status.yml
+    - include_tasks: ../../Common/Ansible/sent-request.yml
       become: true

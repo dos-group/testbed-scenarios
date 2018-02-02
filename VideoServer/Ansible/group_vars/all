@@ -24,16 +24,19 @@ collector:
   data_path: /opt/bitflow/data-collector
   data_path_mounted: /bitflow/data-collector
   extra_args: ""
-  status_path: api/tags
+  tags_path: api/tags
+  file_output_path: api/file_output
 
 injector_vm_phys:
   container_name: "injector"
   hostname: "{{ hostname_general }}"
   api_port: 7888
   status_path: api/status/
+  anomalies_path: api/anomalies/
 
 injector_service:
   container_name: "injector_service"
   hostname: "{{ hostname_service }}"
   api_port: 7889
   status_path: api/status/
+  anomalies_path: api/anomalies/

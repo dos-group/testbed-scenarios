@@ -1,0 +1,47 @@
+
+- name: Preparation
+  hosts: all
+  tasks:
+    - name: Query hostname
+      command: cat /etc/hostname
+      register: hostname
+      changed_when: False
+
+- name: Unset tags at collectors and stop all running anomalies on VM and Host layer
+  hosts:
+    - hypervisors
+    - vms:!client
+  vars:
+    injector: "{{ injector_vm_phys }}"
+    method: DELETE
+    endpoints: 
+      - { name: "{{ collector.container_name }}", endpoint: "http://0.0.0.0:{{ collector.api_port }}/{{ collector.tags_path }}" }
+      - { name: "{{ injector.container_name }}", endpoint: "http://0.0.0.0:{{ injector.api_port }}/{{ injector.anomalies_path }}" }
+  tasks:
+    - include_tasks: ../../Common/Ansible/sent-request.yml
+      become: true
+        
+- name: Stop all running anomalies on service layer
+  hosts:
+    - vms:!client
+  vars:
+    injector: "{{ injector_service }}"
+    method: DELETE
+    endpoints: 
+      - { name: "{{ injector.container_name }}", endpoint: "http://0.0.0.0:{{ injector.api_port }}/{{ injector.anomalies_path }}" }
+  tasks:
+    - include_tasks: ../../Common/Ansible/sent-request.yml
+      become: true
+
+- name: Stop collector file outputs
+  hosts:
+    - hypervisors
+    - vms:!client
+  vars:
+    method: DELETE
+    endpoints: 
+      - { name: "{{ collector.container_name }}", endpoint: "http://0.0.0.0:{{ collector.api_port }}/{{ collector.file_output_path }}" }
+  tasks:
+    - include_tasks: ../../Common/Ansible/sent-request.yml
+      become: true
+
