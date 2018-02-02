@@ -2,7 +2,7 @@
 hostname_general: "{{ hostname.stdout }}"
 hostname_service: "{{ group_names[0] }}@{{ hostname_general }}"
 
-rtmp_clients_per_host: 2
+rtmp_clients_per_host: 20
 
 rtmp:
   port: 1935
