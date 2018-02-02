@@ -77,14 +77,19 @@
     data_directory: /opt/bitflow/rtmp-client
     data_directory_mounted: /rtmp-client-data
   tasks:
-    - name: Create local client directories
+    - name: Create local client targets directories
       become: true
       file:
         path: "{{ item }}"
         state: directory
       with_items:
-        - "{{ rtmp.client_log_dir }}"
         - "{{ rtmp.client_targets_dir }}"
+    - name: Create local client directories
+      become: true
+      file:
+        path: "{{ rtmp.client_targets_dir }}/{{ rtmp.client_log_dir_prefix }}-{{ item }}"
+        state: directory
+      with_sequence: count={{ rtmp_clients_per_host }}
     - name: Create default load generation targets file
       become: true
       copy:
