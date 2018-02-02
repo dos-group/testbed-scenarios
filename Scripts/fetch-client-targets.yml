@@ -1,0 +1,20 @@
+#!/usr/bin/env ansible-playbook
+
+# The variable 'fetch_dir' must be defined on the command line with ansible-playbook -e fetch_dir=DIR
+
+- name: Preparation
+  hosts: all
+  tasks:
+    - name: Query hostname
+      command: cat /etc/hostname
+      register: hostname
+      changed_when: False
+
+- name: Fetch client load target folder
+  hosts: client
+  tasks:
+    - synchronize:
+        mode: pull
+        src: "{{ rtmp.client_targets_dir }}/"
+        dest: "{{ fetch_dir }}/{{ inventory_hostname }}/"
+

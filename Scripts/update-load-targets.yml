@@ -1,9 +1,0 @@
-#!/usr/bin/env ansible-playbook
-
-- name: Update the load targets file on client containers
-  hosts: client
-  tasks:
-    - copy:
-        src: rtmp-client-targets.txt
-        dest: "{{ rtmp.client_targets_dir }}/{{ item }}.txt"
-      with_sequence: count={{ rtmp_clients_per_host }}
