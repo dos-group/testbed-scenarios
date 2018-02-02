@@ -14,13 +14,11 @@
   vars:
     injector: "{{ injector_vm_phys }}"
     method: GET
-    endpoints: 
+    endpoints:
       - { name: "{{ collector.container_name }}", endpoint: "http://0.0.0.0:{{ collector.api_port }}/{{ collector.tags_path }}" }
       - { name: "{{ injector.container_name }}", endpoint: "http://0.0.0.0:{{ injector.api_port }}/{{ injector.status_path }}" }
   tasks:
-    - include_tasks: ../../Common/Ansible/sent-request.yml
-      become: true
-        
+    - include_tasks: ../../Common/Ansible/send-request.yml
 
 - name: Check injector and collector container status for Service layer
   hosts:
@@ -28,8 +26,7 @@
   vars:
     injector: "{{ injector_service }}"
     method: GET
-    endpoints: 
+    endpoints:
       - { name: "{{ injector.container_name }}", endpoint: "http://0.0.0.0:{{ injector.api_port }}/{{ injector.status_path }}" }
   tasks:
-    - include_tasks: ../../Common/Ansible/sent-request.yml
-      become: true
+    - include_tasks: ../../Common/Ansible/send-request.yml
