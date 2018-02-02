@@ -87,7 +87,7 @@
     - name: Create local client directories
       become: true
       file:
-        path: "{{ rtmp.client_targets_dir }}/{{ rtmp.client_log_dir_prefix }}-{{ item }}"
+        path: "{{ rtmp.client_log_dir }}/{{ rtmp.client_log_dir_prefix }}-{{ item }}"
         state: directory
       with_sequence: count={{ rtmp_clients_per_host }}
     - name: Create default load generation targets file
