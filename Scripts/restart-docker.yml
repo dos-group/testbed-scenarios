@@ -1,0 +1,9 @@
+
+- name: Restart docker daemon
+  hosts: all
+  tags: [ docker ]
+  tasks:
+    - become: true
+      service:
+          name: docker
+          state: restarted

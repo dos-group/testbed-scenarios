@@ -33,6 +33,7 @@ if [ -n "$MRL_LOG" ]; then
 	echo "Logging ffmpeg performance stats to file: $MRL_LOG"
 elif [ -n "$MRL_LOG_DIR" ]; then
 	echo "Logging ffmpeg performance stats to individual files in directory: $MRL_LOG_DIR"
+	mkdir -p "$MRL_LOG_DIR"
 else
 	echo "Logging ffmpeg performance stats to standard output"
 	MRL_LOG="/dev/stdout"
@@ -44,12 +45,18 @@ test "$LOOP" -eq "$LOOP" &> /dev/null || { echo "Warning: invalid LOOP variable 
 test $LOOP -le 0 && INFINITE=true || INFINITE=false
 
 test -z "$MRL_LOGFILE_PREFIX" && MRL_LOGFILE_PREFIX="rtmp-client-"
+if [ -z "$MRL_BATCH_INDEX_OFFSET" ]; then
+	MRL_BATCH_INDEX_OFFSET=0
+elif [ "$MRL_BATCH_INDEX_OFFSET" -lt 0 ]; then
+	# Allows randomizing the starting index inside the batch targets file, to create a more random load when using multiple clients
+	MRL_BATCH_INDEX_OFFSET=$RANDOM
+fi
 
 i=1
 ffmpeg_num=1
 while $INFINITE || [ $i -le $LOOP ]; do
 	test -n "$MRL_BATCH_FILE" && read_mrl_batch_file # Update targets to allow live changes
-	INDEX=$(($i % ${#MRL_BATCH_TARGETS[*]}))
+	INDEX=$((($MRL_BATCH_INDEX_OFFSET + $i) % ${#MRL_BATCH_TARGETS[*]}))
 	MRL_TARGET="${MRL_BATCH_TARGETS[$INDEX]}"
 
 	CURRENT_LOG="$MRL_LOG"
@@ -61,26 +68,41 @@ while $INFINITE || [ $i -le $LOOP ]; do
 		fi
 	fi
 
-	if $INFINITE; then
-		echo "Running ffmpeg $ffmpeg_num in infinite loop loading $MRL_TARGET, logging to $CURRENT_LOG..."
+	if [[ "$MRL_TARGET" = CMD* ]]; then
+
+		MRL_TARGET=${MRL_TARGET:3} # Strip the CMD prefix
+
+		if $INFINITE; then
+			echo "Running $MRL_TARGET (index $ffmpeg_num) in infinite loop..."
+		else
+			echo "Running $MRL_TARGET (index $ffmpeg_num) of $LOOP..."
+		fi
+
+		$MRL_TARGET
+
 	else
-		echo "Running ffmpeg $ffmpeg_num of $LOOP loading $MRL_TARGET, logging to $CURRENT_LOG..."
+
+		if $INFINITE; then
+			echo "Running ffmpeg $ffmpeg_num in infinite loop loading $MRL_TARGET, logging to $CURRENT_LOG..."
+		else
+			echo "Running ffmpeg $ffmpeg_num of $LOOP loading $MRL_TARGET, logging to $CURRENT_LOG..."
+		fi
+
+		# Execute the actual ffmpeg process. Loglevel 23 outputs performance statistics, errors and nothing else.
+		# Pipe the output to the logfile, do not output the video anywhere.
+		stdbuf -o128 -e128 \
+			ffmpeg -i "$MRL_TARGET" -f null /dev/null -loglevel 23 -stats $@ </dev/null |& \
+		stdbuf -i0 -eL -oL \
+			tr "\r" "\n" &>> "$CURRENT_LOG"
+
+		# ffmpeg outputs statistics on stderr, every entry is separated by \r instead of \n (\r clears the line for better experience on an interactive command line).
+		# We want to receive every entry on a single line for easier processing, therefore we use the 'tr' command to translate \r into \n characters.
+		# The 'tr' command introduces a pipe, and its output is redirected to a file, which affects the buffering behavior of both ffmpeg and tr.
+		# In order to flush the output buffers immediately, 'stdbuf' is used to configure the buffers. For 'ffmpeg', the stdout and stderr buffer is chosen very small (128 bytes) to rapidly flush the statistics.
+		# For tr, the output is buffered by line, because it introduces the regular \n line ending character.
 	fi
 
-	# Execute the actual ffmpeg process. Loglevel 23 outputs performance statistics, errors and nothing else.
-	# Pipe the output to the logfile, do not output the video anywhere.
-	stdbuf -o128 -e128 \
-		ffmpeg -i "$MRL_TARGET" -f null /dev/null -loglevel 23 -stats $@ </dev/null |& \
-	stdbuf -i0 -eL -oL \
-		tr "\r" "\n" &>> "$CURRENT_LOG"
-
-	# ffmpeg outputs statistics on stderr, every entry is separated by \r instead of \n (\r clears the line for better experience on an interactive command line).
-	# We want to receive every entry on a single line for easier processing, therefore we use the 'tr' command to translate \r into \n characters.
-	# The 'tr' command introduces a pipe, and its output is redirected to a file, which affects the buffering behavior of both ffmpeg and tr.
-	# In order to flush the output buffers immediately, 'stdbuf' is used to configure the buffers. For 'ffmpeg', the stdout and stderr buffer is chosen very small (128 bytes) to rapidly flush the statistics.
-	# For tr, the output is buffered by line, because it introduces the regular \n line ending character.
-
-	test $? = 255 -o $? = 130 && break # ffmpeg exits with code 255 after SIGINT
+	test $? = 255 -o $? = 130 && exit 0 # ffmpeg exits with code 255 after SIGINT
 	sleep 1 || exit 0 # Allow user to end this loop with CTRL-C, if the above 'break' does not work
 	ffmpeg_num=$((ffmpeg_num+1))
 	i=$((i+1))
