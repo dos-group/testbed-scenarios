@@ -13,7 +13,7 @@ rtmp:
   client_log_dir: /opt/bitflow/rtmp-client
   client_log_dir_mounted: /bitflow/rtmp-client
   client_targets_dir: /opt/bitflow/rtmp-client-targets
-  client_targets_file_mounted: /bitflow/rtmp-client-targets.txt
+  client_targets_dir_mounted: /bitflow/rtmp-client-targets
 
 collector:
   container_name: bitflow-collector

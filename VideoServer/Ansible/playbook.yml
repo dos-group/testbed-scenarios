@@ -91,7 +91,7 @@
         dest: "{{ rtmp.client_targets_dir }}/{{ item }}.txt"
         force: false
         content: |
-          {% for host in groups['backend'] %}
+          {% for host in groups['load-balancer'] %}
           rtmp://{{ hostvars[host]['ansible_host'] }}:{{ rtmp.port }}{{ rtmp.default_request_path }}
           {% endfor %}
       with_sequence: count={{ rtmp_clients_per_host }}
@@ -103,11 +103,11 @@
         pull: true
         volumes:
           - "{{ rtmp.client_log_dir }}:{{ rtmp.client_log_dir_mounted }}"
-          - "{{ rtmp.client_targets_dir }}/{{ item }}.txt:{{ rtmp.client_targets_file_mounted }}"
+          - "{{ rtmp.client_targets_dir }}:{{ rtmp.client_targets_dir_mounted }}"
         env:
           MRL_LOG_DIR: "{{ rtmp.client_log_dir_mounted }}/{{ rtmp.client_log_dir_prefix }}-{{ item }}"
           LOOP: -1
-          MRL_BATCH_FILE: "{{ rtmp.client_targets_file_mounted }}"
+          MRL_BATCH_FILE: "{{ rtmp.client_targets_dir_mounted }}/{{ item }}.txt"
           MRL_BATCH_INDEX_OFFSET: -1 # Random offset for every client
       with_sequence: count={{ rtmp_clients_per_host }}
     - name: Query names of client containers
