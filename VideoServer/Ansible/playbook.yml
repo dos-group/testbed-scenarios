@@ -62,6 +62,8 @@
         name: rtmp-balancer
         image: antongulenko/rtmp-haproxy-balancer
         pull: true
+        volumes:
+          - "/dev/log:/dev/log"
         ports:
           - "{{ rtmp.port }}:{{ rtmp.port }}"
           - "{{ rtmp.balancer_stats_port }}:{{ rtmp.balancer_stats_port }}"
