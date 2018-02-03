@@ -6,10 +6,14 @@
   hosts: all:!client
   tasks:
     - file: path={{ collector.data_path }} state=absent
+      become: true
     - file: path={{ collector.data_path }} state=directory
+      become: true
 
 - name: Delete client statistics data
   hosts: client
   tasks:
     - file: path={{ rtmp.client_log_dir }} state=absent
+      become: true
     - file: path={{ rtmp.client_log_dir }} state=directory
+      become: true
