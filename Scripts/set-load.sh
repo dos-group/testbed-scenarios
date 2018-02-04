@@ -4,8 +4,8 @@ home=`dirname $(readlink -e $0)`
 test $# = 1 || { echo "Need 1 parameter: target load [0..100]"; exit 1; }
 PERCENT_LOAD="$1"
 
-LOAD_ENABLED="$home/rtmp-client-targets-enabled.txt"
-LOAD_DISABLED="$home/rtmp-client-targets-disabled.txt"
+LOAD_ENABLED="$home/rtmp-client-targets-templates/rtmp-client-targets-enabled-balancers-720p.txt"
+LOAD_DISABLED="$home/rtmp-client-targets-templates/rtmp-client-targets-disabled.txt"
 ROOT="$home/rtmp-client-targets"
 
 allfiles=$(find "$ROOT" -type f | shuf)

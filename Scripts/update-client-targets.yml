@@ -6,5 +6,7 @@
     - become: true
       synchronize:
         mode: push
+        recursive: true
+        delete: true
         src: "rtmp-client-targets/{{ inventory_hostname }}/"
         dest: "{{ rtmp.client_targets_dir }}/"
