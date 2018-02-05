@@ -12,14 +12,12 @@
   hosts:
     - hypervisors
     - vms:!client
-  vars:
-    injector: "{{ injector_vm_phys }}"
   tasks:
     - uri:
         url: "{{ item }}"
         method: DELETE
       with_items:
-        - "http://0.0.0.0:{{ collector.api_port }}/api/anomalies"
-        - "http://0.0.0.0:{{ collector.api_port }}/api/file_output"
-        - "http://0.0.0.0:{{ injector.api_port }}/api/anomalies"
+        - "http://0.0.0.0:{{ collector.api_port }}/api/anomalies/"
+        - "http://0.0.0.0:{{ collector.api_port }}/api/file_output/"
+        - "http://0.0.0.0:{{ injector.api_port }}/api/anomalies/"
 

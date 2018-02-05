@@ -2,7 +2,7 @@
 hostname_general: "{{ hostname.stdout }}"
 hostname_service: "{{ group_names[0] }}@{{ hostname_general }}"
 
-rtmp_clients_per_host: 70
+rtmp_clients_per_host: 5
 
 rtmp:
   port: 1935
@@ -26,7 +26,7 @@ collector:
   data_path_mounted: /bitflow/data-collector
   extra_args: ""
 
-injector_vm_phys:
+injector:
   container_name: "injector"
   hostname: "{{ hostname_general }}"
   api_port: 7888

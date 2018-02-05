@@ -12,13 +12,11 @@
   hosts:
     - hypervisors
     - vms:!client
-  vars:
-    injector: "{{ injector_vm_phys }}"
   tasks:
     - uri:
         url: "{{ item }}"
         method: GET
       with_items:
-        - "http://0.0.0.0:{{ collector.api_port }}/api/tags"
-        - "http://0.0.0.0:{{ injector.api_port }}/api/status"
+        - "http://0.0.0.0:{{ collector.api_port }}/api/tags/"
+        - "http://0.0.0.0:{{ injector.api_port }}/api/status/"
 

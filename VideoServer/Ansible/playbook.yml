@@ -22,8 +22,6 @@
   hosts:
     - hypervisors
     - vms:!client
-  vars:
-    injector: "{{ injector_vm_phys }}"
   tasks:
     - include_tasks: ../../Common/Ansible/bitflow-collector-tasks.yml
       tags: [ docker, collector ]
