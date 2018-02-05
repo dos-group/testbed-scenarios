@@ -1,6 +1,7 @@
 #!/usr/bin/env ansible-playbook
 
 - name: Install Python
+  tags: [ bootstrap ]
   hosts: all
   gather_facts: false
   tasks:
@@ -25,17 +26,10 @@
     injector: "{{ injector_vm_phys }}"
   tasks:
     - include_tasks: ../../Common/Ansible/bitflow-collector-tasks.yml
+      tags: [ docker, collector ]
       become: true
     - include_tasks: ../../Common/Ansible/injector-tasks.yml
-      become: true
-
-- name: Install the service layer injector
-  hosts:
-    - vms:!client
-  vars:
-    injector: "{{ injector_service }}"
-  tasks:
-    - include_tasks: ../../Common/Ansible/injector-tasks.yml
+      tags: [ docker, injector ]
       become: true
 
 - name: Install the backend video server
