@@ -3,21 +3,20 @@ set -e
 
 function warn() { >&2 echo $@; }
 
-test $# = 2 || { warn "Need 2 parameters: prefix to identify VMs to use + public IP address prefix"; exit 1; }
-VM_PREFIX="$1"
-IP_PREFIX="$2"
+test $# = 1 || { warn "Need 1 parameter: prefix to identify VMs and networks to use"; exit 1; }
+PREFIX="$1"
 
 function output_group() {
     NAME="$1"
     echo -e "\n[$NAME]"
     shift
     for host in $@; do
-        IP="${HOST_IPS[$host]}"
-        if [ -z "$IP" ]; then
-            warn "Warning: No IP found for host $host. Not adding to group $NAME"
-        else
-            echo "$host ansible_host=$IP"
-        fi
+        PUBLIC_IP="${PUBLIC_IPS[$host]}"
+        PRIVATE_IP="${PRIVATE_IPS[$host]}"
+        test -z "$PUBLIC_IP" && { warn "Warning: No public IP found for host $host. Not adding to group $NAME"; continue; }
+        output="$host ansible_host=$PUBLIC_IP"
+        test -n "$PRIVATE_IP" && { output="$output private_ip=$PRIVATE_IP"; }
+        echo "$output"
     done
 }
 
@@ -30,12 +29,15 @@ function output_meta_group() {
 }
 
 declare -A VM_GROUPS
-declare -A HOST_IPS
+declare -A PUBLIC_IPS
+declare -A PRIVATE_IPS
 HYPERVISORS=""
 ALL_VMS=""
 
-VM_IDS=$(openstack server list --name "^$VM_PREFIX.*" -f json -c ID | jq -rM '.[].ID')
+warn "Querying list of VMs named '$PREFIX*'..."
+VM_IDS=$(openstack server list --name "^$PREFIX.*" -f json -c ID | jq -rM '.[].ID')
 for ID in $VM_IDS; do
+    warn "Querying info of VM '$ID'..."
     INFO=$(openstack server show "$ID" -f json -c name -c OS-EXT-SRV-ATTR:hypervisor_hostname -c addresses -c properties)
     HYPERVISOR=$(echo "$INFO" | jq -rM '."OS-EXT-SRV-ATTR:hypervisor_hostname"')
     NAME=$(echo "$INFO" | jq -rM .name)
@@ -49,30 +51,27 @@ for ID in $VM_IDS; do
         VM_GROUP="default"
     }
 
-    # Count the number of '=' characters. We only support parsing for a single network.
-    # Example: private-net=10.0.0.11, 10.0.42.65
+    # Example output: "private-net=10.0.0.11, 10.0.42.65; other-net=192.168.0.11"
+    # Most likely, the first IP address is the private one, the second is public
     NETWORKS=$(echo "$INFO" | jq -rM .addresses)
-    NUM_NETWORKS=$(echo "$NETWORKS" | awk -F= '{print NF-1}')
-    test "$NUM_NETWORKS" -eq 1 || { warn "The VM '$NAME' has $NUM_NETWORKS networks. Can only parse 1 network, skipping VM."; continue; }
-    IPS=$(echo "$NETWORKS" | cut -d= -f 2 | sed 's/,/ /g')
-    FOUND_IP=""
-    for i in $IPS; do
-        if [[ "$i" = "$IP_PREFIX"* ]]; then
-            if [ -z "$FOUND_IP" ]; then
-                FOUND_IP="$i"
-            else
-                warn "VM '$NAME' has multiple IPs with prefix $IP_PREFIX: $FOUND_IP $i. Using $FOUND_IP."
-                break
-            fi
+    PRIVATE_IP=""
+    PUBLIC_IP=""
+    MYIFS="${IFS},=" # Treat '=' and ',' like white space for simpler processing
+    while IFS="$MYIFS" read -d ';' net_name ip1 ip2 remainder; do
+        if [[ "$net_name" = $PREFIX* ]]; then
+            PRIVATE_IP="$ip1"
+            PUBLIC_IP="$ip2"
+            break
         fi
-    done
-    test -z "$FOUND_IP" && { warn "No IP with prefix $IP_PREFIX found for VM '$NAME', skipping VM. Found IPs:" $IPS; continue; }
+    done <<< "${NETWORKS};" # Append a semicolon to enable 'read' to process the last (and possibly only) entry
+    test -z "$PUBLIC_IP" && { echo "Private & public IPs not found for VM '$NAME' in network named '$PREFIX*', skipping VM. Network info: $NETWORKS"; continue; }
 
     # Do these assignments only after all above checks have passed
     HYPERVISORS="$HYPERVISORS $HYPERVISOR"
     VM_GROUPS[$VM_GROUP]="${VM_GROUPS[$VM_GROUP]} $NAME"
     ALL_VMS="$ALL_VMS $NAME"
-    HOST_IPS[$NAME]="$FOUND_IP"
+    PUBLIC_IPS[$NAME]="$PUBLIC_IP"
+    PRIVATE_IPS[$NAME]="$PRIVATE_IP"
 done
 
 # Create sections for VM_GROUPS

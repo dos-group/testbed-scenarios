@@ -8,7 +8,8 @@ rtmp:
   port: 1935
   balancer_stats_port: 8080
   backend_http_port: 8080
-  default_request_path: "/vod/example-11s.flv"
+  default_request_path: "/mirror/720/big_buck_bunny_720p_50mb.flv"
+  #default_request_path: "/vod/example-11s.flv"
   client_log_dir_prefix: rtmp-client-output
   client_log_dir: /opt/bitflow/rtmp-client
   client_log_dir_mounted: /bitflow/rtmp-client
