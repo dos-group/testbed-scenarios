@@ -65,7 +65,7 @@
         env:
           RTMP_PORT: "{{ rtmp.port }}"
           STATS_PORT: "{{ rtmp.balancer_stats_port }}"
-          RTMP_SERVERS: "{{ groups['backend'] | map('extract', hostvars, ['ansible_host']) | join(' ') }}"
+          RTMP_SERVERS: "{{ groups['backend'] | map('extract', hostvars, ['private_ip']) | join(' ') }}"
 
 - name: Install the load generation client
   hosts: client
@@ -94,7 +94,7 @@
         force: false
         content: |
           {% for host in groups['load-balancer'] %}
-          rtmp://{{ hostvars[host]['ansible_host'] }}:{{ rtmp.port }}{{ rtmp.default_request_path }}
+          rtmp://{{ hostvars[host]['private_ip'] }}:{{ rtmp.port }}{{ rtmp.default_request_path }}
           {% endfor %}
       with_sequence: count={{ rtmp_clients_per_host }}
     - name: Delete excess load generation targets files
