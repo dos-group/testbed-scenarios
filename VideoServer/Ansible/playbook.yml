@@ -63,9 +63,10 @@
         dest: "{{ rtmp.client_targets_dir }}/{{ item }}.txt"
         force: false
         content: |
-          {% for host in groups['load-balancer'] %}
-          rtmp://{{ hostvars[host]['private_ip'] }}:{{ rtmp.port }}{{ rtmp.default_request_path }}
-          {% endfor %}
+          CMD sleep 3
+#{% for host in groups['load-balancer'] %}
+#rtmp://{{ hostvars[host]['private_ip'] }}:{{ rtmp.port }}{{ rtmp.default_request_path }}
+#{% endfor %}
       with_sequence: count={{ rtmp_clients_per_host }}
     - name: Delete excess load generation targets files
       become: true

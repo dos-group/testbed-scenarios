@@ -1,19 +1,14 @@
 #!/usr/bin/env ansible-playbook
 
-- include: reset-collector-injector.yml
+- import_playbook: reset-collector-injector.yml
 
 - name: Delete collector data
   hosts: all:!client
   tasks:
-    - file: path={{ collector.data_path }} state=absent
-      become: true
-    - file: path={{ collector.data_path }} state=directory
-      become: true
+    - command: rm -rf "{{ collector.data_path }}/*"
 
 - name: Delete client statistics data
   hosts: client
   tasks:
-    - file: path={{ rtmp.client_log_dir }} state=absent
-      become: true
-    - file: path={{ rtmp.client_log_dir }} state=directory
-      become: true
+    - command: rm -rf "{{ rtmp.client_log_dir }}/*"
+
