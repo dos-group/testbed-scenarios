@@ -1,11 +1,1 @@
-#!/usr/bin/env ansible-playbook
-
-- name: Restart docker daemon
-  hosts: all
-  tags: [ docker ]
-  tasks:
-    - name: Restart docker daemon
-      become: true
-      service:
-          name: docker
-          state: restarted
+/home/alex/workspace/testbed-scenarios/Common/Scripts/restart-docker.yml

@@ -1,0 +1,34 @@
+#!/usr/bin/env ansible-playbook
+
+- name: Preparation
+  hosts: all
+  tasks:
+    - name: Query hostname
+      command: cat /etc/hostname
+      register: hostname
+      changed_when: False
+
+- name: Unset collector tags, stop file outputs, stop all running anomalies on VM and Host layer
+  hosts:
+    - hypervisors
+    - vms:!client
+  vars:
+    injector: "{{ injector_vm_phys }}"
+  tasks:
+    - uri:
+        url: "{{ item }}"
+        method: DELETE
+      with_items:
+        - "http://0.0.0.0:{{ collector.api_port }}/{{ collector.tags_path }}"
+        - "http://0.0.0.0:{{ collector.api_port }}/{{ collector.file_output_path }}"
+        - "http://0.0.0.0:{{ injector.api_port }}/{{ injector.anomalies_path }}"
+
+- name: Stop all running anomalies on service layer
+  hosts:
+    - vms:!client
+  vars:
+    injector: "{{ injector_service }}"
+  tasks:
+    - uri:
+        url: "http://0.0.0.0:{{ injector.api_port }}/{{ injector.anomalies_path }}"
+        method: DELETE

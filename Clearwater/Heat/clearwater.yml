@@ -165,7 +165,7 @@ parameters:
       apt install -y linux-image-extra-$(uname -r) linux-image-extra-virtual apt-transport-https ca-certificates curl software-properties-common
 
       #Set service name environment variable
-      echo -e '\nSERVICE_NAME=$(echo $(hostname) | tr "-" "\n" | sed -n "1p")' >> /etc/environment
+      sudo bash -c "echo -e "SERVICE_NAME=$(echo $(hostname) | tr "-" "\n" | sed -n "1p")" >> /etc/environment"
 
       # Reduce the apt update/install timeout to 20 seconds
       echo -e 'Acquire::http::Timeout "20";\nAcquire::ftp::Timeout "10";' > /etc/apt/apt.conf.d/99timeout

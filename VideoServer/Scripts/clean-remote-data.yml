@@ -1,14 +1,6 @@
 #!/usr/bin/env ansible-playbook
 
-- include: reset-collector-injector.yml
-
-- name: Delete collector data
-  hosts: all:!client
-  tasks:
-    - file: path={{ collector.data_path }} state=absent
-      become: true
-    - file: path={{ collector.data_path }} state=directory
-      become: true
+- include: ../../Common/Scripts/clean-remote-collector-data.yml
 
 - name: Delete client statistics data
   hosts: client
