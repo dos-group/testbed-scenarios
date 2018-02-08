@@ -219,15 +219,14 @@ services:
           - node.labels.comp!=sippstress
 
   injector_vm:
-    image: alexanderacker/anomaly_injector
-    ports:
-      - "7888:7888"
+    image: alexanderacker/docker_wrapper
     networks:
       - dummy_nw
     volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
       - "/etc/hostname:/etc_host/hostname"
     entrypoint: "/bin/bash"
-    command: -c "python3.6 ./injector_agent.py -host $$(cat /etc_host/hostname).ims4 -api-port 7888"
+    command: -c 'exec docker run --init --rm --privileged=true --cap-add=ALL --pid=host --net=host -p "7888:78888" -v "/etc/hostname:/etc_host/hostname" --entrypoint="/bin/bash" alexanderacker/anomaly_injector -c "python3.6 ./injector_agent.py -host $$(cat /etc_host/hostname).ims4 -api-port 7888"'
     deploy:
       mode: global
       placement:
@@ -235,15 +234,14 @@ services:
           - node.labels.comp!=sippstress
 
   injector_vnf:
-    image: alexanderacker/anomaly_injector
-    ports:
-      - "7889:7889"
+    image: alexanderacker/docker_wrapper
     networks:
       - dummy_nw
     volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
       - "/etc/hostname:/etc_host/hostname"
     entrypoint: "/bin/bash"
-    command: -c "python3.6 ./injector_agent.py -host $$SERVICE_NAME@$$(cat /etc_host/hostname).ims4 -api-port 7889"
+    command: -c 'exec docker run --init --rm --privileged=true --cap-add=ALL --pid=host --net=host -p "7889:78889" -v "/etc/hostname:/etc_host/hostname" --entrypoint="/bin/bash" alexanderacker/anomaly_injector -c "python3.6 ./injector_agent.py -host $$SERVICE_NAME@$$(cat /etc_host/hostname).ims4 -api-port 7889"'
     deploy:
       mode: global
       placement:
@@ -263,6 +261,7 @@ services:
       placement:
         constraints:
           - node.labels.comp==sippstress
+
   sip-stress-core:
     image: muhammadimran/sip-stress-core
     networks:
