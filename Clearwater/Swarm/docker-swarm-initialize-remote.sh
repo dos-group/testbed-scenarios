@@ -24,12 +24,6 @@ fi
 export LC_MANAGER_TOKEN=$(sudo docker swarm join-token manager -q)
 export LC_WORKER_TOKEN=$(sudo docker swarm join-token worker -q)
 
-# tell swarm managers to join leader
-for j in $LC_OTHER_MANAGERS; do
-	echo "Adding $j to the swarm as a manager..."
-	ssh -n -o StrictHostKeyChecking=no -o ConnectTimeout=3 -o BatchMode=yes -o SendEnv="LC_MANAGER_TOKEN LC_INITIAL_MANAGER" ubuntu@$j "sudo docker swarm join --token $LC_MANAGER_TOKEN $LC_INITIAL_MANAGER:2377 &> /dev/null";
-done
-
 for k in $LC_WORKERS; do
 	echo "Adding $k to the swarm as a worker..."
 	ssh -n -o StrictHostKeyChecking=no -o ConnectTimeout=3 -o BatchMode=yes -o SendEnv="LC_WORKER_TOKEN LC_INITIAL_MANAGER" ubuntu@$k "sudo docker swarm join --token $LC_WORKER_TOKEN $LC_INITIAL_MANAGER:2377 &> /dev/null";
@@ -39,9 +33,17 @@ echo "Labeling nodes..."
 HOSTNAMES=$(sudo docker node ls --format "{{.Hostname}}")
 for name in $HOSTNAMES; do
 	echo "Labeling: $name"
-	{ sudo docker node update --label-add comp=$(echo "$name"|cut -d- -f1) $name } &> /dev/null
+    { sudo docker node update --label-add comp=$(echo "$name" | cut -d- -f2) $name ; } &> /dev/null
 done
 
 echo "Launching stack '$LC_STACK_NAME'..."
-
 sudo -E docker stack deploy -c ~/docker-compose.yaml "$LC_STACK_NAME" --with-registry-auth
+
+# tell swarm managers to join leader AFTER deployment since heavy load caused by deployment triggers reelection
+# of leader --> deployment fails
+for j in $LC_OTHER_MANAGERS; do
+	echo "Adding $j to the swarm as a manager..."
+	ssh -n -o StrictHostKeyChecking=no -o ConnectTimeout=3 -o BatchMode=yes -o SendEnv="LC_MANAGER_TOKEN LC_INITIAL_MANAGER" ubuntu@$j "sudo docker swarm join --token $LC_MANAGER_TOKEN $LC_INITIAL_MANAGER:2377 &> /dev/null"
+done
+
+
