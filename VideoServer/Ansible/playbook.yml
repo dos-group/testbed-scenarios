@@ -1,42 +1,6 @@
 #!/usr/bin/env ansible-playbook
 
-- name: Install Python
-  hosts: all
-  gather_facts: false
-  tasks:
-    - include_tasks: ../../Common/Ansible/bootstrap-python.yml
-      become: true
-
-- name: Preparation
-  hosts: all
-  tasks:
-    - name: Query hostname
-      command: cat /etc/hostname
-      register: hostname
-      changed_when: False
-    - include_tasks: ../../Common/Ansible/bootstrap-docker-tasks.yml
-      become: true
-
-- name: Install the Bitflow collector and injector
-  hosts:
-    - hypervisors
-    - vms:!client
-  vars:
-    injector: "{{ injector_vm_phys }}"
-  tasks:
-    - include_tasks: ../../Common/Ansible/bitflow-collector-tasks.yml
-      become: true
-    - include_tasks: ../../Common/Ansible/injector-tasks.yml
-      become: true
-
-- name: Install the service layer injector
-  hosts:
-    - vms:!client
-  vars:
-    injector: "{{ injector_service }}"
-  tasks:
-    - include_tasks: ../../Common/Ansible/injector-tasks.yml
-      become: true
+- import_playbook: playbook-base.yml
 
 - name: Install the backend video server
   hosts: backend
@@ -99,9 +63,10 @@
         dest: "{{ rtmp.client_targets_dir }}/{{ item }}.txt"
         force: false
         content: |
-          {% for host in groups['load-balancer'] %}
-          rtmp://{{ hostvars[host]['private_ip'] }}:{{ rtmp.port }}{{ rtmp.default_request_path }}
-          {% endfor %}
+          CMD sleep 3
+#{% for host in groups['load-balancer'] %}
+#rtmp://{{ hostvars[host]['private_ip'] }}:{{ rtmp.port }}{{ rtmp.default_request_path }}
+#{% endfor %}
       with_sequence: count={{ rtmp_clients_per_host }}
     - name: Delete excess load generation targets files
       become: true

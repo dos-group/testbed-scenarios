@@ -12,23 +12,12 @@
   hosts:
     - hypervisors
     - vms:!client
-  vars:
-    injector: "{{ injector_vm_phys }}"
   tasks:
     - uri:
         url: "{{ item }}"
         method: DELETE
       with_items:
-        - "http://0.0.0.0:{{ collector.api_port }}/{{ collector.tags_path }}"
-        - "http://0.0.0.0:{{ collector.api_port }}/{{ collector.file_output_path }}"
-        - "http://0.0.0.0:{{ injector.api_port }}/{{ injector.anomalies_path }}"
+        - "http://0.0.0.0:{{ collector.api_port }}/api/tags"
+        - "http://0.0.0.0:{{ collector.api_port }}/api/file_output"
+        - "http://0.0.0.0:{{ injector.api_port }}/api/anomalies/"
 
-- name: Stop all running anomalies on service layer
-  hosts:
-    - vms:!client
-  vars:
-    injector: "{{ injector_service }}"
-  tasks:
-    - uri:
-        url: "http://0.0.0.0:{{ injector.api_port }}/{{ injector.anomalies_path }}"
-        method: DELETE

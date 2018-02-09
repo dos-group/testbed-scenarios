@@ -5,7 +5,5 @@
 - name: Delete client statistics data
   hosts: client
   tasks:
-    - file: path={{ rtmp.client_log_dir }} state=absent
-      become: true
-    - file: path={{ rtmp.client_log_dir }} state=directory
-      become: true
+    - command: rm -rf "{{ rtmp.client_log_dir }}/*"
+

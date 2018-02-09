@@ -1,0 +1,9 @@
+#!/usr/bin/env ansible-playbook
+
+- name: Set environment variable and reboot
+  hosts:
+    - vms
+  tasks:
+    - name: Check if environment variable SERVICE_NAME is set
+      command: >
+        bash -c '[ -z $SERVICE_NAME ]'

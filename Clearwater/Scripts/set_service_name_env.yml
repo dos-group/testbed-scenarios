@@ -1,0 +1,24 @@
+#!/usr/bin/env ansible-playbook
+
+- name: Install Python
+  tags: [ bootstrap ]
+  hosts:
+    - vms
+  gather_facts: false
+  tasks:
+    - include_tasks: ../../Common/Ansible/bootstrap-python.yml
+      become: true
+
+- name: Set environment variable and reboot
+  hosts:
+    - vms
+  tasks:
+    - name: Set env variable and restart
+      command: >
+        bash -c '
+          if [ -z $SERVICE_NAME ]; then 
+            echo -e "SERVICE_NAME=$(echo $(hostname) | tr "-" "\n" | sed -n "1p")" >> /etc/environment
+            shutdown -r +1
+          fi'
+      become: true
+

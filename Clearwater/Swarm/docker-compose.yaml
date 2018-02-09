@@ -211,7 +211,7 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock"
       - "/etc/hostname:/etc_host/hostname" 
     entrypoint: "/bin/bash"
-    command: -c 'exec docker run --init --rm --privileged=true --cap-add=ALL --pid=host -p "5010:5010" -p "7777:7777" -v "/opt/bitflow/data-collector:/bitflow/data-collector" -v "/etc/hostname:/etc_host/hostname" --entrypoint="/bin/bash" antongulenko/bitflow-collector -c "bitflow-collector -tag host=\"$$SERVICE_NAME@$$(cat /etc_host/hostname).ims4\" -exclude \"pcap|net-io/nic\" -proc vnf=\"clearwater|vnf_\" -include vnf/ -ci 500ms -si 500ms -api :7777 -o :5010 -o /bitflow/data-collector/data.bin"'
+    command: -c 'exec docker run --init --rm --privileged=true --cap-add=ALL --pid=host -e SERVICE_NAME=$SERVICE_NAME -p "5010:5010" -p "7777:7777" -v "/opt/bitflow/data-collector:/bitflow/data-collector" -v "/etc/hostname:/etc_host/hostname" --entrypoint="/bin/bash" antongulenko/bitflow-collector -c "bitflow-collector -tag host=\"$$SERVICE_NAME@$$(cat /etc_host/hostname).ims4\" -exclude \"pcap|net-io/nic\" -proc vnf=\"clearwater|vnf_\" -include vnf/ -ci 500ms -si 500ms -api :7777 -o :5010 -o /bitflow/data-collector/data.bin"'
     deploy:
       mode: global
       placement:
@@ -235,13 +235,15 @@ services:
 
   injector_vnf:
     image: alexanderacker/docker_wrapper
+    environment:
+      - SERVICE_NAME
     networks:
       - dummy_nw
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
       - "/etc/hostname:/etc_host/hostname"
     entrypoint: "/bin/bash"
-    command: -c 'exec docker run --init --rm --privileged=true --cap-add=ALL --pid=host --net=host -p "7889:7889" -v "/etc/hostname:/etc_host/hostname" --entrypoint="/bin/bash" alexanderacker/anomaly_injector -c "python3.6 ./injector_agent.py -host $$SERVICE_NAME@$$(cat /etc_host/hostname).ims4 -api-port 7889"'
+    command: -c 'exec docker run --init --rm --privileged=true --cap-add=ALL --pid=host --net=host -e SERVICE_NAME=$SERVICE_NAME -p "7889:7889" -v "/etc/hostname:/etc_host/hostname" --entrypoint="/bin/bash" alexanderacker/anomaly_injector -c "python3.6 ./injector_agent.py -host $$SERVICE_NAME@$$(cat /etc_host/hostname).ims4 -api-port 7889"'
     deploy:
       mode: global
       placement:
