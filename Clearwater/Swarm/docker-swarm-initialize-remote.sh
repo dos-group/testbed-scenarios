@@ -29,6 +29,11 @@ for k in $LC_WORKERS; do
 	ssh -n -o StrictHostKeyChecking=no -o ConnectTimeout=3 -o BatchMode=yes -o SendEnv="LC_WORKER_TOKEN LC_INITIAL_MANAGER" ubuntu@$k "sudo docker swarm join --token $LC_WORKER_TOKEN $LC_INITIAL_MANAGER:2377 &> /dev/null";
 done
 
+for j in $LC_OTHER_MANAGERS; do
+	echo "Adding $j to the swarm as a manager..."
+	ssh -n -o StrictHostKeyChecking=no -o ConnectTimeout=3 -o BatchMode=yes -o SendEnv="LC_MANAGER_TOKEN LC_INITIAL_MANAGER" ubuntu@$j "sudo docker swarm join --token $LC_MANAGER_TOKEN $LC_INITIAL_MANAGER:2377 &> /dev/null"
+done
+
 echo "Labeling nodes..."
 HOSTNAMES=$(sudo docker node ls --format "{{.Hostname}}")
 for name in $HOSTNAMES; do
@@ -41,9 +46,6 @@ sudo -E docker stack deploy -c ~/docker-compose.yaml "$LC_STACK_NAME" --with-reg
 
 # tell swarm managers to join leader AFTER deployment since heavy load caused by deployment triggers reelection
 # of leader --> deployment fails
-for j in $LC_OTHER_MANAGERS; do
-	echo "Adding $j to the swarm as a manager..."
-	ssh -n -o StrictHostKeyChecking=no -o ConnectTimeout=3 -o BatchMode=yes -o SendEnv="LC_MANAGER_TOKEN LC_INITIAL_MANAGER" ubuntu@$j "sudo docker swarm join --token $LC_MANAGER_TOKEN $LC_INITIAL_MANAGER:2377 &> /dev/null"
-done
+
 
 
