@@ -44,8 +44,4 @@ done
 echo "Launching stack '$LC_STACK_NAME'..."
 sudo -E docker stack deploy -c ~/docker-compose.yaml "$LC_STACK_NAME" --with-registry-auth
 
-# tell swarm managers to join leader AFTER deployment since heavy load caused by deployment triggers reelection
-# of leader --> deployment fails
-
-
 
