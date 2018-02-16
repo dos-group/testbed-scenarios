@@ -79,7 +79,7 @@ resources:
                         params:
                             $AUTHORIZED_KEYS: { get_file: keys/id_rsa.pub }
                     - chown -R ubuntu:ubuntu /home/ubuntu
-                    # - { get_file: 'https://gitlab.tubit.tu-berlin.de/anton.gulenko/scripts/raw/master/cloud-init-basic.sh' }
+                    - { get_file: 'https://gitlab.tubit.tu-berlin.de/anton.gulenko/scripts/raw/master/cloud-init-basic.sh' }
                     - str_replace:
                         template: |
                             bash -s <<"xxx_CUSTOM_SETUP_CODE_xxx"
