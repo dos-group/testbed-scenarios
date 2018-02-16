@@ -10,12 +10,10 @@
       register: hostname
       changed_when: False
 
-- name: Fetch client statistics data
-  hosts: client
+- name: Fetch data collector data from remote hosts
+  hosts: all:!client
   tasks:
     - synchronize:
         mode: pull
-        src: "{{ rtmp.client_log_dir }}"
+        src: "{{ collector.data_path }}"
         dest: "{{ fetch_dir }}/{{ inventory_hostname }}/"
-
-- include: ../../Common/Scripts/fetch-collector-data.yml

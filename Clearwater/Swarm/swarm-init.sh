@@ -5,9 +5,9 @@ test $# = 2 || { echo "Parameters: stack name + private key file"; exit 1; }
 export STACK="$1"
 KEY_FILE="$2"
 
-function query_array_0() { openstack stack output show "$STACK" "$1" -f json | jq -rM '.output_value[0]'; }
-function query_array_remainder() { openstack stack output show "$STACK" "$1" -f json | jq -rM '.output_value[1:][]'; }
-function query_array_all() { openstack stack output show "$STACK" "$1" -f json | jq -rM '.output_value[]'; }
+function query_array_0() { openstack stack output show "$STACK" "$1" -f json | jq -rM '.output_value' | jq -rM '.[0]' ; }
+function query_array_remainder() { openstack stack output show "$STACK" "$1" -f json | jq -rM '.output_value' | jq -rM '.[1:][]'; }
+function query_array_all() { openstack stack output show "$STACK" "$1" -f json | jq -rM '.output_value' | jq -rM '.[]'; }
 
 function query_compare_lengths() {
 	len1=$(openstack stack output show "$STACK" "$1" -f json | jq length)
@@ -28,8 +28,8 @@ get_node_private_ips()
 {
 	echo "Getting node(s) IPs..."
 	#############
-	ETCD_NODE_PRIVATE_IPS="$(query_array_all   etcd_ips)"
-	ELLIS_NODE_PRIVATE_IPS="$(query_array_all  ellis_ips)"
+	ETCD_NODE_PRIVATE_IPS="$(query_array_all etcd_ips)"
+	ELLIS_NODE_PRIVATE_IPS="$(query_array_all ellis_ips)"
 	BONO_NODE_PRIVATE_IPS="$(query_array_all   bono_ips)"
 	SPROUT_NODE_PRIVATE_IPS="$(query_array_all sprout_ips)"
 	HOMER_NODE_PRIVATE_IPS="$(query_array_all  homer_ips)"
@@ -41,7 +41,7 @@ get_node_private_ips()
 	RALF_NODE_PRIVATE_IPS="$(query_array_all   ralf_ips)"
 	SIPP_STRESS_NODE_PRIVATE_IPS="$(query_array_all  sippstress_ips)"
 
-	export LC_WORKERS="$ETCD_PRIVATE_IPS $ELLIS_PRIVATE_IPS $BONO_PRIVATE_IPS $SPROUT_PRIVATE_IPS $HOMER_PRIVATE_IPS $HOMESTEAD_PRIVATE_IPS $CASSANDRA_PRIVATE_IPS $ASTAIRE_PRIVATE_IPS $HOMESTEADPROV_PRIVATE_IPS $CHRONOS_PRIVATE_IPS $RALF_PRIVATE_IPS $SIPP_STRESS_PRIVATE_IPS"
+	export LC_WORKERS="$ETCD_NODE_PRIVATE_IPS $ELLIS_NODE_PRIVATE_IPS $BONO_NODE_PRIVATE_IPS $SPROUT_NODE_PRIVATE_IPS $HOMER_NODE_PRIVATE_IPS $HOMESTEAD_NODE_PRIVATE_IPS $CASSANDRA_NODE_PRIVATE_IPS $ASTAIRE_NODE_PRIVATE_IPS $HOMESTEAD_PROV_NODE_PRIVATE_IPS $CHRONOS_NODE_PRIVATE_IPS $RALF_NODE_PRIVATE_IPS $SIPP_STRESS_NODE_PRIVATE_IPS"
 }
 
 # to be executed on client system
@@ -61,4 +61,7 @@ echo "Executing commands on swarm leader machine..."
 export LC_STACK_NAME="clearwater-stack"
 ssh -i $KEY_FILE -o StrictHostKeyChecking=no \
 	-o SendEnv="LC_INITIAL_MANAGER LC_OTHER_MANAGERS LC_WORKERS LC_STACK_NAME" \
-	-A ubuntu@$SWARM_LEADER_PUBLIC 'bash -s' < "$home/../../Common/docker-swarm-initialize-remote.sh"
+	-A ubuntu@$SWARM_LEADER_PUBLIC 'bash -s' < "$home/docker-swarm-initialize-remote.sh"
+
+
+

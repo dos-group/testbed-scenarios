@@ -1,3 +1,7 @@
 
 collector:
-  extra_args: -proc-children 'video=antongulenko/rtmp|vnf_' -include video/ -tag "host={{ hostname_service }}"
+  extra_args: -tag "host={{ hostname_service }}"
+
+# Below arguments would be used to collect service specific metrics
+# extra_args: -proc-children 'video=antongulenko/rtmp|vnf_' -include video/ 
+

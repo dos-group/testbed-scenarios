@@ -55,7 +55,7 @@ parameters:
   public_net_cidr:
     type: string
     description: Subnet address of public network
-    default: "10.0.42.0/24"
+    default: 10.0.42.0/24
   private_net_cidr:
     type: string
     description: Private network address (CIDR notation)
@@ -95,35 +95,15 @@ parameters:
   load_generator_zone:
     type: string
     description: Availability Zone to spawn load generation VMs
-    default: "Load-Generators"
-  repo_url:
+    default: "Load-Generator availability zone"
+  core_zone:
     type: string
-    description: URL for Clearwater repository
-    default: http://repo.cw-ngv.com/stable
+    description: Availability Zone to spawn the core IMS VMs
+    default: "Core avalability zone"
   zone:
     type: string
     description: DNS zone
     default: ims4
-  dn_range_start:
-    type: string
-    description: First directory number in pool
-    default: "2010000000"
-    constraints:
-      - allowed_pattern: "[0-9]+"
-        description: Must be numeric
-  dn_range_length:
-    type: string
-    description: Number of directory numbers to add to pool
-    default: "100000"
-    constraints:
-      - allowed_pattern: "[0-9]+"
-        description: Must be numeric
-#  dnssec_key:
-#    type: string
-#    description: DNSSEC private key (Base64-encoded)
-#    constraints:
-#      - allowed_pattern: "[0-9A-Za-z+/=]+"
-#        description: Must be Base64-encoded
   swarm_manager_size:
     type: number
     description: Number of swarm managers
@@ -185,7 +165,7 @@ parameters:
       apt install -y linux-image-extra-$(uname -r) linux-image-extra-virtual apt-transport-https ca-certificates curl software-properties-common
 
       #Set service name environment variable
-      echo -e '\nSERVICE_NAME=$(echo $(hostname) | tr "-" "\n" | sed -n "1p")' >> /etc/environment
+      sudo bash -c "echo -e "SERVICE_NAME=$(echo $(hostname) | tr "-" "\n" | sed -n "1p")" >> /etc/environment"
 
       # Reduce the apt update/install timeout to 20 seconds
       echo -e 'Acquire::http::Timeout "20";\nAcquire::ftp::Timeout "10";' > /etc/apt/apt.conf.d/99timeout
@@ -205,7 +185,6 @@ parameters:
       apt install -y jq
       apt-get -y update && apt-get -y upgrade
       shutdown -r now
-
 
 
 resources:
@@ -591,24 +570,6 @@ resources:
           remote_mode: remote_group_id
           #remote_group_id: { get_resource: ralf } # omit remote_group_id to reference yourself
 
-  #security_groups_etcd:
-  #  type: OS::Neutron::SecurityGroup
-  #  properties:
-  #    name: { str_replace: { params: { __name_prefix__: { get_param: "OS::stack_name" } }, template: __name_prefix__-etcd } }
-  #    description: Security group for ETCD
-  #    rules:
-  #      - protocol: tcp
-  #        port_range_min: 4001
-  #        port_range_max: 4001
-  #        remote_mode: remote_group_id
-  #      - protocol: tcp
-  #        port_range_min: 7001
-  #        port_range_max: 7001
-  #        remote_mode: remote_group_id
-  #      - protocol: tcp
-  #        port_range_min: 2379
-  #        port_range_max: 2380
-  #        remote_mode: remote_group_id
   security_groups_cassandra:
     type: OS::Neutron::SecurityGroup
     properties:
@@ -631,6 +592,7 @@ resources:
           port_range_min: 32774
           port_range_max: 32774
           remote_mode: remote_group_id
+
   security_groups_chronos:
     type: OS::Neutron::SecurityGroup
     properties:
@@ -659,6 +621,7 @@ resources:
           port_range_min: 32768
           port_range_max: 32768
           remote_mode: remote_group_id
+
   security_groups_homestead-prov:
     type: OS::Neutron::SecurityGroup
     properties:
@@ -706,12 +669,14 @@ resources:
         type: server-floating.yaml
         properties:
           stack_name: { get_param: "OS::stack_name" }
+          group: swarm_manager
           name: { str_replace: { params: { __index__: "%index%", __stack__: { get_param: "OS::stack_name" }, __zone__: { get_param: zone } }, template: __stack__-swarm_manager-__index__.__zone__ } }
           image: { get_param: image }
           flavor: { get_param: flavor }
           key_name: { get_param: key_name }
           external_network: { get_param: public_net_id }
           network: { get_resource: network_private_net }
+          availability_zone: { get_param: core_zone }
           security_groups:
             - { get_resource: security_groups_base }
             - { get_resource: security_groups_swarm }
@@ -733,6 +698,7 @@ resources:
           key_name: { get_param: key_name }
           external_network: { get_param: public_net_id }
           network: { get_resource: network_private_net }
+          availability_zone: { get_param: core_zone }
           security_groups:
             - { get_resource: security_groups_base }
             - { get_resource: security_groups_swarm}
@@ -754,6 +720,7 @@ resources:
           key_name: { get_param: key_name }
           external_network: { get_param: public_net_id }
           network: { get_resource: network_private_net }
+          availability_zone: { get_param: core_zone }
           security_groups:
             - { get_resource: security_groups_base }
             - { get_resource: security_groups_swarm }
@@ -776,6 +743,7 @@ resources:
           key_name: { get_param: key_name }
           external_network: { get_param: public_net_id }
           network: { get_resource: network_private_net }
+          availability_zone: { get_param: core_zone }
           security_groups:
             - { get_resource: security_groups_base }
             - { get_resource: security_groups_swarm }
@@ -798,6 +766,7 @@ resources:
           key_name: { get_param: key_name }
           external_network: { get_param: public_net_id }
           network: { get_resource: network_private_net }
+          availability_zone: { get_param: core_zone }
           security_groups:
             - { get_resource: security_groups_base }
             - { get_resource: security_groups_swarm }
@@ -820,6 +789,7 @@ resources:
           key_name: { get_param: key_name }
           external_network: { get_param: public_net_id }
           network: { get_resource: network_private_net }
+          availability_zone: { get_param: core_zone }
           security_groups:
             - { get_resource: security_groups_base }
             - { get_resource: security_groups_swarm }
@@ -842,6 +812,7 @@ resources:
           key_name: { get_param: key_name }
           external_network: { get_param: public_net_id }
           network: { get_resource: network_private_net }
+          availability_zone: { get_param: core_zone }
           security_groups:
             - { get_resource: security_groups_base }
             - { get_resource: security_groups_swarm }
@@ -864,6 +835,7 @@ resources:
           key_name: { get_param: key_name }
           external_network: { get_param: public_net_id }
           network: { get_resource: network_private_net }
+          availability_zone: { get_param: core_zone }
           security_groups:
             - { get_resource: security_groups_base }
             - { get_resource: security_groups_swarm }
@@ -886,6 +858,7 @@ resources:
           key_name: { get_param: key_name }
           external_network: { get_param: public_net_id }
           network: { get_resource: network_private_net }
+          availability_zone: { get_param: core_zone }
           security_groups:
             - { get_resource: security_groups_base }
             - { get_resource: security_groups_swarm }
@@ -908,6 +881,7 @@ resources:
           key_name: { get_param: key_name }
           external_network: { get_param: public_net_id }
           network: { get_resource: network_private_net }
+          availability_zone: { get_param: core_zone }
           security_groups:
             - { get_resource: security_groups_base }
             - { get_resource: security_groups_swarm }
@@ -931,6 +905,7 @@ resources:
           key_name: { get_param: key_name }
           external_network: { get_param: public_net_id }
           network: { get_resource: network_private_net }
+          availability_zone: { get_param: core_zone }
           security_groups:
             - { get_resource: security_groups_base }
             - { get_resource: security_groups_swarm }
@@ -953,6 +928,7 @@ resources:
           key_name: { get_param: key_name }
           external_network: { get_param: public_net_id }
           network: { get_resource: network_private_net }
+          availability_zone: { get_param: core_zone }
           security_groups:
             - { get_resource: security_groups_base }
             - { get_resource: security_groups_swarm }
