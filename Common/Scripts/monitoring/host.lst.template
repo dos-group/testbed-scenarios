@@ -1,0 +1,10 @@
+[NUM_SPLITS] #Number of tmux splits per target
+[CMD] #Command that shold be executed on targets (leave emtpy line if no cmd should be executed)
+10.0.42.70
+10.0.42.73
+10.0.42.72
+10.0.42.71
+.
+.
+.
+10.23.3.45
