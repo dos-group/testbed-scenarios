@@ -24,3 +24,6 @@ for file in $allfiles; do
 done
 
 ansible-playbook "$home/update-client-targets.yml"
+echo "Killing ffmpeg processes..."
+ansible client -b -m shell -a 'killall ffmpeg'
+
