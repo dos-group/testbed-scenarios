@@ -11,6 +11,7 @@
     image: antongulenko/bitflow-collector
     pull: true
     pid_mode: host
+    network_mode: host
     privileged: yes
     ports:
       - "{{ collector.port }}:{{ collector.port }}"
