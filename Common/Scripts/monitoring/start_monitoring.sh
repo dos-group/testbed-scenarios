@@ -1,6 +1,7 @@
 #!/bin/bash
 
 HOST_FILES=$(ls *.lst)
+#INTERMEDIATE_HOST="--ihost wally180"
 
 for i in $HOST_FILES; do
     # Parse target list files
@@ -19,7 +20,7 @@ for i in $HOST_FILES; do
 	# Target hosts
     HOSTS=${TMP[@]}
     
-    ./tmux_exec_cmd.sh -i '~/.ssh/cit.key' -c "$CMD" --ihost "wally180" -n "$NUM_SPLITS" ${HOSTS[@]}
+    ./tmux_exec_cmd.sh -i '/home/anton/.ssh/id_cit' -c "$CMD" $INTERMEDIATE_HOST -n "$NUM_SPLITS" ${HOSTS[@]}
 done
 
 tmux a -t "tmux"
