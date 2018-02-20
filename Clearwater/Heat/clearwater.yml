@@ -163,6 +163,9 @@ parameters:
     default: >
       apt update
       apt install -y linux-image-extra-$(uname -r) linux-image-extra-virtual apt-transport-https ca-certificates curl software-properties-common
+      
+     #Install some useful monitoring tools
+      apt install htop bmon
 
       #Set service name environment variable
       sudo bash -c "echo -e "SERVICE_NAME=$(echo $(hostname) | tr "-" "\n" | sed -n "1p")" >> /etc/environment"
