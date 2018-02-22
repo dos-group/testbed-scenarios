@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#Adjuste individually
+#Adjuste individually (can be empty strings if no ihost or no key should be defined)
 INTERMEDIATE_HOST="--ihost wally180"
 ACCESS_KEY="-i ~/.ssh/cit.key"
 

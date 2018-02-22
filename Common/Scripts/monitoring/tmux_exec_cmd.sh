@@ -53,9 +53,9 @@ parse_arguments() {
 
 cmd() {
     if [ -z "$INTERMEDIATE_HOST" ]; then
-        local cmd="ssh $SSH_KEY ubuntu@[TARGET] -t \"$COMMAND; bash -l\""
+        local cmd="ssh -o StrictHostKeyChecking=no $SSH_KEY ubuntu@[TARGET] -t \"$COMMAND; bash -l\""
     else
-        local cmd="ssh $INTERMEDIATE_HOST -t \"ssh $SSH_KEY ubuntu@[TARGET] -t \\\"$COMMAND; bash -l\\\"; bash -l\""
+        local cmd="ssh -o StrictHostKeyChecking=no $INTERMEDIATE_HOST -t \"ssh -o StrictHostKeyChecking=no $SSH_KEY ubuntu@[TARGET] -t \\\"$COMMAND; bash -l\\\"; bash -l\""
     fi
 	echo "$cmd"
 }

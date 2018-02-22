@@ -1,9 +1,12 @@
 #!/usr/bin/env ansible-playbook
 
-- include: ../../Common/Scripts/clean-remote-collector-data.yml
+- import_playbook: ../../Common/Scripts/clean-remote-collector-data.yml
 
 - name: Delete client statistics data
   hosts: client
   tasks:
-    - command: rm -rf "{{ rtmp.client_log_dir }}/*"
+    - shell: find {{ rtmp.client_log_dir }} -type f -delete
+      become: true
+      args:
+        executable: /bin/bash
 
