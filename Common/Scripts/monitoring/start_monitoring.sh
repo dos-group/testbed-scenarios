@@ -1,5 +1,9 @@
 #!/bin/bash
 
+#Adjuste individually
+INTERMEDIATE_HOST="--ihost wally180"
+ACCESS_KEY="-i ~/.ssh/cit.key"
+
 HOST_FILES=$(ls *.lst)
 
 for i in $HOST_FILES; do
@@ -19,7 +23,7 @@ for i in $HOST_FILES; do
 	# Target hosts
     HOSTS=${TMP[@]}
     
-    ./tmux_exec_cmd.sh -i '~/.ssh/cit.key' -c "$CMD" --ihost "wally180" -n "$NUM_SPLITS" ${HOSTS[@]}
+    ./tmux_exec_cmd.sh $ACCESS_KEY -c "$CMD" $INTERMEDIATE_HOST -n "$NUM_SPLITS" ${HOSTS[@]}
 done
 
 tmux a -t "tmux"
