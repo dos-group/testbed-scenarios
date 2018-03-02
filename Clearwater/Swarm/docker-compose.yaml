@@ -255,6 +255,8 @@ services:
 
   sip-stress-core:
     image: muhammadimran/sip-stress-core
+    environment:
+      - ADDITIONAL_SHARED_CONFIG
     networks:
       - clearwater_nw
     deploy:
@@ -265,6 +267,8 @@ services:
 
   sip-stress:
     image: muhammadimran/sip-stress
+    environment:
+      - ADDITIONAL_SHARED_CONFIG
     networks:
       - clearwater_nw
     deploy:
