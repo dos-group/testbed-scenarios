@@ -14,7 +14,7 @@ This project will enable you deploy Clearwater project's components in a Docker 
 
 - Run ```./swarm_init.sh``` file with passing stack name as an argument.
 
-- Wait for the swarm to be created and all clearwater containers are deployed. (Note: live-test container will also be deployed on bono VM(s).)
+- Wait for the swarm to be created and all clearwater containers are deployed. (Note: live-test container will also be deployed on sipstress VM(s).)
 
     ~~The following steps (strikedthrough) are not needed for the new images.~~
     ~~After all containers are runing, to perform the live test, we need to do some manual steps:~~~
@@ -23,7 +23,7 @@ This project will enable you deploy Clearwater project's components in a Docker 
     ~~run ```./create_numbers.sh```~~
     ~~this will create 1000 numnbers in mysql database running inside ellis container.~~
 
-- Log in to bono VM and execute bash for ```live-test``` container by executing the following command: 
+- Log in to sipstress VM and execute bash for ```live-test``` container by executing the following command: 
     ```sudo docker exec -ti <live-test container id> bash```
 
 - Now run the following command to run the live test for the deployed clearwater component:
@@ -37,12 +37,12 @@ All tests should pass now. If tests are failing then do the following steps:
 
 ### Setting Advanced Shared Parameters For Clearwater Containers
 
-- To apply advanced shared configuration to clearwater components,  you need to expose these shared configuration as an envrionment variableon a system (or VM) where docker-compose file is being run (In our case swarm-manager). To do so, we need to make some changes in ```docker-swarm-initialize-remote.sh```. E.g. 
-	```export ADDITIONAL_SHARED_CONFIG="diameter_timeout_ms=600\nsprout_homestead_timeout_ms=550\nralf_threads=300\ndns_timeout=400"```
+- To apply advanced shared configuration to clearwater components,  you need to expose these shared configuration as an envrionment variableon a system (or VM) where docker-compose file is being run (In our case swarm-manager). To do so, we need to make some changes in ```docker-swarm-initialize-remote.sh```. E.g.
+```export ADDITIONAL_SHARED_CONFIG="diameter_timeout_ms=600\nsprout_homestead_timeout_ms=550"```
 
-Separate each parameter with ```\n```.
+	Separate each parameter with ```\n```.
 
-(Note: All options are given in the following link: http://clearwater.readthedocs.io/en/stable/Clearwater_Configuration_Options_Reference.html#advanced-options)
+	(Note: All options are given in the following link: http://clearwater.readthedocs.io/en/stable/Clearwater_Configuration_Options_Reference.html#advanced-options)
 
 
 #### To Update a Stack:
