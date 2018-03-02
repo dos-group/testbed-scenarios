@@ -42,6 +42,9 @@ All tests should pass now. If tests are failing then do the following steps:
 
 Separate each parameter with ```\n```.
 
+(Note: All options are given in the following link: http://clearwater.readthedocs.io/en/stable/Clearwater_Configuration_Options_Reference.html#advanced-options)
+
+
 #### To Update a Stack:
 
 - To update a stack, update the parameteres in ```parameters.txt``` file and use ```./create.sh update <existing-stack-name>```. It will update the number of VMs.
