@@ -5,6 +5,10 @@
 # LC_OTHER_MANAGERS: Space separated list of IPs of other Swarm managers
 # LC_WORKERS: Space separated list of IPs of Swarm workers
 
+
+#export advanced parameters
+export ADDITIONAL_SHARED_CONFIG="diameter_timeout_ms=600\nsprout_homestead_timeout_ms=550\nralf_threads=300\ndns_timeout=400"
+ 
 #check if docker is running
 sudo docker ps &> /dev/null || sudo service docker restart
 
