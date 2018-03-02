@@ -35,6 +35,13 @@ All tests should pass now. If tests are failing then do the following steps:
 - if they are not running then start both services by executing the following commands: ```service astaire start``` and ```service rogers start```.
 - login to ellis container and check whether mysql is working. you can check it by executing ```mysql``` command or by checking whether mysql service is running.
 
+### Setting Advanced Shared Parameters For Clearwater Containers
+
+- To apply advanced shared configuration to clearwater components,  you need to expose these shared configuration as an envrionment variableon a system (or VM) where docker-compose file is being run (In our case swarm-manager). To do so, we need to make some changes in ```docker-swarm-initialize-remote.sh```. E.g. 
+	```export ADDITIONAL_SHARED_CONFIG="diameter_timeout_ms=600\nsprout_homestead_timeout_ms=550\nralf_threads=300\ndns_timeout=400"```
+
+Separate each parameter with ```\n```.
+
 #### To Update a Stack:
 
 - To update a stack, update the parameteres in ```parameters.txt``` file and use ```./create.sh update <existing-stack-name>```. It will update the number of VMs.
