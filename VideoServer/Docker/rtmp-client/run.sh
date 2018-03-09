@@ -87,6 +87,7 @@ while $INFINITE || [ $i -le $LOOP ]; do
 		else
 			echo "Running ffmpeg $ffmpeg_num of $LOOP loading $MRL_TARGET, logging to $CURRENT_LOG..."
 		fi
+		mkdir -p "$(dirname "$CURRENT_LOG")"
 
 		# Execute the actual ffmpeg process. Loglevel 23 outputs performance statistics, errors and nothing else.
 		# Pipe the output to the logfile, do not output the video anywhere.
