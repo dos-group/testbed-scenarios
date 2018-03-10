@@ -28,5 +28,6 @@ do
 	then
 		curl http://etcd:2379/v2/keys/clearwater/node_type_cassandra/clustering/cassandra -XPUT -d value=$values
 	fi
+	
 	sleep 300
-exit 0
+done
