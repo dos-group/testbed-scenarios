@@ -12,7 +12,7 @@ COPY scale_down.sh /usr/share/clearwater/bin/scale_down.sh
 COPY crontab /etc/cron.d/
 
 RUN chmod +x /usr/share/clearwater/bin/scale_down.sh && chmod 0600 /etc/cron.d/crontab 
-RUN touch /var/log/scale-down.log
+RUN touch /var/log/scale-down-cassandra.log
 
 COPY cassandra.supervisord.conf /etc/supervisor/conf.d/cassandra.conf
 COPY cron.supervisord.conf /etc/supervisor/conf.d/cron.conf
