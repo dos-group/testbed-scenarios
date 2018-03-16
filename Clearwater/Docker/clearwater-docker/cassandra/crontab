@@ -1,0 +1,2 @@
+*/10 * * * * root /bin/bash -c "/usr/share/clearwater/bin/scale_down.sh"
+# the above given line will run scale down script every 15 minutes
