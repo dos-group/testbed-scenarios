@@ -1,3 +1,3 @@
 
 collector:
-  extra_args: -tag "host={{ hostname_general }}" -exclude "net-io/nic/" -files-check-output 2s
+  extra_args: -tag "host={{ hostname_general }}" -exclude "net-io/nic/" -exclude "ovsdb/" -files-check-output 2s

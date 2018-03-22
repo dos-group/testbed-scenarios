@@ -12,22 +12,18 @@
   hosts:
     - hypervisors
     - vms:!client
-  vars:
-    injector: "{{ injector_vm_phys }}"
   tasks:
     - uri:
         url: "{{ item }}"
         method: GET
       with_items:
-        - "http://0.0.0.0:{{ collector.api_port }}/{{ collector.tags_path }}
-        - "http://0.0.0.0:{{ injector.api_port }}/{{ injector.status_path }}"
+        - "http://0.0.0.0:{{ collector.api_port }}/api/tags"
+        - "http://0.0.0.0:{{ injector.api_port }}/api/anomalies"
 
 - name: Check injector and collector container status for Service layer
   hosts:
     - vms:!client
-  vars:
-    injector: "{{ injector_service }}"
   tasks:
     - uri:
-        url: "http://0.0.0.0:{{ injector.api_port }}/{{ injector.status_path }}"
+        url: "http://0.0.0.0:{{ injector.api_port }}/api/anomalies"
         method: GET

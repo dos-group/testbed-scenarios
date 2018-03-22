@@ -23,7 +23,7 @@ for file in $allfiles; do
   fi
 done
 
-ansible-playbook "$home/update-client-targets.yml"
+ansible-playbook -i "$home/../Ansible/ansible-inventory.ini"  "$home/update-client-targets.yml"
 echo "Killing ffmpeg processes..."
-ansible client -b -m shell -a 'killall ffmpeg'
+ansible -i "$home/../Ansible/ansible-inventory.ini" client -b -m shell -a 'killall ffmpeg'
 
