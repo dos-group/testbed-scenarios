@@ -26,7 +26,7 @@ collector:
   extra_args: ""
 
 injector:
-  container_name: "injector"
+  container_name: injector
   hostname: "{{ hostname_general }}"
   api_port: 7888
 

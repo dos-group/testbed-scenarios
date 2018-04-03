@@ -165,7 +165,7 @@ parameters:
       apt install -y linux-image-extra-$(uname -r) linux-image-extra-virtual apt-transport-https ca-certificates curl software-properties-common
       
      #Install some useful monitoring tools
-      apt install htop bmon
+      apt install htop bmon jq
 
       #Set service name environment variable
       sudo bash -c "echo -e "SERVICE_NAME=$(echo $(hostname) | tr "-" "\n" | sed -n "1p")" >> /etc/environment"
@@ -185,7 +185,6 @@ parameters:
       service docker restart
       wget -O /usr/local/bin/docker-compose -L https://github.com/docker/compose/releases/download/1.17.1/docker-compose-`uname -s`-`uname -m`
       chmod +x /usr/local/bin/docker-compose
-      apt install -y jq
       apt-get -y update && apt-get -y upgrade
       shutdown -r now
 
