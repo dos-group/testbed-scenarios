@@ -9,6 +9,7 @@
 - name: Install the Bitflow data collector and injector
   hosts:
     - hypervisors
+    - vms
   tags: [ collector, injector ]
   vars:
     injector: "{{ injector_general }}"

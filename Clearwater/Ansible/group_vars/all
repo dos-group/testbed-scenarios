@@ -1,9 +1,6 @@
 
-service_name: service
-service_regex: service
-
 hostname_general: "{{ hostname.stdout }}"
-hostname_service: "{{ service_name }}@{{ hostname_general }}"
+hostname_service: "{{ group_names[0] }}@{{ hostname_general }}"
 
 collector:
   container_name: bitflow-collector
@@ -12,7 +9,7 @@ collector:
   port: 5010
   file_name: data.bin
   data_path: /opt/bitflow/data-collector
-  data_path_mounted: /bitflow/data-collector
+  data_path_mounted: /opt/bitflow/data-collector
   extra_args: ""
 
 injector_general:

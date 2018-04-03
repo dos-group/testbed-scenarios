@@ -1,3 +1,3 @@
 
 collector:
-  extra_args: -proc "vnf={{ service_regex }}|vnf_" -include vnf/ -tag "host={{ hostname_service }}"
+  extra_args: -tag "host={{ hostname_service }}" -exclude "net-io/nic/" -files-check-output 2s
