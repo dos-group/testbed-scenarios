@@ -12,7 +12,7 @@
     - vms
   tags: [ collector, injector ]
   vars:
-    injector: "{{ injector_general }}"
+    injector: "{{ injector }}"
   tasks:
     - include_tasks: ../../Common/Ansible/bootstrap-docker-tasks.yml
       become: True
