@@ -4,6 +4,8 @@
   hosts:
     - hypervisors
     - vms:!client
+  vars:
+    injector: "{{ injector_general }}"
   tasks:
     - include_tasks: ../../Common/Ansible/reset-collector-injector-tasks.yml
 

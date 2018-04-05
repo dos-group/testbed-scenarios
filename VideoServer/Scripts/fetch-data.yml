@@ -5,10 +5,7 @@
 - name: Preparation
   hosts: all
   tasks:
-    - name: Query hostname
-      command: cat /etc/hostname
-      register: hostname
-      changed_when: False
+    - include_tasks: ../../Common/Ansible/query-hostname-task.yml
 
 - name: Fetch client statistics data
   hosts: client
@@ -18,4 +15,7 @@
         src: "{{ rtmp.client_log_dir }}"
         dest: "{{ fetch_dir }}/{{ inventory_hostname }}/"
 
-- import_playbook: ../../Common/Scripts/fetch-collector-data.yml
+- name: Fetch data collector data from remote hosts
+  hosts: all:!client
+  tasks:
+    - include_tasks: ../../Common/Ansible/fetch-collector-data-tasks.yml

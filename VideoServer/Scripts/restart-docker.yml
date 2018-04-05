@@ -1,1 +1,7 @@
-../../Common/Scripts/restart-docker.yml
+#!/usr/bin/env ansible-playbook
+
+- name: Restart docker daemon
+  hosts: all
+  tags: [ docker ]
+  tasks:
+    - include_tasks: ../../Common/Ansible/restart-docker-tasks.yml

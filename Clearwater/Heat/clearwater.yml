@@ -163,23 +163,23 @@ parameters:
       apt update
       apt install -y linux-image-extra-$(uname -r) linux-image-extra-virtual apt-transport-https ca-certificates curl software-properties-common
       #Install some useful monitoring tools
-      apt install htop bmon jq
+      apt -y install htop bmon jq
       #Set service name environment variable
-      sudo bash -c "echo -e "SERVICE_NAME=$(echo $(hostname) | tr "-" "\n" | sed -n "1p")" >> /etc/environment"
+      echo -e "SERVICE_NAME=$(echo $(hostname) | tr "-" "\n" | sed -n "1p")" >> /etc/environment
       #Reduce the apt update/install timeout to 20 seconds
       echo -e 'Acquire::http::Timeout "20";\nAcquire::ftp::Timeout "10";' > /etc/apt/apt.conf.d/99timeout
       #Try to install docker-ce until it is done
       until type docker &> /dev/null; do
-          curl --connect-timeout 10 -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
-          apt-key fingerprint 0EBFCD88
-          add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-          apt update
-          apt install -y docker-ce
+        curl --connect-timeout 10 -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+        apt-key fingerprint 0EBFCD88
+        add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+        apt update
+        apt install -y docker-ce
       done
       service docker restart
       wget -O /usr/local/bin/docker-compose -L https://github.com/docker/compose/releases/download/1.17.1/docker-compose-`uname -s`-`uname -m`
       chmod +x /usr/local/bin/docker-compose
-      apt-get -y update && apt-get -y upgrade
+      apt update && apt -y upgrade
       shutdown -r now
 
 resources:
