@@ -1,6 +1,6 @@
 #!/usr/bin/env ansible-playbook
 
-- include_tasks: reset-collector-injector.yml
+- include_tasks: reset-collector-injector-tasks.yml
 
 - name: Delete collector data
   file: path={{ collector.data_path }} state=absent
