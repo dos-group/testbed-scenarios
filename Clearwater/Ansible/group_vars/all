@@ -1,7 +1,4 @@
 
-hostname_general: "{{ inventory_hostname }}"
-hostname_service: "{{ group_names[0] }}@{{ hostname_general }}"
-
 collector:
   container_name: bitflow-collector
   interval: 500ms
@@ -14,10 +11,11 @@ collector:
 
 injector_general:
   container_name: "injector"
-  hostname: "{{ hostname_general }}"
+  hostname: "{{ inventory_hostname }}"
   api_port: 7888
 
-injector_vnf:
-  container_name: "injector_vnf"
-  hostname: "{{ hostname_service }}"
-  api_port: 7889
+# This can be used when we re-introduce a real service-layer data collection and injection
+#injector_vnf:
+#  container_name: "injector_vnf"
+#  hostname: "{{ group_names[0] }}@{{{ inventory_hostname }}"
+#  api_port: 7889

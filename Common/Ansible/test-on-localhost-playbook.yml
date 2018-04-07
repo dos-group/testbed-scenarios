@@ -2,8 +2,6 @@
 - name: Install the collector and injector
   hosts: localhost
   vars:
-    hostname_general: "{{ inventory_hostname }}"
-    hostname_service: "local-service@{{ hostname_general }}"
     collector:
       container_name: bitflow-collector
       interval: 500ms
@@ -12,7 +10,7 @@
       file_name: data.bin
       data_path: /tmp/bitflow/data-collector
       data_path_mounted: /bitflow/data-collector
-      extra_args: "-proc-children 'stress|vnf_' -tag 'host={{ hostname_service }}'"
+      extra_args: "-proc-children 'stress|vnf_' -tag 'host={{ inventory_hostname }}'"
     injector:
       container_name: injector-layer-virtual
       hostname: injector-layer-virtual
@@ -23,12 +21,3 @@
     - include_tasks: ../../Common/Ansible/bitflow-collector-tasks.yml
     - include_tasks: ../../Common/Ansible/injector-tasks.yml
 
-- name: Install the VNF injector
-  hosts: localhost
-  vars:
-    injector:
-      container_name: injector-layer-service
-      hostname: injector-layer-service
-      api_port: 7779
-  tasks:
-    - include_tasks: ../../Common/Ansible/injector-tasks.yml
