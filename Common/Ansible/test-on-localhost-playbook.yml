@@ -1,15 +1,8 @@
 
-- name: Query the hostname
-  hosts: localhost
-  tasks:
-    - command: cat /etc/hostname
-      register: hostname
-      changed_when: False
-
 - name: Install the collector and injector
   hosts: localhost
   vars:
-    hostname_general: "{{ hostname.stdout }}"
+    hostname_general: "{{ inventory_hostname }}"
     hostname_service: "local-service@{{ hostname_general }}"
     collector:
       container_name: bitflow-collector

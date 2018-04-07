@@ -1,5 +1,5 @@
 
-hostname_general: "{{ hostname.stdout }}"
+hostname_general: "{{ inventory_hostname }}"
 hostname_service: "{{ group_names[0] }}@{{ hostname_general }}"
 
 collector:
