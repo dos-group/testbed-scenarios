@@ -1,0 +1,10 @@
+
+- name: Unset collector tags, stop file outputs, stop all running anomalies on VM and Host layer
+  uri:
+    url: "{{ item }}"
+    method: DELETE
+  with_items:
+    - "http://0.0.0.0:{{ collector.api_port }}/api/tags"
+    - "http://0.0.0.0:{{ collector.api_port }}/api/file_output"
+    - "http://0.0.0.0:{{ injector.api_port }}/api/anomalies/"
+

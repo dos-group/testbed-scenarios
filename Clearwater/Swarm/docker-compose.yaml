@@ -271,6 +271,9 @@ services:
       - ADDITIONAL_SHARED_CONFIG
     networks:
       - clearwater_nw
+    volumes:
+      - "/opt/bitflow/sipp-stress/logs:/var/log/clearwater-sipp"
+      - "/opt/bitflow/sipp-stress/config:/usr/share/clearwater/sip-stress"
     deploy:
       mode: global
       placement:

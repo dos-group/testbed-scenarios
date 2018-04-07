@@ -9,8 +9,8 @@
     injector: "{{ injector_general }}"
   tasks:
     - include_tasks: ../../Common/Ansible/bootstrap-docker-tasks.yml
-      become: True
+      become: true
     - include_tasks: ../../Common/Ansible/bitflow-collector-tasks.yml
-      become: True
+      become: true
     - include_tasks: ../../Common/Ansible/injector-tasks.yml
-      become: True
+      become: true

@@ -1,0 +1,8 @@
+
+- name: Check injector and collector container status for VM and Host layer
+  uri:
+    url: "{{ item }}"
+    method: GET
+  with_items:
+    - "http://0.0.0.0:{{ collector.api_port }}/api/tags"
+    - "http://0.0.0.0:{{ injector.api_port }}/api/anomalies"

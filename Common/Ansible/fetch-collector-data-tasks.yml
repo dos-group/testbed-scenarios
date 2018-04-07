@@ -1,0 +1,9 @@
+#!/usr/bin/env ansible-playbook
+
+# The variable 'fetch_dir' must be defined on the command line with ansible-playbook -e fetch_dir=DIR
+
+- name: Fetch data collector data from remote hosts
+  synchronize:
+    mode: pull
+    src: "{{ collector.data_path }}"
+    dest: "{{ fetch_dir }}/{{ inventory_hostname }}/"

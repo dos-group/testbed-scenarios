@@ -10,4 +10,7 @@
         src: "{{ rtmp.client_log_dir }}"
         dest: "{{ fetch_dir }}/{{ inventory_hostname }}/"
 
-- import_playbook: ../../Common/Scripts/fetch-collector-data.yml
+- name: Fetch data collector data from remote hosts
+  hosts: all:!client
+  tasks:
+    - include_tasks: ../../Common/Ansible/fetch-collector-data-tasks.yml
