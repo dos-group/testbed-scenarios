@@ -80,6 +80,14 @@ for group in ${!VM_GROUPS[@]}; do
 done
 output_meta_group vms:children ${!VM_GROUPS[@]}
 
-# Create sections for hypervisors
+# Create a section for hypervisors
 HYPERVISORS=$(echo "$HYPERVISORS" | tr ' ' '\n' | sort | uniq | tr '\n' ' ')
-output_meta_group hypervisors $HYPERVISORS
+HYPERVISORS_SHORT=""
+for hv in $HYPERVISORS; do
+    # TODO this might be different for other hostnames. Here, we strip all DNS-name parts except for the first one.
+    HV_SHORT=$(echo "$hv" | cut -f1 -d".")
+    PUBLIC_IPS[$HV_SHORT]="$hv"
+    HYPERVISORS_SHORT="$HYPERVISORS_SHORT $HV_SHORT"
+done
+output_group hypervisors $HYPERVISORS_SHORT
+
