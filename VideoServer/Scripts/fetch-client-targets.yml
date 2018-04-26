@@ -3,10 +3,6 @@
 - name: Synchronize client load target folder
   hosts: client
   tasks:
-    - name: Query hostname
-      command: cat /etc/hostname
-      register: hostname
-      changed_when: False
     - name: Fetch client load target folder
       synchronize:
         mode: pull

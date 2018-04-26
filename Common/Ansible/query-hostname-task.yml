@@ -1,6 +1,0 @@
-
-#Register hostname as variable "hostname"
-- name: Query hostname
-  command: cat /etc/hostname
-  register: hostname
-  changed_when: False

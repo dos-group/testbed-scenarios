@@ -1,6 +1,4 @@
 
-- include_tasks: ./query-hostname-task.yml
-
 - name: Check injector and collector container status for VM and Host layer
   uri:
     url: "{{ item }}"

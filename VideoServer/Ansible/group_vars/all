@@ -1,7 +1,4 @@
 
-hostname_general: "{{ hostname.stdout }}"
-hostname_service: "{{ group_names[0] }}@{{ hostname_general }}"
-
 rtmp_clients_per_host: 100
 
 rtmp:
@@ -27,6 +24,6 @@ collector:
 
 injector:
   container_name: injector
-  hostname: "{{ hostname_general }}"
+  hostname: "{{ inventory_hostname }}"
   api_port: 7888
 

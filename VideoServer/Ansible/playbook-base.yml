@@ -7,14 +7,6 @@
   tasks:
     - include_tasks: ../../Common/Ansible/bootstrap-python.yml
       become: true
-
-- name: Preparation
-  hosts: all
-  tasks:
-    - name: Query hostname
-      command: cat /etc/hostname
-      register: hostname
-      changed_when: False
     - include_tasks: ../../Common/Ansible/bootstrap-docker-tasks.yml
       become: true
 
