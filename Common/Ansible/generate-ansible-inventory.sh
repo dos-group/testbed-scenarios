@@ -39,6 +39,13 @@ VM_IDS=$(openstack server list --name "^$PREFIX.*" -f json -c ID | jq -rM '.[].I
 for ID in $VM_IDS; do
     warn "Querying info of VM '$ID'..."
     INFO=$(openstack server show "$ID" -f json -c name -c OS-EXT-SRV-ATTR:hypervisor_hostname -c addresses -c properties)
+
+
+
+	# Only  if VM runs on hypervisor, it is added to the inventory... 
+	# TODO: Add (primary) availability zone (first one in the list) as variable?
+
+
     HYPERVISOR=$(echo "$INFO" | jq -rM '."OS-EXT-SRV-ATTR:hypervisor_hostname"')
     NAME=$(echo "$INFO" | jq -rM .name)
 
