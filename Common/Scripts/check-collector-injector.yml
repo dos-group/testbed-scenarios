@@ -1,0 +1,21 @@
+#!/usr/bin/env ansible-playbook
+
+- name: Check injector and collector container status for VM and Host layer
+  hosts:
+    - hypervisors
+    - vms:!client
+  tasks:
+    - uri:
+        url: "{{ item }}"
+        method: GET
+      with_items:
+        - "http://0.0.0.0:{{ collector.api_port }}/api/tags"
+        - "http://0.0.0.0:{{ injector.api_port }}/api/anomalies"
+
+- name: Check injector and collector container status for Service layer
+  hosts:
+    - vms:!client
+  tasks:
+    - uri:
+        url: "http://0.0.0.0:{{ injector.api_port }}/api/anomalies"
+        method: GET

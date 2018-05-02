@@ -1,6 +1,4 @@
 
-- include_tasks: ./query-hostname.yml
-
 - name: Unset collector tags, stop file outputs, stop all running anomalies on VM and Host layer
   uri:
     url: "{{ item }}"

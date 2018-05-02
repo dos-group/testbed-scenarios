@@ -1,10 +1,5 @@
 #!/usr/bin/env ansible-playbook
 
-- name: Preparation
-  hosts: all
-  tasks:
-    - include_tasks: ../../Common/Ansible/query-hostname-task.yml
-
 - name: Check injector and collector container status for VM and Host layer
   hosts:
     - hypervisors
