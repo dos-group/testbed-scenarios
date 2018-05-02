@@ -92,14 +92,30 @@ parameters:
     constraints:
       - custom_constraint: nova.keypair
         description: Must be a valid keypair name
-  load_generator_zone:
+  zone_load:
     type: string
-    description: Availability Zone to spawn load generation VMs
-    default: "Load-Generator availability zone"
-  core_zone:
+    description: Availability zone to spawn the VM generating system load
+    default: Default
+  zone_manage:
     type: string
-    description: Availability Zone to spawn the core IMS VMs
-    default: "Core avalability zone"
+    description: Availability zone to spawn the VM containing management
+    default: Default
+  zone_bono:
+    type: string
+    description: Availability zone to spawn the P-CSCF bono VMs
+    default: Default
+  zone_sprout:
+    type: string
+    description: Availability zone to spawn the C/I-CSCF sprout VMs
+    default: Default
+  zone_state:
+    type: string
+    description: Availability zone to spawn the VMs for state storage 
+    default: Default
+  zone_storage:
+    type: string
+    description: Availability zone to spawn the VMs for HSS and user acount storage 
+    default: Default
   zone:
     type: string
     description: DNS zone
@@ -671,7 +687,7 @@ resources:
           key_name: { get_param: key_name }
           external_network: { get_param: public_net_id }
           network: { get_resource: network_private_net }
-          availability_zone: { get_param: core_zone }
+          availability_zone: { get_param: zone_manage }
           security_groups:
             - { get_resource: security_groups_base }
             - { get_resource: security_groups_swarm }
@@ -693,7 +709,7 @@ resources:
           key_name: { get_param: key_name }
           external_network: { get_param: public_net_id }
           network: { get_resource: network_private_net }
-          availability_zone: { get_param: core_zone }
+          availability_zone: { get_param: zone_manage }
           security_groups:
             - { get_resource: security_groups_base }
             - { get_resource: security_groups_swarm}
@@ -715,7 +731,7 @@ resources:
           key_name: { get_param: key_name }
           external_network: { get_param: public_net_id }
           network: { get_resource: network_private_net }
-          availability_zone: { get_param: core_zone }
+          availability_zone: { get_param: zone_state }
           security_groups:
             - { get_resource: security_groups_base }
             - { get_resource: security_groups_swarm }
@@ -738,7 +754,7 @@ resources:
           key_name: { get_param: key_name }
           external_network: { get_param: public_net_id }
           network: { get_resource: network_private_net }
-          availability_zone: { get_param: core_zone }
+          availability_zone: { get_param: zone_storage }
           security_groups:
             - { get_resource: security_groups_base }
             - { get_resource: security_groups_swarm }
@@ -761,7 +777,7 @@ resources:
           key_name: { get_param: key_name }
           external_network: { get_param: public_net_id }
           network: { get_resource: network_private_net }
-          availability_zone: { get_param: core_zone }
+          availability_zone: { get_param: zone_state }
           security_groups:
             - { get_resource: security_groups_base }
             - { get_resource: security_groups_swarm }
@@ -784,7 +800,7 @@ resources:
           key_name: { get_param: key_name }
           external_network: { get_param: public_net_id }
           network: { get_resource: network_private_net }
-          availability_zone: { get_param: core_zone }
+          availability_zone: { get_param: zone_storage }
           security_groups:
             - { get_resource: security_groups_base }
             - { get_resource: security_groups_swarm }
@@ -807,7 +823,7 @@ resources:
           key_name: { get_param: key_name }
           external_network: { get_param: public_net_id }
           network: { get_resource: network_private_net }
-          availability_zone: { get_param: core_zone }
+          availability_zone: { get_param: zone_storage }
           security_groups:
             - { get_resource: security_groups_base }
             - { get_resource: security_groups_swarm }
@@ -830,7 +846,7 @@ resources:
           key_name: { get_param: key_name }
           external_network: { get_param: public_net_id }
           network: { get_resource: network_private_net }
-          availability_zone: { get_param: core_zone }
+          availability_zone: { get_param: zone_storage }
           security_groups:
             - { get_resource: security_groups_base }
             - { get_resource: security_groups_swarm }
@@ -853,7 +869,7 @@ resources:
           key_name: { get_param: key_name }
           external_network: { get_param: public_net_id }
           network: { get_resource: network_private_net }
-          availability_zone: { get_param: core_zone }
+          availability_zone: { get_param: zone_state }
           security_groups:
             - { get_resource: security_groups_base }
             - { get_resource: security_groups_swarm }
@@ -876,7 +892,7 @@ resources:
           key_name: { get_param: key_name }
           external_network: { get_param: public_net_id }
           network: { get_resource: network_private_net }
-          availability_zone: { get_param: core_zone }
+          availability_zone: { get_param: zone_sprout }
           security_groups:
             - { get_resource: security_groups_base }
             - { get_resource: security_groups_swarm }
@@ -900,7 +916,7 @@ resources:
           key_name: { get_param: key_name }
           external_network: { get_param: public_net_id }
           network: { get_resource: network_private_net }
-          availability_zone: { get_param: core_zone }
+          availability_zone: { get_param: zone_bono }
           security_groups:
             - { get_resource: security_groups_base }
             - { get_resource: security_groups_swarm }
@@ -923,7 +939,7 @@ resources:
           key_name: { get_param: key_name }
           external_network: { get_param: public_net_id }
           network: { get_resource: network_private_net }
-          availability_zone: { get_param: core_zone }
+          availability_zone: { get_param: zone_storage }
           security_groups:
             - { get_resource: security_groups_base }
             - { get_resource: security_groups_swarm }
@@ -946,7 +962,7 @@ resources:
           key_name: { get_param: key_name }
           external_network: { get_param: public_net_id }
           network: { get_resource: network_private_net }
-          availability_zone: { get_param: load_generator_zone }
+          availability_zone: { get_param: zone_load }
           security_groups:
             - { get_resource: security_groups_base }
             - { get_resource: security_groups_swarm }

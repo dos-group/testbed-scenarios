@@ -1,0 +1,13 @@
+{
+	"zone_1":[
+		"host1",
+		"host2",
+		"host3"
+	],
+	"zone_2":[],
+	"zone_3":[
+		"host_a",
+		"host_b"
+	]
+}
+	

@@ -1,0 +1,1 @@
+../../Common/Scripts/set_availability_zones.sh

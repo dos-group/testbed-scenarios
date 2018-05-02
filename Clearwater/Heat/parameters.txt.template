@@ -5,8 +5,12 @@
 --parameter public_net_cidr=10.0.42.0/24
 --parameter public_net_id=9eb3c72f-8b05-41b0-a3e0-7455c1762b45
 --parameter internet_net_id=9eb3c72f-8b05-41b0-a3e0-7455c1762b45
---parameter load_generator_zone=Default
---parameter core_zone=Default
+--parameter zone_load=Default
+--parameter zone_manage=Default
+--parameter zone_bono=Default
+--parameter zone_sprout=Default
+--parameter zone_state=Default
+--parameter zone_storage=Default
 --parameter swarm_manager_size=0
 --parameter etcd_cluster_size=0
 --parameter ellis_cluster_size=0
