@@ -19,7 +19,7 @@ export LC_INITIAL_MANAGER=${LC_INITIAL_MANAGER:-$(ip route get 8.8.8.8 | head -1
 IS_ALREADY_RUNNING=$(sudo docker node list -q)
 if [ -z "$IS_ALREADY_RUNNING" ]; then
 	echo "Initializing swarm..."
-	sudo docker swarm init --advertise-addr $LC_INITIAL_MANAGER:2377 #--listen-addr $LC_INITIAL_MANAGER:2377 --advertise-addr $LC_INITIAL_MANAGER:2377
+	sudo docker swarm init --advertise-addr $LC_INITIAL_MANAGER:2377 --force-new-cluster #--listen-addr $LC_INITIAL_MANAGER:2377 # #force-new-cluster is better to use, because sometimes there are no or few managers available so it can result in failure.
 else
 	echo "The leader node is already part of the swarm."
 fi
