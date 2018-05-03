@@ -46,6 +46,7 @@ while [ $(( $(date +%s) - $time_span )) -lt $START_TIME ]; do   #run this loop f
     if [ $(date +%s) -ge $(( $(date +%s) + $user_list_duration )) ]; 
     then
         create_users $min_users $max_users $complete_users_list $users_list_path
+        user_list_duration=$(( $user_list_duration + $user_list_duration ))
     fi
 
     #start test...
