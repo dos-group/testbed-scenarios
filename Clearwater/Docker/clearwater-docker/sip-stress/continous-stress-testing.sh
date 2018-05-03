@@ -33,17 +33,17 @@ mv $users_list_path $complete_users_list
 
 create_users $min_users $max_users $complete_users_list $users_list_path
 
-START_TIME=$(date +%s)
-echo -e "Starting time is: $START_TIME"
+start_time=$(date +%s)
+echo -e "Starting time is: $(date -d @$start_time)"
 sip_stress_pid=""
 echo -e "------------------------------------------------"
-while [ $(( $(date +%s) - $time_span )) -lt $START_TIME ]; do   #run this loop for one hour
+while [ $(( $(date +%s) - $time_span )) -lt $start_time ]; do   #run this loop for one hour
     # after each round of stress is completed, run it again with different number of users 
     
     echo -e "New test is being started..."
 
     #change users number for certain file
-    if [ $(date +%s) -ge $(( $(date +%s) + $user_list_duration )) ]; 
+    if [ $(date +%s) -ge $(( $start_time + $user_list_duration )) ]; 
     then
         create_users $min_users $max_users $complete_users_list $users_list_path
         user_list_duration=$(( $user_list_duration + $user_list_duration ))
