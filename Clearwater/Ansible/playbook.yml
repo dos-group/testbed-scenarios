@@ -1,13 +1,21 @@
 #!/usr/bin/env ansible-playbook
 
+- name: Install Python
+  tags: [ bootstrap ]
+  hosts: all
+  gather_facts: false
+  tasks:
+    - include_tasks: ../../Common/Ansible/bootstrap-python.yml
+      become: true
+    - include_tasks: ../../Common/Ansible/bootstrap-docker-tasks.yml
+      become: true
+
 - name: Setup VMs
   hosts:
     - vms
   vars:
     docker_compose_location: "/usr/local/bin/docker-compose"
   tasks:
-    - include_tasks: ../../Common/Ansible/bootstrap-python.yml
-      become: true
     - include_tasks: ../../Common/Ansible/load_kernel_upgrade.yml
       become: true 
     - include_tasks: ../../Common/Ansible/reboot_server.yml
