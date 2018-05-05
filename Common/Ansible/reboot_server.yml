@@ -1,6 +1,6 @@
 
 - name: Reboot server
-  command: shutdown -r now
+  command: shutdown -t 5 -r
   async: 0
   poll: 0
 - name: Wait for the server to finish rebooting
