@@ -1,6 +1,5 @@
 
 - name: Reboot server
-  command: /sbin/reboot
+  command: shutdown -r now
 - name: Wait for the server to finish rebooting
-  sudo: no
   local_action: wait_for host="{{ inventory_hostname }}" search_regex=OpenSSH port=22 timeout=600

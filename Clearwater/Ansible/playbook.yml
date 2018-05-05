@@ -19,6 +19,7 @@
     - include_tasks: ../../Common/Ansible/load_kernel_upgrade.yml
       become: true 
     - include_tasks: ../../Common/Ansible/reboot_server.yml
+      become: true
     - name: Install required packages 
       apt: name={{ item }} state=present update_cache=yes
       with_items:
@@ -60,6 +61,7 @@
     - name: apt upgrade
       apt: upgrade=dist
     - include_tasks: ../../Common/Ansible/reboot_server.yml
+      become: true
 
 
 #- name: Install the Bitflow data collector and injector
