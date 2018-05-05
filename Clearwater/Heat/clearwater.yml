@@ -94,28 +94,16 @@ parameters:
         description: Must be a valid keypair name
   zone_load:
     type: string
-    description: Availability zone to spawn the VM generating system load
-    default: Default
-  zone_manage:
-    type: string
-    description: Availability zone to spawn the VM containing management
-    default: Default
-  zone_bono:
-    type: string
-    description: Availability zone to spawn the P-CSCF bono VMs
-    default: Default
-  zone_sprout:
-    type: string
-    description: Availability zone to spawn the C/I-CSCF sprout VMs
-    default: Default
-  zone_state:
-    type: string
-    description: Availability zone to spawn the VMs for state storage 
-    default: Default
+    description: Availability zone to spawn the VMs generating system load
+    default: cw_load
   zone_storage:
     type: string
-    description: Availability zone to spawn the VMs for HSS and user acount storage 
-    default: Default
+    description: Availability zone to spawn the storage VMs
+    default: cw_storage
+  zone_core:
+    type: string
+    description: Availability zone to spawn the IMS core and manage VMs
+    default: cw_core
   zone:
     type: string
     description: DNS zone
@@ -176,27 +164,27 @@ parameters:
     type: string
     description: Setup script for each VM. This parameter should not be set, it is here to reuse the code for multiple VMs.
     default: >
-      apt update
-      apt install -y linux-image-extra-$(uname -r) linux-image-extra-virtual apt-transport-https ca-certificates curl software-properties-common
+      #apt update
+      #apt install -y linux-image-extra-$(uname -r) linux-image-extra-virtual apt-transport-https ca-certificates curl software-properties-common
       #Install some useful monitoring tools
-      apt -y install htop bmon jq
+      #apt -y install htop bmon jq
       #Set service name environment variable
-      echo -e "SERVICE_NAME=$(echo $(hostname) | tr "-" "\n" | sed -n "1p")" >> /etc/environment
+      #echo -e "SERVICE_NAME=$(echo $(hostname) | tr "-" "\n" | sed -n "1p")" >> /etc/environment
       #Reduce the apt update/install timeout to 20 seconds
-      echo -e 'Acquire::http::Timeout "20";\nAcquire::ftp::Timeout "10";' > /etc/apt/apt.conf.d/99timeout
+      #echo -e 'Acquire::http::Timeout "20";\nAcquire::ftp::Timeout "10";' > /etc/apt/apt.conf.d/99timeout
       #Try to install docker-ce until it is done
-      until type docker &> /dev/null; do
-        curl --connect-timeout 10 -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
-        apt-key fingerprint 0EBFCD88
-        add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-        apt update
-        apt install -y docker-ce
-      done
-      service docker restart
-      wget -O /usr/local/bin/docker-compose -L https://github.com/docker/compose/releases/download/1.17.1/docker-compose-`uname -s`-`uname -m`
-      chmod +x /usr/local/bin/docker-compose
-      apt update && apt -y upgrade
-      shutdown -r now
+      #until type docker &> /dev/null; do
+      #  curl --connect-timeout 10 -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+      #  apt-key fingerprint 0EBFCD88
+      #  add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+      #  apt update
+      #  apt install -y docker-ce
+      #done
+      #service docker restart
+      #wget -O /usr/local/bin/docker-compose -L https://github.com/docker/compose/releases/download/1.17.1/docker-compose-`uname -s`-`uname -m`
+      #chmod +x /usr/local/bin/docker-compose
+      #apt update && apt -y upgrade
+      #shutdown -r now
 
 resources:
 
@@ -687,7 +675,7 @@ resources:
           key_name: { get_param: key_name }
           external_network: { get_param: public_net_id }
           network: { get_resource: network_private_net }
-          availability_zone: { get_param: zone_manage }
+          availability_zone: { get_param: zone_core }
           security_groups:
             - { get_resource: security_groups_base }
             - { get_resource: security_groups_swarm }
@@ -709,7 +697,7 @@ resources:
           key_name: { get_param: key_name }
           external_network: { get_param: public_net_id }
           network: { get_resource: network_private_net }
-          availability_zone: { get_param: zone_manage }
+          availability_zone: { get_param: zone_core }
           security_groups:
             - { get_resource: security_groups_base }
             - { get_resource: security_groups_swarm}
@@ -731,7 +719,7 @@ resources:
           key_name: { get_param: key_name }
           external_network: { get_param: public_net_id }
           network: { get_resource: network_private_net }
-          availability_zone: { get_param: zone_state }
+          availability_zone: { get_param: zone_core }
           security_groups:
             - { get_resource: security_groups_base }
             - { get_resource: security_groups_swarm }
@@ -777,7 +765,7 @@ resources:
           key_name: { get_param: key_name }
           external_network: { get_param: public_net_id }
           network: { get_resource: network_private_net }
-          availability_zone: { get_param: zone_state }
+          availability_zone: { get_param: zone_core }
           security_groups:
             - { get_resource: security_groups_base }
             - { get_resource: security_groups_swarm }
@@ -869,7 +857,7 @@ resources:
           key_name: { get_param: key_name }
           external_network: { get_param: public_net_id }
           network: { get_resource: network_private_net }
-          availability_zone: { get_param: zone_state }
+          availability_zone: { get_param: zone_core }
           security_groups:
             - { get_resource: security_groups_base }
             - { get_resource: security_groups_swarm }
@@ -892,7 +880,7 @@ resources:
           key_name: { get_param: key_name }
           external_network: { get_param: public_net_id }
           network: { get_resource: network_private_net }
-          availability_zone: { get_param: zone_sprout }
+          availability_zone: { get_param: zone_core }
           security_groups:
             - { get_resource: security_groups_base }
             - { get_resource: security_groups_swarm }
@@ -916,7 +904,7 @@ resources:
           key_name: { get_param: key_name }
           external_network: { get_param: public_net_id }
           network: { get_resource: network_private_net }
-          availability_zone: { get_param: zone_bono }
+          availability_zone: { get_param: zone_core }
           security_groups:
             - { get_resource: security_groups_base }
             - { get_resource: security_groups_swarm }

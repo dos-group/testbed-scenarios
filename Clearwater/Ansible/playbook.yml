@@ -1,16 +1,75 @@
 #!/usr/bin/env ansible-playbook
 
-- name: Install the Bitflow data collector and injector
+- name: Setup VMs
   hosts:
-    - hypervisors
     - vms
-  tags: [ collector, injector ]
   vars:
-    injector: "{{ injector_general }}"
+    docker_compose_location: "/usr/local/bin/docker-compose"
   tasks:
-    - include_tasks: ../../Common/Ansible/bootstrap-docker-tasks.yml
+    - include_tasks: ../../Common/Ansible/bootstrap-python.yml
       become: true
-    - include_tasks: ../../Common/Ansible/bitflow-collector-tasks.yml
-      become: true
-    - include_tasks: ../../Common/Ansible/injector-tasks.yml
-      become: true
+    - include_tasks: ../../Common/Ansible/load_kernel_upgrade.yml
+      become: true 
+    - include_tasks: ../../Common/Ansible/reboot_server.yml
+    - name: Install required packages 
+      apt: name={{ item }} state=present update_cache=yes
+      with_items:
+        - linux-image-extra-virtual
+        - apt-transport-https
+        - ca-certificates
+        - curl
+        - software-properties-common
+        - htop
+        - bmon
+        - jq
+    - name: Add environment variable
+      shell: echo -e "SERVICE_NAME=$(echo $(hostname) | tr "-" "\n" | sed -n "1p")" >> /etc/environment
+    - name: Set ftp timeout configuration
+      shell: echo -e 'Acquire::http::Timeout "20";\nAcquire::ftp::Timeout "10";' > /etc/apt/apt.conf.d/99timeout
+    - name: Get docker metadata
+      shell: |
+        until type docker &> /dev/null; do
+          curl --connect-timeout 10 -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+          apt-key fingerprint 0EBFCD88
+          add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+        done
+    - name: Install docker
+      apt: name=docker-ce state=present update_cache=yes
+    - name: Register variable
+      command: uname -s
+      register: uname_s
+      changed_when: False
+    - name: Register variable
+      command: uname -m
+      register: uname_m
+      changed_when: False
+    - name: Download docker compose
+      get_url:
+        url: https://github.com/docker/compose/releases/download/1.17.1/docker-compose-{{ uname_s }}-{{ uname_r }}
+        dest: "{{ docker_compose_location }}"
+        mode: 0755
+    - name: apt update
+      apt: update_cache=yes
+    - name: apt upgrade
+      apt: upgrade=dist
+    - include_tasks: ../../Common/Ansible/reboot_server.yml
+
+
+#- name: Install the Bitflow data collector and injector
+#  hosts:
+#    - hypervisors
+#    - vms
+#  tags: [ collector, injector ]
+#  vars:
+#    injector: "{{ injector_general }}"
+#  tasks: 
+#    - include_tasks: ../../Common/Ansible/bootstrap-docker-tasks.yml
+#      become: true
+#    - include_tasks: ../../Common/Ansible/bitflow-collector-tasks.yml
+#      become: true
+#    - include_tasks: ../../Common/Ansible/injector-tasks.yml
+#      become: true
+
+
+
+

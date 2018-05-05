@@ -1,0 +1,14 @@
+
+- name: Query OS version
+  command: uname -r
+  register: version
+  changed_when: False
+
+- name: Upgrade linux kernel
+  tags: [ kernel ]
+  apt:
+    name: "linux-image-extra-{{ version }}"
+    state: present
+  apt:
+    name: "linux-image-extra-virtual"
+    state: present
