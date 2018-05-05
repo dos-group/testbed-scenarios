@@ -18,7 +18,7 @@
   tasks:
     - include_tasks: ../../Common/Ansible/load_kernel_upgrade.yml
       become: true 
-   - include_tasks: ../../Common/Ansible/reboot_server.yml
+    - include_tasks: ../../Common/Ansible/reboot_server.yml
       become: true
     - name: Wait for the server to finish rebooting
       local_action: wait_for host="{{ ansible_ssh_host }}" state=started
