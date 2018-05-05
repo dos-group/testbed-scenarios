@@ -5,12 +5,12 @@
   changed_when: False
 
 - debug:
-    msg: "linux-image-extra-{{ version }}"
+    msg: "linux-image-extra-{{ version.stdout }}"
 
 - name: Upgrade linux kernel Step 1
   tags: [ kernel ]
   apt: 
-    name: "linux-image-extra-{{ version }}"
+    name: "linux-image-extra-{{ version.stdout }}"
     state: present 
 
 - name: Upgrade linux kernel Step 2
