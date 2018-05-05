@@ -18,8 +18,12 @@
   tasks:
     - include_tasks: ../../Common/Ansible/load_kernel_upgrade.yml
       become: true 
-    - include_tasks: ../../Common/Ansible/reboot_server.yml
-      become: true
+    - name: Reboot server
+      command: shutdown -r now
+      async: 0
+      poll: 0
+    - name: Wait for the server to finish rebooting
+      local_action: wait_for host="{{ ansible_ssh_host }}" state=started
     - name: Install required packages 
       apt: name={{ item }} state=present update_cache=yes
       with_items:
