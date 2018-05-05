@@ -6,9 +6,7 @@
 
 - name: Upgrade linux kernel
   tags: [ kernel ]
-  apt:
-    name: "linux-image-extra-{{ version }}"
-    state: present
-  apt:
-    name: "linux-image-extra-virtual"
-    state: present
+  apt: name={{ item }} state=present update_cache=yes
+  with_items:
+    - "linux-image-extra-{{ version }}"
+    - "linux-image-extra-virtual"

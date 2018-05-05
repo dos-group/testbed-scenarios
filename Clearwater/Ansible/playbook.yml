@@ -22,7 +22,6 @@
     - name: Install required packages 
       apt: name={{ item }} state=present update_cache=yes
       with_items:
-        - linux-image-extra-virtual
         - apt-transport-https
         - ca-certificates
         - curl
