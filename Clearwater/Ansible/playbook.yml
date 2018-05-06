@@ -39,7 +39,7 @@
         url: https://download.docker.com/linux/ubuntu/gpg
         state: present
     - name: Add docker apt repository
-      - apt_repository:
+      apt_repository:
         repo: deb http://archive.canonical.com/ubuntu hardy partner
         state: present
     - name: Install docker
