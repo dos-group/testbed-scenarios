@@ -32,9 +32,9 @@
         - bmon
         - jq
     - name: Add environment variable
-      shell: echo -e "SERVICE_NAME=$(echo $(hostname) | tr "-" "\n" | sed -n "1p")" >> /etc/environment
+      shell: echo "SERVICE_NAME=$(echo $(hostname) | tr "-" "\n" | sed -n "1p")" >> /etc/environment
     - name: Set ftp timeout configuration
-      shell: echo -e 'Acquire::http::Timeout "20";\nAcquire::ftp::Timeout "10";' > /etc/apt/apt.conf.d/99timeout
+      shell: echo 'Acquire::http::Timeout "20";\nAcquire::ftp::Timeout "10";' > /etc/apt/apt.conf.d/99timeout
     - name: Get docker metadata
       shell: |
         until type docker &> /dev/null; do
@@ -62,7 +62,6 @@
     - name: apt upgrade
       apt: upgrade=dist
     - include_tasks: ../../Common/Ansible/reboot_server.yml
-      become: true
 
 
 #- name: Install the Bitflow data collector and injector
