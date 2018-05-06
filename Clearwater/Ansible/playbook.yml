@@ -18,10 +18,10 @@
   tasks:
     - include_tasks: ../../Common/Ansible/load_kernel_upgrade.yml
       become: true 
+      register: kernel_upgrade_status
     - include_tasks: ../../Common/Ansible/reboot_server.yml
       become: true
-    - name: Wait for the server to finish rebooting
-      local_action: wait_for host="{{ ansible_ssh_host }}" state=started
+      when: kernel_upgrade_status.changed
     - name: Install required packages 
       apt: name={{ item }} state=present update_cache=yes
       with_items:
