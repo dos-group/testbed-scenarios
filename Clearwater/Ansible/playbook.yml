@@ -13,14 +13,13 @@
 - name: Setup VMs
   hosts:
     - vms
+  become: yes
   vars:
     docker_compose_location: "/usr/local/bin/docker-compose"
   tasks:
-    - include_tasks: ../../Common/Ansible/load_kernel_upgrade.yml
-      become: true 
+    - include_tasks: ../../Common/Ansible/load_kernel_upgrade.yml 
       register: kernel_upgrade_status
     - include_tasks: ../../Common/Ansible/reboot_server.yml
-      become: true
       when: kernel_upgrade_status.changed
     - name: Install required packages 
       apt: name={{ item }} state=present update_cache=yes
