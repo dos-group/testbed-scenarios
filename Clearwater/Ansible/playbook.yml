@@ -41,9 +41,11 @@
     - name: register lsb_release
       command: lsb_release -cs
       register: lsb_release_cs
+    #TODO debug lsb_release var
+    #fix add repository issue
     - name: Add docker apt repository
       - apt_repository:
-        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ lsb_release_cs.stdout }} stable"
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu
         state: present
     - name: Install docker
       apt: name=docker-ce state=present update_cache=yes
