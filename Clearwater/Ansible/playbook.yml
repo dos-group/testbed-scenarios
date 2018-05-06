@@ -33,15 +33,15 @@
         - jq
     - name: Add environment variable
       shell: echo "SERVICE_NAME=$(echo $(hostname) | tr "-" "\n" | sed -n "1p")" >> /etc/environment
-    - name: Set ftp timeout configuration
-      shell: echo 'Acquire::http::Timeout "20";\nAcquire::ftp::Timeout "10";' > /etc/apt/apt.conf.d/99timeout
-    - name: Get docker metadata
-      shell: |
-        until type docker &> /dev/null; do
-          curl --connect-timeout 10 -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
-          apt-key fingerprint 0EBFCD88
-          add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-        done
+    - name: Get docker apt key
+      apt_key:
+        id: 0EBFCD88
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+    - name: Add docker apt repository
+      - apt_repository:
+        repo: deb http://archive.canonical.com/ubuntu hardy partner
+        state: present
     - name: Install docker
       apt: name=docker-ce state=present update_cache=yes
     - name: Register variable
