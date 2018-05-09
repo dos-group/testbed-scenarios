@@ -12,10 +12,10 @@
 
 - name: Setup VMs
   hosts:
-    - vms
+    - sippstress
   become: yes
   vars:
-    docker_compose_location: "/usr/local/bin/docker-compose"
+    docker_compose_bin: "/usr/local/bin/docker-compose"
     docker_compose_version: "1.21.0"
   tasks:
     - include_tasks: ../../Common/Ansible/load_kernel_upgrade.yml
