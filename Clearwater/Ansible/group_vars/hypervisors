@@ -1,3 +1,7 @@
 
 collector:
   extra_args: -tag "host={{ inventory_hostname }}" -exclude "net-io/nic/" -exclude "ovsdb/" -files-check-output 2s
+
+apt_list:
+  - htop
+  - bmon

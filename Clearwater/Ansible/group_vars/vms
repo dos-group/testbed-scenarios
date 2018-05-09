@@ -1,3 +1,12 @@
 
 collector:
   extra_args: -tag "host={{ inventory_hostname }}" -exclude "net-io/nic/" -files-check-output 2s
+
+apt_list:
+  - apt-transport-https
+  - ca-certificates
+  - curl
+  - software-properties-common
+  - htop
+  - bmon
+  - jq
