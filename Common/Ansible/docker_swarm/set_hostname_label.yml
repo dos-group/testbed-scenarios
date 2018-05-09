@@ -1,0 +1,13 @@
+
+- name: retrieve swarm node names
+  shell: docker node ls --format "{{.Hostname}}" | tr " " "\n"
+  register: swarm_host_name
+
+- debug:
+  msg: {{ item }}
+  with_items: "{{ swarm_host_name.results|map(attribute='stdout_lines')|list }}"
+
+# {{ hostvars[inventory_hostname].group_names[1] }} is a bad hack. Works for our deployment but node could be in other groups. Order of groups is here expected to be always the same
+- name: add a label to swarm nodes
+  shell: docker node update --label-add comp={{ hostvars[inventory_hostname].group_names[0] }} {{ item }}
+  with_items: "{{ swarm_host_name.results|map(attribute='stdout_lines')|list }}"

@@ -18,7 +18,7 @@
     docker_compose_location: "/usr/local/bin/docker-compose"
     docker_compose_version: "1.21.0"
   tasks:
-    - include_tasks: ../../Common/Ansible/load_kernel_upgrade.yml 
+    - include_tasks: ../../Common/Ansible/load_kernel_upgrade.yml
       register: kernel_upgrade_status
     - include_tasks: ../../Common/Ansible/reboot_server.yml
       when: kernel_upgrade_status.changed
@@ -32,15 +32,74 @@
     - name: apt upgrade
       apt: upgrade=dist
       register: apt_upgrade
+    - include_tasks: ../../Common/Ansible/add_environment_variable.yml var={{ item }}
+      with_items:
+        - shared_config 
+        - { name: 'hostname', value: "{{  inventory_hostname }}" }
+      #TODO add changed of variable registration for reboot decision
     - include_tasks: ../../Common/Ansible/reboot_server.yml
       when: install_docker.changed or install_docker_compose.changed or apt_upgrade.changed
 
-#- name: Setup Hypervisors
-#  hosts:
-#    - hypervisors
-#  become: yes
-#  tasks:
-#    - include_tasks: ../../Common/Ansible/install_packages_with_apt.yml
+- name: Setup Hypervisors
+  hosts:
+    - hypervisors
+  become: yes
+  tasks:
+    - include_tasks: ../../Common/Ansible/install_packages_with_apt.yml
+
+- name: Bootstrap docker swarm cluster
+  hosts:
+    - swarm_manager[0]
+  become: yes
+  vars:
+    dockerfile_local: "./files/{{ docker_file }}"
+    dockerfile_remote: "~/{{ docker_file }}"
+  tasks:
+    - name: Copy docker compose file from local to remote host
+      copy:
+        src: "{{ dockerfile_local }"
+        dest: "{{ dockerfile_remote }}"
+    - include_tasks: ../../Common/Ansible/docker_swarm/bootstrap_swarm_cluster.yml
+    - include_tasks: ../../Common/Ansible/docker_swarm/retrieve_join_tokens.yml
+
+- name: Join docker swarm manager nodes
+  hosts:
+    - swarm_manager[1:]
+  become: yes
+  vars:
+    token: "{{ hostvars['swarm_manager[0]']['swarm_manager_token']['stdout'] }}"
+  tasks:
+    - include_tasks: ../../Common/Ansible/docker_swarm/join_swarm.yml
+    
+
+- name: Join docker swarm worker nodes
+  hosts:
+    - vms:!swarm_manager
+  become: yes
+  vars:
+    token: "{{ hostvars['swarm_manager[0]']['swarm_worker_token']['stdout'] }}"
+  tasks:
+    - include_tasks: ../../Common/Ansible/docker_swarm/join_swarm.yml
+
+- name: Deploy docker swarm services
+  hosts:
+    - swarm_manager[0]
+  become: yes
+  vars:
+    docker_file_path: "~/{{ docker_file }}"
+  tasks:
+    - include_tasks: ../../Common/Ansible/docker_swarm/set_hostname_label.yml
+    - include_tasks: ../../Common/Ansible/docker_swarm/deploy_docker_swarm_services.yml
+
+
+    
+
+
+    
+
+
+
+    
 
 
 #- name: Install the Bitflow data collector and injector

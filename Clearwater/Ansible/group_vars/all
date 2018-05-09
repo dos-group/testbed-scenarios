@@ -1,4 +1,7 @@
 
+docker_file: "docker-compose.yaml"
+stack_name: "cw"
+
 collector:
   container_name: bitflow-collector
   interval: 500ms

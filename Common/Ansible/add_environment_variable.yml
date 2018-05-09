@@ -1,0 +1,5 @@
+
+- lineinfile:
+    path: /etc/environment
+    regexp: '^{{ var.name }}='
+    line: '{{ var.name }}={{ var.value }}'

@@ -1,0 +1,4 @@
+
+- name: join manager nodes to cluster
+  shell: >
+    docker swarm join --token={{ token }} --advertise-addr={{ private_ip }}:2377 {{ manager_ip }}:2377
