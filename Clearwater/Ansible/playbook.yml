@@ -48,8 +48,7 @@
     - include_tasks: ../../Common/Ansible/install_packages_with_apt.yml
 
 - name: Bootstrap docker swarm cluster
-  hosts:
-    - swarm_manager[0]
+  hosts: swarm_manager[0]
   become: yes
   vars:
     dockerfile_local: "./files/{{ docker_file }}"
@@ -63,8 +62,7 @@
     - include_tasks: ../../Common/Ansible/docker_swarm/retrieve_join_tokens.yml
 
 - name: Join docker swarm manager nodes
-  hosts:
-    - swarm_manager[1:]
+  hosts: swarm_manager[1:]
   become: yes
   vars:
     token: "{{ hostvars['swarm_manager[0]']['swarm_manager_token']['stdout'] }}"
