@@ -3,5 +3,11 @@
   command: shutdown -t 1 -r
   async: 0
   poll: 0
+
 - name: Wait for the server to finish rebooting
-  local_action: wait_for host="{{ ansible_ssh_host }}" state=started
+  local_action: shell ansible -u {{ ansible_user_id }} -m ping {{ inventory_hostname }}
+  register: result
+  until: result.rc == 0
+  retries: 30
+  delay: 10
+  ignore_errors: true

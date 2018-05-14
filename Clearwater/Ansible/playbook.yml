@@ -12,33 +12,44 @@
 
 - name: Setup VMs
   hosts:
-    - sippstress
+    - vms
   become: yes
   vars:
     docker_compose_bin: "/usr/local/bin/docker-compose"
     docker_compose_version: "1.21.0"
+    env_var: { name: "HOSTNAME2", value: "{{  inventory_hostname }}" }
+    changed: false
+    kernel_version: "4.4.0-119-generic"
   tasks:
-    - include_tasks: ../../Common/Ansible/load_kernel_upgrade.yml
-      register: kernel_upgrade_status
+#    - include_tasks: ../../Common/Ansible/load_kernel_upgrade.yml var=changed
     - include_tasks: ../../Common/Ansible/reboot_server.yml
-      when: kernel_upgrade_status.changed
+      when: changed
     - include_tasks: ../../Common/Ansible/install_packages_with_apt.yml
-    - include_tasks: ../../Common/Ansible/install_docker.yml
-      register: install_docker
-    - include_tasks: ../../Common/Ansible/install_docker_compose.yml
-      register: install_docker_compose
+    - set_fact: changed="false"
+    - include_tasks: ../../Common/Ansible/install_docker.yml var=changed
+    - include_tasks: ../../Common/Ansible/install_docker_compose.yml var=changed
     - name: apt update
       apt: update_cache=yes
-    - name: apt upgrade
-      apt: upgrade=dist
-      register: apt_upgrade
-    - include_tasks: ../../Common/Ansible/add_environment_variable.yml var={{ item }}
-      with_items:
-        - shared_config 
-        - { name: 'hostname', value: "{{  inventory_hostname }}" }
-      #TODO add changed of variable registration for reboot decision
+#    - name: apt upgrade
+#      apt: upgrade=dist
+#      register: apt_upgrade
+#    - set_fact: changed={{ changed or apt_upgrade.changed }}
+    - include_tasks: ../../Common/Ansible/add_environment_variable.yml var=env_var var=changed
     - include_tasks: ../../Common/Ansible/reboot_server.yml
-      when: install_docker.changed or install_docker_compose.changed or apt_upgrade.changed
+      when: changed
+
+- name: Setup sipp stress VMs
+  hosts:
+    - sippstress
+  become: yes
+  tasks:
+    - name: Create required sipp stress directories 
+      file:
+        path: "{{ item }}"
+        state: directory
+      with_items:
+        - "{{ log_dir }}"
+        - "{{ config_dir }}"
 
 - name: Setup Hypervisors
   hosts:
@@ -56,49 +67,55 @@
   tasks:
     - name: Copy docker compose file from local to remote host
       copy:
-        src: "{{ dockerfile_local }"
+        src: "{{ dockerfile_local }}"
         dest: "{{ dockerfile_remote }}"
     - include_tasks: ../../Common/Ansible/docker_swarm/bootstrap_swarm_cluster.yml
     - include_tasks: ../../Common/Ansible/docker_swarm/retrieve_join_tokens.yml
+    - set_fact: swarm_manager_token={{ swarm_manager_token }}
+    - set_fact: swarm_worker_token={{ swarm_worker_token }}
 
 - name: Join docker swarm manager nodes
   hosts: swarm_manager[1:]
   become: yes
   vars:
-    token: "{{ hostvars['swarm_manager[0]']['swarm_manager_token']['stdout'] }}"
+    dockerfile_local: "./files/{{ docker_file }}"
+    dockerfile_remote: "~/{{ docker_file }}"
+    token_host: "{{ hostvars[inventory_hostname]['groups']['swarm_manager'][0] }}"
+    token: "{{ hostvars[token_host]['swarm_manager_token'] }}"
+    manager_ip: "{{ hostvars[token_host]['private_ip'] }}"
   tasks:
-    - include_tasks: ../../Common/Ansible/docker_swarm/join_swarm.yml
-    
+    - name: Copy docker compose file from local to remote host
+      copy:
+        src: "{{ dockerfile_local }}"
+        dest: "{{ dockerfile_remote }}"
+    - include_tasks: ../../Common/Ansible/docker_swarm/join_swarm.yml    
 
 - name: Join docker swarm worker nodes
   hosts:
     - vms:!swarm_manager
   become: yes
   vars:
-    token: "{{ hostvars['swarm_manager[0]']['swarm_worker_token']['stdout'] }}"
+    token_host: "{{ hostvars[inventory_hostname]['groups']['swarm_manager'][0] }}"
+    token: "{{ hostvars[token_host]['swarm_worker_token'] }}"
+    manager_ip: "{{ hostvars[token_host]['private_ip'] }}"
   tasks:
     - include_tasks: ../../Common/Ansible/docker_swarm/join_swarm.yml
 
 - name: Deploy docker swarm services
   hosts:
-    - swarm_manager[0]
+    - swarm_manager
   become: yes
   vars:
     docker_file_path: "~/{{ docker_file }}"
+  environment:
+    ADDITIONAL_SHARED_CONFIG: "{{ shared_config }}"
   tasks:
+    - include_tasks: ../../Common/Ansible/docker_swarm/set_leader_fact.yml
+    - debug: msg={{ leader }}
     - include_tasks: ../../Common/Ansible/docker_swarm/set_hostname_label.yml
+      when: leader
     - include_tasks: ../../Common/Ansible/docker_swarm/deploy_docker_swarm_services.yml
-
-
-    
-
-
-    
-
-
-
-    
-
+      when:  leader
 
 #- name: Install the Bitflow data collector and injector
 #  hosts:

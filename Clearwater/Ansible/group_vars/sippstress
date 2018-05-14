@@ -1,0 +1,3 @@
+
+config_dir: /opt/bitflow/sipp-stress/logs
+log_dir: /opt/bitflow/sipp-stress/config

@@ -253,17 +253,17 @@ services:
 #        constraints:
 #          - node.labels.comp==sippstress
 
-  sip-stress-core:
-    image: muhammadimran/sip-stress-core
-    environment:
-      - ADDITIONAL_SHARED_CONFIG
-    networks:
-      - clearwater_nw
-    deploy:
-      mode: global
-      placement:
-        constraints:
-          - node.labels.comp==sippstress
+#  sip-stress-core:
+#    image: muhammadimran/sip-stress-core
+#    environment:
+#      - ADDITIONAL_SHARED_CONFIG
+#    networks:
+#      - clearwater_nw
+#    deploy:
+#      mode: global
+#      placement:
+#        constraints:
+#          - node.labels.comp==sippstress
 
   sip-stress:
     image: muhammadimran/sip-stress

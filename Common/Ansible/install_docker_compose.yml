@@ -10,10 +10,12 @@
     docker_compose_desired_version_installed: "{{ docker_compose_version_installed_result.rc == 0 }}"
 
 - name: install docker-compose
-  become: '{{ docker_compose_as_root }}'
   get_url:
     url: 'https://github.com/docker/compose/releases/download/{{ docker_compose_version }}/docker-compose-{{ ansible_system }}-{{ ansible_architecture }}'
     dest: '{{ docker_compose_bin }}'
     force: true
     mode: '555'
   when: docker_compose_desired_version_installed == false
+  register: docker_compose_install
+
+- set_fact: changed="{{ changed is defined and (changed or docker_compose_install.changed) }}"

@@ -1,0 +1,6 @@
+
+- name: Determine docker swarm manager node leader status
+  shell: "docker node inspect self -f '{{ '{{' }} .ManagerStatus.Leader {{ '}}' }}'"
+  register: leader_status
+
+- set_fact: leader={{ leader_status.stdout }}

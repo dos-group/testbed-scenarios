@@ -15,3 +15,6 @@
     name: docker-ce 
     state: present 
     update_cache: yes
+  register: docker_install
+
+- set_fact: changed="{{ changed is defined and (changed or docker_install.changed) }}"
