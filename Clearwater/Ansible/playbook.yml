@@ -21,6 +21,7 @@
     changed: false
     kernel_version: "4.4.0-119-generic"
   tasks:
+#    Load specific kernel that works with clearwater astaire and rogers. Works only as upgrade. Not as downgrade.
 #    - include_tasks: ../../Common/Ansible/load_kernel_upgrade.yml var=changed
     - include_tasks: ../../Common/Ansible/reboot_server.yml
       when: changed
@@ -30,10 +31,6 @@
     - include_tasks: ../../Common/Ansible/install_docker_compose.yml var=changed
     - name: apt update
       apt: update_cache=yes
-#    - name: apt upgrade
-#      apt: upgrade=dist
-#      register: apt_upgrade
-#    - set_fact: changed={{ changed or apt_upgrade.changed }}
     - include_tasks: ../../Common/Ansible/add_environment_variable.yml var=env_var var=changed
     - include_tasks: ../../Common/Ansible/reboot_server.yml
       when: changed
