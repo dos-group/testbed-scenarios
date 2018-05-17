@@ -10,7 +10,6 @@
     - name: Register cassandra docker container as variable
       shell: "docker ps --format '{{ '{{' }} .Names {{ '}}' }}' | grep 'cassandra'"
       register: cassandra_container
-    - debug: var=cassandra_container
     - assert:
         that:
           - "cassandra_container.stdout_lines[0] is defined"
