@@ -9,12 +9,14 @@
   tasks:
     - name: Register cassandra docker container as variable
       shell: "docker ps --format '{{ '{{' }} .Names {{ '}}' }}' | grep 'cassandra'"
-    register: cassandra_container
+      register: cassandra_container
     - debug: var=cassandra_container
     - assert:
-      that:
-        - "cassandra_container.results.stdout_lines[0] is defined"
-        - "cassandra_container.results.stdout_lines[0] != ''"
-      msg: "Cassandra container must run on VM endpoint {{ ansible_host }}"
-    #- name: Run the command to generate users
-    #  shell: "docker exec -ti {{ cassandra_container.results.stdout_lines[0] }} bash -lc {{ remote_path_to_provision_script }}"
+        that:
+          - "cassandra_container.stdout_lines[0] is defined"
+          - "cassandra_container.stdout_lines[0] != ''"
+        msg: "Cassandra container must run on VM endpoint {{ ansible_host }}"
+    - name: Run the command to generate users
+      shell: "docker exec -i {{ cassandra_container.stdout_lines[0] }} bash {{ remote_path_to_provision_script }}"
+      register: result
+      failed_when: "result.stderr != ''"
