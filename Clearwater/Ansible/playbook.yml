@@ -17,7 +17,7 @@
   vars:
     docker_compose_bin: "/usr/local/bin/docker-compose"
     docker_compose_version: "1.21.0"
-    env_var: { name: "HOSTNAME2", value: "{{  inventory_hostname }}" }
+    env_var: { name: "HOSTNAME", value: "{{  inventory_hostname }}" }
     changed: false
     kernel_version: "4.4.0-119-generic"
   tasks:
@@ -114,20 +114,20 @@
     - include_tasks: ../../Common/Ansible/docker_swarm/deploy_docker_swarm_services.yml
       when:  leader
 
-#- name: Install the Bitflow data collector and injector
-#  hosts:
-#    - hypervisors
-#    - vms
-#  tags: [ collector, injector ]
-#  vars:
-#    injector: "{{ injector_general }}"
-#  tasks: 
-#    - include_tasks: ../../Common/Ansible/bootstrap-docker-tasks.yml
-#      become: true
-#    - include_tasks: ../../Common/Ansible/bitflow-collector-tasks.yml
-#      become: true
-#    - include_tasks: ../../Common/Ansible/injector-tasks.yml
-#      become: true
+- name: Install the Bitflow data collector and injector
+  hosts:
+    - hypervisors
+    - vms
+  tags: [ collector, injector ]
+  vars:
+    injector: "{{ injector_general }}"
+  tasks: 
+    - include_tasks: ../../Common/Ansible/bootstrap-docker-tasks.yml
+      become: true
+    - include_tasks: ../../Common/Ansible/bitflow-collector-tasks.yml
+      become: true
+    - include_tasks: ../../Common/Ansible/injector-tasks.yml
+      become: true
 
 
 

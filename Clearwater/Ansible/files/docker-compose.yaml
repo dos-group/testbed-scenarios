@@ -266,7 +266,7 @@ services:
 #          - node.labels.comp==sippstress
 
   sip-stress:
-    image: muhammadimran/sip-stress
+    image: muhammadimran/sipp-stress-1
     environment:
       - ADDITIONAL_SHARED_CONFIG
     networks:
