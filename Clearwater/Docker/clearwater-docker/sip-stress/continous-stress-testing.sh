@@ -8,11 +8,13 @@ max_users=${3:-12000}
 time_span=${4:-3600}
 user_list_duration=${5:-1800}
 
+current_users_number=0
+
 test $min_users -le $max_users || { echo -e "min_users must be less than max_users.\n"; exit 1; }
 
 create_users() {
-    current_users_number=$(shuf -i $1-$2 -n 1)
-    users_number=$(($current_users_number-1))
+    users_number=$(shuf -i $1-$2 -n 1)
+    current_users_number=$(($users_number-1))
     echo -e "Creating users list with $users_number users and writing it to the file $4..."
     head -n $current_users_number $3>$4
 }
@@ -29,6 +31,9 @@ users_list_path="/usr/share/clearwater/sip-stress/users.csv.1"
 
 complete_users_list="/usr/share/clearwater/sip-stress/complete_users.csv.1"
 mv $users_list_path $complete_users_list
+
+#Log file for logging current users
+current_users_log_file="/var/log/clearwater-sipp/current_users.log"
 
 
 create_users $min_users $max_users $complete_users_list $users_list_path
@@ -52,13 +57,19 @@ while [ $(( $(date +%s) - $time_span )) -lt $start_time ]; do   #run this loop f
     #start test...
     echo -e "Running SIP stress in background..."
     $sip_stress_executable & >/dev/null
-    sip_stress_pid=$(echo $!) #getting PID because may be we need to do something withit.
+    sip_stress_pid=$(echo $!) #getting PID because may be we need to do something with it.
 
     echo -e "SIP stress has PID: $sip_stress_pid"
+
+	echo -e "$current_users_number" >> $current_users_log_file
 
     while [ -d "/proc/$sip_stress_pid" ];
     do
         sleep 60
+        if [ $(date +%s) -ge $(( $start_time + $user_list_duration )) ]; 
+        then
+            kill -9 "$sip_stress_pid" >/dev/null
+        fi
     done
 
     #wait until this sip_stress is completed..sip-stress script waits by default for 60 seconds for the TCP connections to be timed-out
