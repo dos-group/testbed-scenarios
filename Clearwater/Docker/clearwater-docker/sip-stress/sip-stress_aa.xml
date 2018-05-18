@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
 <!DOCTYPE scenario SYSTEM "sipp.dtd">
+
 <!-- This program is free software; you can redistribute it and/or      -->
 <!-- modify it under the terms of the GNU General Public License as     -->
 <!-- published by the Free Software Foundation; either version 2 of the -->
@@ -15,6 +16,7 @@
 <!-- Free Software Foundation, Inc.,                                    -->
 <!-- 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA             -->
 <!--                                                                    -->
+
 <scenario name="Call Load Test">
 
   <User variables="my_dn,peer_dn,call_repeat" />
@@ -44,11 +46,12 @@
     </action>
   </nop>
 
+  <label id="1"/>
+
   <!-- CHANGES. This controls how long it is until all calls have been attempted. Set
        this to twice the reg_pause value -->
   <pause distribution="uniform" min="0" max="60000" />
 
-  <label id="1"/>
   <send>
     <![CDATA[
 
@@ -69,10 +72,8 @@
 
     ]]>
   </send>
-    
-  
-  
-  <recv response="401" auth="true">
+
+  <recv response="401" auth="true" timeout="3000" ontimeout="1">
     <action>
       <add assign_to="reg_repeat" value="1" />
     </action>
@@ -99,18 +100,14 @@
 
     ]]>
   </send>
-    
-  
-  
-  <recv response="200">
+
+  <recv response="200" timeout="3000" ontimeout="1">
     <action>
       <ereg regexp="rport=([^;]*);.*received=([^;]*);" search_in="hdr" header="Via:" assign_to="dummy,nat_port,nat_ip_addr" />
       <add assign_to="reg_repeat" value="1" />
     </action>
   </recv>
   <Reference variables="dummy" />
-
-  <label id="2"/>
 
   <send>
     <![CDATA[
@@ -132,10 +129,8 @@
 
     ]]>
   </send>
-    
-  
-  
-  <recv response="401" auth="true">
+
+  <recv response="401" auth="true" timeout="3000" ontimeout="1">
     <action>
       <add assign_to="reg_repeat" value="1" />
     </action>
@@ -154,7 +149,7 @@
       CSeq: [cseq] REGISTER
       User-Agent: Accession 4.0.0.0
       Supported: outbound, path
-      Contact:  <sip:[$peer_dn]@[local_ip]:[local_port];transport=[transport];ob>;+sip.ice;reg-id=1;+sip.instance="<urn:uuid:00000000-0000-0000-0000-000000000001>"
+      Contact: <sip:[$peer_dn]@[local_ip]:[local_port];transport=[transport];ob>;+sip.ice;reg-id=1;+sip.instance="<urn:uuid:00000000-0000-0000-0000-000000000001>"
       Expires: 3600
       [field3]
       Allow: PRACK, INVITE, ACK, BYE, CANCEL, UPDATE, SUBSCRIBE, NOTIFY, REFER, MESSAGE, OPTIONS
@@ -162,10 +157,8 @@
 
     ]]>
   </send>
-    
-  
-  
-  <recv response="200">
+
+  <recv response="200" timeout="3000" ontimeout="1">
     <action>
       <add assign_to="reg_repeat" value="1" />
     </action>
@@ -173,74 +166,72 @@
 
   <pause milliseconds="5000" />
 
-  <!--  <send start_rtd="register">
-        <![CDATA[
+<!--  <send start_rtd="register">
+    <![CDATA[
 
-          REGISTER sip:[$my_dn]@[service] SIP/2.0
-          Via: SIP/2.0/[transport] [local_ip]:[local_port];rport;branch=[branch]-[$my_dn]-[$reg_repeat]
-          Route: <sip:[service];transport=[transport];lr>
-          Max-Forwards: 70
-          From: <sip:[$my_dn]@[service]>;tag=[pid]SIPpTag00[call_number]
-          To: <sip:[$my_dn]@[service]>
-          Call-ID: [$my_dn]///[call_id]
-          CSeq: [cseq] REGISTER
-          User-Agent: Accession 4.0.0.0
-          Supported: outbound, path
-          Contact: 
-                        <sip:[$my_dn]@[$nat_ip_addr]:[$nat_port];transport=[transport];ob>;+sip.ice;reg-id=1;+sip.instance="
-                            <urn:uuid:00000000-0000-0000-0000-000000000001>"
-          Contact: 
-                                <sip:[$my_dn]@[local_ip]:[local_port];transport=[transport];ob>;expires=0;+sip.ice;reg-id=1;+sip.instance="<urn:uuid:00000000-0000-0000-0000-000000000001>"
-          Expires: 3600
-          Allow: PRACK, INVITE, ACK, BYE, CANCEL, UPDATE, SUBSCRIBE, NOTIFY, REFER, MESSAGE, OPTIONS
-          Content-Length: 0
+      REGISTER sip:[$my_dn]@[service] SIP/2.0
+      Via: SIP/2.0/[transport] [local_ip]:[local_port];rport;branch=[branch]-[$my_dn]-[$reg_repeat]
+      Route: <sip:[service];transport=[transport];lr>
+      Max-Forwards: 70
+      From: <sip:[$my_dn]@[service]>;tag=[pid]SIPpTag00[call_number]
+      To: <sip:[$my_dn]@[service]>
+      Call-ID: [$my_dn]///[call_id]
+      CSeq: [cseq] REGISTER
+      User-Agent: Accession 4.0.0.0
+      Supported: outbound, path
+      Contact: <sip:[$my_dn]@[$nat_ip_addr]:[$nat_port];transport=[transport];ob>;+sip.ice;reg-id=1;+sip.instance="<urn:uuid:00000000-0000-0000-0000-000000000001>"
+      Contact: <sip:[$my_dn]@[local_ip]:[local_port];transport=[transport];ob>;expires=0;+sip.ice;reg-id=1;+sip.instance="<urn:uuid:00000000-0000-0000-0000-000000000001>"
+      Expires: 3600
+      Allow: PRACK, INVITE, ACK, BYE, CANCEL, UPDATE, SUBSCRIBE, NOTIFY, REFER, MESSAGE, OPTIONS
+      Content-Length: 0
 
-        ]]>
-    </send>
-    <recv response="200" rtd="register">
-        <action>
-            <add assign_to="reg_repeat" value="1" />
-        </action>
-    </recv>
-    <send start_rtd="register">
-        <![CDATA[
+    ]]>
+  </send>
 
-          REGISTER sip:[$peer_dn]@[service] SIP/2.0
-          Via: SIP/2.0/[transport] [local_ip]:[local_port];rport;branch=[branch]-[$my_dn]-[$reg_repeat]
-          Route: <sip:[service];transport=[transport];lr>
-          Max-Forwards: 70
-          From: <sip:[$peer_dn]@[service]>;tag=[pid]SIPpTag00[call_number]
-          To: <sip:[$peer_dn]@[service]>
-          Call-ID: [$my_dn]///[call_id]
-          CSeq: [cseq] REGISTER
-          User-Agent: Accession 4.0.0.0
-          Supported: outbound, path
-          Contact: 
-                                    <sip:[$peer_dn]@[$nat_ip_addr]:[$nat_port];transport=[transport];ob>;+sip.ice;reg-id=1;+sip.instance="
-                                        <urn:uuid:00000000-0000-0000-0000-000000000001>"
-          Contact: 
-                                            <sip:[$peer_dn]@[local_ip]:[local_port];transport=[transport];ob>;expires=0;+sip.ice;reg-id=1;+sip.instance="<urn:uuid:00000000-0000-0000-0000-000000000001>"
-          Expires: 3600
-          Allow: PRACK, INVITE, ACK, BYE, CANCEL, UPDATE, SUBSCRIBE, NOTIFY, REFER, MESSAGE, OPTIONS
-          Content-Length: 0
-
-        ]]>
-    </send>
-    <recv response="200" rtd="register" chance="0.167" next="2">
-        <action>
-            <add assign_to="reg_repeat" value="1" />
-        </action>
+  <recv response="200" rtd="register">
+    <action>
+      <add assign_to="reg_repeat" value="1" />
+    </action>
   </recv>
 
-    <pause variable="reg_pause"/> -->
-    
-  <label id="3" />
+  <send start_rtd="register">
+    <![CDATA[
+
+      REGISTER sip:[$peer_dn]@[service] SIP/2.0
+      Via: SIP/2.0/[transport] [local_ip]:[local_port];rport;branch=[branch]-[$my_dn]-[$reg_repeat]
+      Route: <sip:[service];transport=[transport];lr>
+      Max-Forwards: 70
+      From: <sip:[$peer_dn]@[service]>;tag=[pid]SIPpTag00[call_number]
+      To: <sip:[$peer_dn]@[service]>
+      Call-ID: [$my_dn]///[call_id]
+      CSeq: [cseq] REGISTER
+      User-Agent: Accession 4.0.0.0
+      Supported: outbound, path
+      Contact: <sip:[$peer_dn]@[$nat_ip_addr]:[$nat_port];transport=[transport];ob>;+sip.ice;reg-id=1;+sip.instance="<urn:uuid:00000000-0000-0000-0000-000000000001>"
+      Contact: <sip:[$peer_dn]@[local_ip]:[local_port];transport=[transport];ob>;expires=0;+sip.ice;reg-id=1;+sip.instance="<urn:uuid:00000000-0000-0000-0000-000000000001>"
+      Expires: 3600
+      Allow: PRACK, INVITE, ACK, BYE, CANCEL, UPDATE, SUBSCRIBE, NOTIFY, REFER, MESSAGE, OPTIONS
+      Content-Length: 0
+
+    ]]>
+  </send>
+
+ <recv response="200" rtd="register" chance="0.167" next="2">
+    <action>
+      <add assign_to="reg_repeat" value="1" />
+    </action>
+  </recv>
+
+  <pause variable="reg_pause" next="1" /> -->
+
+  <label id="2" />
 
   <nop hide="true">
     <action>
       <add assign_to="call_repeat" value="1" />
       <!-- CHANGES. Set this to the same as the call_delay value set above -->
       <sample assign_to="pre_call_delay" distribution="uniform" min="0" max="27000" />
+      <assign assign_to="post_call_delay" value="12000" />
     </action>
   </nop>
 
@@ -300,15 +291,12 @@
   </send>
 
   <!-- The 100 response is generated by sprout and so it and the proxied INVITE can be received in either order. -->
-  <!-- If we receive the 100 response first, move onto label 4 where we expect the INVITE and then continue. -->
-  <!-- If we receive the INVITE first, expect a 100 response and then move onto label 5, where we continue. -->
-  
- 
-  
-  <recv response="100" optional="true" next="3">
+  <!-- If we receive the 100 response first, move onto label 3 where we expect the INVITE and then continue. -->
+  <!-- If we receive the INVITE first, expect a 100 response and then move onto label 4, where we continue. -->
+  <recv response="100" optional="true" next="3"  timeout="3000" ontimeout="1">
   </recv>
 
-  <recv request="INVITE" timeout="3000" ontimeout="1">
+  <recv request="INVITE"  timeout="3000" ontimeout="1">
   </recv>
 
   <nop hide="true">
@@ -318,7 +306,22 @@
     </action>
   </nop>
 
-  <label id="5" />
+  <recv response="100" next="4"  timeout="3000" ontimeout="1">
+  </recv>
+
+  <label id="3" />
+
+  <recv request="INVITE"  timeout="3000" ontimeout="1">
+  </recv>
+
+  <nop hide="true">
+    <action>
+      <assignstr assign_to="uas_via" value="[last_Via:]" />
+      <assignstr assign_to="uas_rr" value="[last_Record-Route:]" />
+    </action>
+  </nop>
+
+  <label id="4" />
 
   <send>
     <![CDATA[
@@ -351,10 +354,8 @@
 
     ]]>
   </send>
-  
- 
-  
-  <recv response="180" timeout="3000" ontimeout="3">
+
+  <recv response="180"  timeout="3000" ontimeout="1">
   </recv>
 
   <pause variable="call_answer" />
@@ -403,13 +404,9 @@
 
     ]]>
   </send>
-  
-  
-  
-  <recv response="200" rrs="true" timeout="3000" ontimeout="3">
-  </recv>
 
-  <label id="6" />
+  <recv response="200" rrs="true"  timeout="3000" ontimeout="1">
+  </recv>
 
   <send>
     <![CDATA[
@@ -426,13 +423,9 @@
 
     ]]>
   </send>
-  
- 
-  
-  <recv request="ACK" timeout="3000" ontimeout="3">
-  </recv>
 
-  <label id="7" />
+  <recv request="ACK"  timeout="3000" ontimeout="5">
+  </recv>
 
   <send>
     <![CDATA[
@@ -481,13 +474,9 @@
 
     ]]>
   </send>
-  
- 
-  
-  <recv request="UPDATE" timeout="3000" ontimeout="3">
-  </recv>
 
-  <label id="8" />
+  <recv request="UPDATE"  timeout="3000" ontimeout="5">
+  </recv>
 
   <send>
     <![CDATA[
@@ -529,15 +518,13 @@
 
     ]]>
   </send>
-  
- 
-  
-  <recv response="200" rtd="call-setup" timeout="3000" ontimeout="3">
+
+  <recv response="200" rtd="call-setup"  timeout="3000" ontimeout="5">
   </recv>
 
   <pause variable="call_length" />
-
-  <label id="9" />
+ 
+  <label id="5" />
 
   <send start_rtd="call-teardown">
     <![CDATA[
@@ -556,13 +543,9 @@
 
     ]]>
   </send>
-  
 
-  
-  <recv request="BYE" timeout="3000" ontimeout="3">
+  <recv request="BYE"  timeout="3000" ontimeout="5">
   </recv>
-
-  <label id="10" />
 
   <send>
     <![CDATA[
@@ -579,14 +562,17 @@
 
     ]]>
   </send>
-  
 
-  
-  <recv response="200" rtd="call-teardown" timeout="3000" ontimeout="3">
+  <recv response="200" rtd="call-teardown" timeout="3000" ontimeout="1">
   </recv>
-  <!--<pause variable="post_call_delay" />-->
+
+  <pause variable="post_call_delay" next="1" />
+
   <!-- definition of the response time repartition table (unit is ms)   -->
   <ResponseTimeRepartition value="500, 1000, 2000, 3000, 4000, 7000, 10000"/>
+
   <!-- definition of the call length repartition table (unit is ms)     -->
   <CallLengthRepartition value="10, 50, 100, 500, 1000, 5000, 10000"/>
+
 </scenario>
+
