@@ -9,3 +9,5 @@ container_remote_sip_stress_script: "/usr/share/clearwater/bin/continous-stress-
 local_sip_stress_run: "../Ansible/files/sip-stress-infinite-pass"
 remote_sip_stress_run: "/opt/bitflow/sipp-stress/sip-stress-infinite-pass"
 container_remote_sip_stress_run: "/usr/share/clearwater/bin/sip-stress"
+
+load_script_args: "--min_users 13000 --max_users 15000 -d 36000 --t_load_change 1200"

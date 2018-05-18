@@ -1,13 +1,54 @@
 #!/bin/bash
 
+hel() {
+    echo "TODO: Help"
+}
+
 #setup scenario file
 default_scenario_file="https://raw.githubusercontent.com/bitflow-stream/testbed-scenarios/master/Clearwater/Docker/clearwater-docker/sip-stress/sip-stress_aa.xml"
-new_scenario_file_url=${1:-$default_scenario_file} 
-min_users=${2:-8000}
-max_users=${3:-12000}
-time_span=${4:-3600}
-user_list_duration=${5:-1800}
+new_scenario_file_url=$default_scenario_file
+min_users=8000
+max_users=12000
+time_span=3600
+user_list_duration=1800
 user_list_counter=$user_list_duration
+
+POSITIONAL=()
+while [[ $# -gt 0 ]]; do
+    key="$1"
+
+    case $key in
+        --scenario_file)
+        new_scenario_file_url="$2"
+        shift # past argument
+        shift # past value
+        ;;
+        --min_users)
+        min_users="$2"
+        shift # past argument
+        shift # past value
+        ;;
+        --max_users)
+        max_users="$2"
+        shift # past argument
+        shift # past value
+        ;;
+        -d|--duration)
+        time_span="$2"
+        shift # past argument
+        shift # past value
+        ;;
+        --t_load_change)
+        user_list_duration="$2"
+        shift # past argument
+        shift # past value
+        ;;
+        *)    # unknown option
+        help
+        ;;
+    esac
+done
+set -- "${POSITIONAL[@]}" # restore positional parameters
 
 current_users_number=0
 

@@ -27,5 +27,5 @@
         mode: 0744
     - name: Copy load run script inside docker container
       shell: "docker cp {{ remote_sip_stress_run }} {{ sippstress_container.stdout_lines[0] }}:{{ container_remote_sip_stress_run }}"
-#    - name: starting sip load generation script
-#      shell: "docker exec -di {{ sippstress_container.stdout_lines[0] }} bash -c \"{{ container_remote_sip_stress_script }}\""
+    - name: starting sip load generation script
+      shell: "docker exec -di {{ sippstress_container.stdout_lines[0] }} bash -c \"{{ container_remote_sip_stress_script }} {{ load_script_args }}\""
