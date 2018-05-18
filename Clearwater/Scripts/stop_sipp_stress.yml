@@ -4,22 +4,14 @@
   hosts:
     - sippstress
   become: yes
-  vars:
-    sipp_stress_process_identifier: "stress"
   tasks:
     - name: Register sippstress docker container as variable
-      shell: "docker ps --format '{{ '{{' }} .Names {{ '}}' }}' | grep 'sipp-stress'"
+      shell: "docker ps --format '{{ '{{' }} .Names {{ '}}' }}' | grep 'sip-stress'"
       register: sippstress_container
     - assert:
         that:
           - "sippstress_container.stdout_lines[0] is defined"
           - "sippstress_container.stdout_lines[0] != ''"
         msg: "Sipp-stress container must run on VM endpoint {{ ansible_host }}"
-    - name: example copying file with owner and permissions
-      copy:
-        src: "{{ local_sip_stress_script }}"
-        dest: "{{ remote_sip_stress_script }}"
-    - name: Copy load generation script inside docker container
-      shell: "docker cp {{ remote_sip_stress_script }} {{ sippstress_container.stdout_lines[0] }}:{{ container_remote_sip_stress_script }}"
-    - name: starting sip load generation script
-      shell: "docker exec -ti {{ sippstress_container.stdout_lines[0] }} bash -c \"ps aux | grep {{ sipp_stress_process_identifier }} | awk '{print $2}' | xargs kill\""
+    - name: Reset load generator container
+      shell: "docker restart {{ sippstress_container.stdout_lines[0] }}"
