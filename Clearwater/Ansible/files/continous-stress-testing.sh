@@ -7,6 +7,7 @@ min_users=${2:-8000}
 max_users=${3:-12000}
 time_span=${4:-3600}
 user_list_duration=${5:-1800}
+user_list_counter=$user_list_duration
 
 current_users_number=0
 
@@ -34,7 +35,8 @@ mv $users_list_path $complete_users_list
 
 #Log file for logging current users
 current_users_log_file="/var/log/clearwater-sipp/current_users.log"
-
+rm $current_users_log_file
+echo -e "Time,Users" >> $current_users_log_file
 
 create_users $min_users $max_users $complete_users_list $users_list_path
 
@@ -48,10 +50,10 @@ while [ $(( $(date +%s) - $time_span )) -lt $start_time ]; do   #run this loop f
     echo -e "New test is being started..."
 
     #change users number for certain file
-    if [ $(date +%s) -ge $(( $start_time + $user_list_duration )) ]; 
+    if [ $(date +%s) -ge $(( $start_time + $user_list_counter )) ]; 
     then
         create_users $min_users $max_users $complete_users_list $users_list_path
-        user_list_duration=$(( $user_list_duration + $user_list_duration ))
+        user_list_counter=$(( $user_list_counter + $user_list_duration ))
     fi
 
     #start test...
@@ -66,9 +68,10 @@ while [ $(( $(date +%s) - $time_span )) -lt $start_time ]; do   #run this loop f
     while [ -d "/proc/$sip_stress_pid" ];
     do
         sleep 60
-        if [ $(date +%s) -ge $(( $start_time + $user_list_duration )) ]; 
+        if [ $(date +%s) -ge $(( $start_time + $user_list_counter )) ]; 
         then
-            kill -9 "$sip_stress_pid" >/dev/null
+            ps aux | grep sip | awk '{print $2}' | xargs kill -9
+            #kill -9 "$sip_stress_pid" >/dev/null
         fi
     done
 
