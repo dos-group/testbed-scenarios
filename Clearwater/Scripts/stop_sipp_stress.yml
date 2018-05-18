@@ -14,4 +14,4 @@
           - "sippstress_container.stdout_lines[0] != ''"
         msg: "Sipp-stress container must run on VM endpoint {{ ansible_host }}"
     - name: Reset load generator container
-      shell: "docker restart {{ sippstress_container.stdout_lines[0] }}"
+      shell: "docker kill {{ sippstress_container.stdout_lines[0] }}"
