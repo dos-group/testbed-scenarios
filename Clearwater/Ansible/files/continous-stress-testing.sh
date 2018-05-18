@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #setup scenario file
-default_scenario_file="https://raw.githubusercontent.com/bitflow-stream/testbed-scenarios/master/Clearwater/Docker/clearwater-docker/sip-stress/sip-stress-updated.xml"
+default_scenario_file="https://raw.githubusercontent.com/bitflow-stream/testbed-scenarios/master/Clearwater/Docker/clearwater-docker/sip-stress/sip-stress-for-compute-node-stress_aa.xml"
 new_scenario_file_url=${1:-$default_scenario_file} 
 min_users=${2:-8000}
 max_users=${3:-12000}
