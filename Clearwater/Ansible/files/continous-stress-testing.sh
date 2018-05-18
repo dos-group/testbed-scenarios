@@ -104,7 +104,7 @@ while [ $(( $(date +%s) - $time_span )) -lt $start_time ]; do   #run this loop f
 
     echo -e "SIP stress has PID: $sip_stress_pid"
 
-	echo -e "$current_users_number" >> $current_users_log_file
+	echo -e "$(date +%Y-%m-%d_%H:%M:%S),$current_users_number" >> $current_users_log_file
 
     while [ -d "/proc/$sip_stress_pid" ];
     do
