@@ -45,8 +45,8 @@
         path: "{{ item }}"
         state: directory
       with_items:
-        - "{{ log_dir }}"
-        - "{{ config_dir }}"
+        - "{{ sipp.load_log_dir }}"
+        - "{{ sipp.load_config_dir }}"
 
 - name: Setup Hypervisors
   hosts:
@@ -115,9 +115,7 @@
       when:  leader
 
 - name: Install the Bitflow data collector and injector
-  hosts:
-    - hypervisors
-    - vms
+  hosts: all:!sippstress:!etcd:!swarm_manager
   tags: [ collector, injector ]
   vars:
     injector: "{{ injector_general }}"

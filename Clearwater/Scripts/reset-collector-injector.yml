@@ -1,9 +1,7 @@
 #!/usr/bin/env ansible-playbook
 
 - name: Unset collector tags, stop file outputs, stop all running anomalies on VM and Host layer
-  hosts:
-    - hypervisors
-    - vms:!client
+  hosts: all:!sippstress:!etcd:!swarm_manager
   vars:
     injector: "{{ injector_general }}"
   tasks:

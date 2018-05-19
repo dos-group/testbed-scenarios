@@ -77,7 +77,7 @@ mv $users_list_path $complete_users_list
 #Log file for logging current users
 current_users_log_file="/var/log/clearwater-sipp/current_users.log"
 rm $current_users_log_file
-echo -e "Time,Users" >> $current_users_log_file
+echo -e "time,users" >> $current_users_log_file
 
 create_users $min_users $max_users $complete_users_list $users_list_path
 

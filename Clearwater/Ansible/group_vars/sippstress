@@ -1,7 +1,4 @@
 
-config_dir: /opt/bitflow/sipp-stress/config
-log_dir: /opt/bitflow/sipp-stress/logs
-
 local_sip_stress_script: "../Ansible/files/continous-stress-testing.sh"
 remote_sip_stress_script: "/opt/bitflow/sipp-stress/continous-stress-testing.sh"
 container_remote_sip_stress_script: "/usr/share/clearwater/bin/continous-stress-testing"
@@ -9,5 +6,3 @@ container_remote_sip_stress_script: "/usr/share/clearwater/bin/continous-stress-
 local_sip_stress_run: "../Ansible/files/sip-stress-infinite-pass"
 remote_sip_stress_run: "/opt/bitflow/sipp-stress/sip-stress-infinite-pass"
 container_remote_sip_stress_run: "/usr/share/clearwater/bin/sip-stress"
-
-load_script_args: "--min_users 13000 --max_users 15000 -d 36000 --t_load_change 1200"

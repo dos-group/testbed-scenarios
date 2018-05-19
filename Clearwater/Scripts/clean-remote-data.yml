@@ -1,9 +1,10 @@
 #!/usr/bin/env ansible-playbook
 
-- import_playbook: reset-collector-injector.yml
-
 - name: Delete collector data
-  hosts: all
+  hosts: all:!sippstress:!etcd:!swarm_manager
+  vars:
+    injector: "{{ injector_general }}"
   tasks:
+    - include_tasks: ../../Common/Ansible/reset-collector-injector-tasks.yml
 	- include_tasks: ../../Common/Ansible/clean-remote-collector-data-tasks.yml
-
+ 
