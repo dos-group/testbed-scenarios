@@ -5,7 +5,7 @@ stack_name: "cw"
 sipp:
   load_log_dir: /opt/bitflow/sipp-stress/logs
   load_config_dir: /opt/bitflow/sipp-stress/config
-  load_script_args: "--min_users 13000 --max_users 15000 -d 36000 --t_load_change 1200"
+  load_script_args: "--min_users 8000 --max_users 9000 -d 36000 --t_load_change 1200"
 
 collector:
   container_name: bitflow-collector
