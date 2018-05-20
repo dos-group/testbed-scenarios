@@ -13,7 +13,6 @@ time_span=3600
 user_list_duration=1800
 user_list_counter=$user_list_duration
 
-POSITIONAL=()
 while [[ $# -gt 0 ]]; do
     key="$1"
 
@@ -48,7 +47,6 @@ while [[ $# -gt 0 ]]; do
         ;;
     esac
 done
-set -- "${POSITIONAL[@]}" # restore positional parameters
 
 current_users_number=0
 
