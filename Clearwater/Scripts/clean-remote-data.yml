@@ -16,3 +16,6 @@
       become: true
       args:
         executable: /bin/bash
+      become: true
+	- include_tasks: ../../Common/Ansible/clean-remote-collector-data-tasks.yml
+      become: true
