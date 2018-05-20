@@ -4,6 +4,5 @@
 
 - name: Delete collector data
   file: path={{ collector.data_path }} state=absent
-  become: true
+- name: Check collector data directory presence
   file: path={{ collector.data_path }} state=directory
-  become: true
