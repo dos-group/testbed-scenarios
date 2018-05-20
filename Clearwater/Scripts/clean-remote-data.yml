@@ -6,6 +6,13 @@
     injector: "{{ injector_general }}"
   tasks:
     - include_tasks: ../../Common/Ansible/reset-collector-injector-tasks.yml
+    - include_tasks: ../../Common/Ansible/clean-remote-collector-data-tasks.yml
       become: true
-	- include_tasks: ../../Common/Ansible/clean-remote-collector-data-tasks.yml
+
+- name: Delete oad statistics data
+  hosts: sippstress
+  tasks:
+    - shell: find {{ sipp.load_log_dir }} -type f -delete
+      args:
+        executable: /bin/bash
       become: true

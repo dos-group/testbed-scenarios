@@ -37,6 +37,7 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-load_args="--min_users $min_users --max_users $max_users -d $duration --t_load_change $t_load_change"
+load_args="\"--min_users $min_users --max_users $max_users -d $duration --t_load_change $t_load_change\""
+echo $load_args
 
-"$home/fetch-data.yml" -e "load_args=$load_args"
+"$home/start_sipp_stress.yml" -e "load_args=$load_args"
