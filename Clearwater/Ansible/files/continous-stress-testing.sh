@@ -119,4 +119,6 @@ while [ $(( $(date +%s) - $time_span )) -lt $start_time ]; do   #run this loop f
     echo -e "------------------------------------------------"
 done
 
+ps aux | grep sip | awk '{print $2}' | xargs kill -9
+
 exit 0
