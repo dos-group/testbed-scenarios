@@ -11,7 +11,7 @@ while [[ $# -gt 0 ]]; do
     key="$1"
 
     case $key in
-        --duration)
+        -d|--duration)
         duration="$2"
         shift # past argument
         shift # past value
@@ -32,7 +32,8 @@ while [[ $# -gt 0 ]]; do
         shift # past value
         ;;
         *)    # unknown option
-        help
+        echo "Bad parametrization"
+        exit -1
         ;;
     esac
 done
@@ -40,4 +41,4 @@ done
 load_args="\"--min_users $min_users --max_users $max_users -d $duration --t_load_change $t_load_change\""
 echo $load_args
 
-"$home/start_sipp_stress.yml" -e "load_args=$load_args" -i "../Ansible/ansible-inventory.ini"
+"$home/start_sipp_stress.yml" -e "load_args=$load_args"
