@@ -5,7 +5,7 @@
     - sippstress[0]
   become: yes
   tasks:
-    - set_fact: load_args={{ sipp.load_script_args }}
+    - set_fact: load_args=sipp.load_script_args
       when: load_args is not defined or load_args == ""
     - name: Register sippstress docker container as variable
       shell: "docker ps --format '{{ '{{' }} .Names {{ '}}' }}' | grep 'sip-stress'"
