@@ -44,12 +44,15 @@
       docker_container:
         name: rtmp-golang-client-{{ item }}
         image: antongulenko/stream-statistics-client
-        pull: true
+        pull: false
+        network_mode: host
         volumes:
           - "{{ rtmp.client_log_dir }}:{{ rtmp.client_log_dir_mounted }}"
           - "{{ rtmp.client_targets_dir }}:{{ rtmp.client_targets_dir_mounted }}"
         command:
           - "-files"
+          - "-files-buf"
+          - "8"
           - "-o"
           - "{{ rtmp.client_log_dir_mounted }}/{{ rtmp.client_log_dir_prefix }}-{{ item }}.csv"
           - "{{ rtmp.client_targets_dir_mounted }}/{{ item }}.txt"

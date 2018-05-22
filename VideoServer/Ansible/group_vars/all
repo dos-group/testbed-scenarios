@@ -1,5 +1,5 @@
 
-rtmp_clients_per_host: 100
+rtmp_clients_per_host: 3
 
 rtmp:
   port: 1935
