@@ -1,0 +1,17 @@
+#!/usr/bin/env ansible-playbook
+
+- name: Stop sip load generation on all load generation VMs
+  hosts:
+    - sippstress
+  become: yes
+  tasks:
+    - name: Register sippstress docker container as variable
+      shell: "docker ps --format '{{ '{{' }} .Names {{ '}}' }}' | grep 'sip-stress'"
+      register: sippstress_container
+    - assert:
+        that:
+          - "sippstress_container.stdout_lines[0] is defined"
+          - "sippstress_container.stdout_lines[0] != ''"
+        msg: "Sipp-stress container must run on VM endpoint {{ ansible_host }}"
+    - name: Reset load generator container
+      shell: "docker kill {{ sippstress_container.stdout_lines[0] }}"

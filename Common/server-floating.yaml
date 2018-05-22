@@ -41,7 +41,7 @@ parameters:
     availability_zone:
         type: string
         label: Availability Zone
-        default: "nova"
+        default: "Default"
     setup:
         type: string
         label: Additional VM initialization script (executed as ubuntu)

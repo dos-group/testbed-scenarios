@@ -1,16 +1,132 @@
 #!/usr/bin/env ansible-playbook
 
-- name: Install the Bitflow data collector and injector
+- name: Install Python
+  tags: [ bootstrap ]
+  hosts: all
+  gather_facts: false
+  tasks:
+    - include_tasks: ../../Common/Ansible/bootstrap-python.yml
+      become: true
+    - include_tasks: ../../Common/Ansible/bootstrap-docker-tasks.yml
+      become: true
+
+- name: Setup VMs
+  hosts:
+    - vms
+  become: yes
+  vars:
+    docker_compose_bin: "/usr/local/bin/docker-compose"
+    docker_compose_version: "1.21.0"
+    env_var: { name: "HOSTNAME", value: "{{  inventory_hostname }}" }
+    changed: false
+    kernel_version: "4.4.0-119-generic"
+  tasks:
+#    Load specific kernel that works with clearwater astaire and rogers. Works only as upgrade. Not as downgrade.
+#    - include_tasks: ../../Common/Ansible/load_kernel_upgrade.yml var=changed
+    - include_tasks: ../../Common/Ansible/reboot_server.yml
+      when: changed
+    - include_tasks: ../../Common/Ansible/install_packages_with_apt.yml
+    - set_fact: changed="false"
+    - include_tasks: ../../Common/Ansible/install_docker.yml var=changed
+    - include_tasks: ../../Common/Ansible/install_docker_compose.yml var=changed
+    - name: apt update
+      apt: update_cache=yes
+    - include_tasks: ../../Common/Ansible/add_environment_variable.yml var=env_var var=changed
+    - include_tasks: ../../Common/Ansible/reboot_server.yml
+      when: changed
+
+- name: Setup sipp stress VMs
+  hosts:
+    - sippstress
+  become: yes
+  tasks:
+    - name: Create required sipp stress directories 
+      file:
+        path: "{{ item }}"
+        state: directory
+      with_items:
+        - "{{ sipp.load_log_dir }}"
+        - "{{ sipp.load_config_dir }}"
+
+- name: Setup Hypervisors
   hosts:
     - hypervisors
-    - vms
+  become: yes
+  tasks:
+    - include_tasks: ../../Common/Ansible/install_packages_with_apt.yml
+
+- name: Bootstrap docker swarm cluster
+  hosts: swarm_manager[0]
+  become: yes
+  vars:
+    dockerfile_local: "./files/{{ docker_file }}"
+    dockerfile_remote: "~/{{ docker_file }}"
+  tasks:
+    - name: Copy docker compose file from local to remote host
+      copy:
+        src: "{{ dockerfile_local }}"
+        dest: "{{ dockerfile_remote }}"
+    - include_tasks: ../../Common/Ansible/docker_swarm/bootstrap_swarm_cluster.yml
+    - include_tasks: ../../Common/Ansible/docker_swarm/retrieve_join_tokens.yml
+    - set_fact: swarm_manager_token={{ swarm_manager_token }}
+    - set_fact: swarm_worker_token={{ swarm_worker_token }}
+
+- name: Join docker swarm manager nodes
+  hosts: swarm_manager[1:]
+  become: yes
+  vars:
+    dockerfile_local: "./files/{{ docker_file }}"
+    dockerfile_remote: "~/{{ docker_file }}"
+    token_host: "{{ hostvars[inventory_hostname]['groups']['swarm_manager'][0] }}"
+    token: "{{ hostvars[token_host]['swarm_manager_token'] }}"
+    manager_ip: "{{ hostvars[token_host]['private_ip'] }}"
+  tasks:
+    - name: Copy docker compose file from local to remote host
+      copy:
+        src: "{{ dockerfile_local }}"
+        dest: "{{ dockerfile_remote }}"
+    - include_tasks: ../../Common/Ansible/docker_swarm/join_swarm.yml    
+
+- name: Join docker swarm worker nodes
+  hosts:
+    - vms:!swarm_manager
+  become: yes
+  vars:
+    token_host: "{{ hostvars[inventory_hostname]['groups']['swarm_manager'][0] }}"
+    token: "{{ hostvars[token_host]['swarm_worker_token'] }}"
+    manager_ip: "{{ hostvars[token_host]['private_ip'] }}"
+  tasks:
+    - include_tasks: ../../Common/Ansible/docker_swarm/join_swarm.yml
+
+- name: Deploy docker swarm services
+  hosts:
+    - swarm_manager
+  become: yes
+  vars:
+    docker_file_path: "~/{{ docker_file }}"
+  environment:
+    ADDITIONAL_SHARED_CONFIG: "{{ shared_config }}"
+  tasks:
+    - include_tasks: ../../Common/Ansible/docker_swarm/set_leader_fact.yml
+    - debug: msg={{ leader }}
+    - include_tasks: ../../Common/Ansible/docker_swarm/set_hostname_label.yml
+      when: leader
+    - include_tasks: ../../Common/Ansible/docker_swarm/deploy_docker_swarm_services.yml
+      when:  leader
+
+- name: Install the Bitflow data collector and injector
+  hosts: all:!sippstress:!etcd:!swarm_manager
   tags: [ collector, injector ]
   vars:
     injector: "{{ injector_general }}"
-  tasks:
+  tasks: 
     - include_tasks: ../../Common/Ansible/bootstrap-docker-tasks.yml
       become: true
     - include_tasks: ../../Common/Ansible/bitflow-collector-tasks.yml
       become: true
     - include_tasks: ../../Common/Ansible/injector-tasks.yml
       become: true
+
+
+
+

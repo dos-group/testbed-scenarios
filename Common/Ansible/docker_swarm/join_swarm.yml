@@ -1,0 +1,7 @@
+
+- name: join nodes to cluster
+  shell: >
+    docker swarm join --token={{ token }} --advertise-addr={{ private_ip }}:2377 {{ manager_ip }}:2377
+  register: result
+  changed_when: result.rc==0
+  failed_when: (result.rc!=0) and ('This node is already part of a swarm' not in result.stderr)

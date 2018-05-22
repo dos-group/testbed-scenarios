@@ -1,0 +1,309 @@
+version: '3.4'
+services:
+  etcd:
+    image: quay.io/coreos/etcd:v2.2.5
+    hostname: etcd
+    networks:
+      clearwater_nw:
+        aliases:
+          - etcd
+    ports:
+      - "2380:2380"
+      - "4001:4001"
+      - "2379:2379"
+    command: >
+      -name etcd0
+      -advertise-client-urls http://etcd:2379,http://etcd:4001
+      -listen-client-urls http://0.0.0.0:2379,http://0.0.0.0:4001
+      -initial-advertise-peer-urls http://etcd:2380
+      -listen-peer-urls http://0.0.0.0:2380
+      -initial-cluster etcd0=http://etcd:2380
+      -initial-cluster-state new
+    deploy:
+      mode: global
+      placement:
+        constraints:
+         - node.labels.comp==etcd
+  astaire:
+    image:  muhammadimran/astaire
+    environment:
+      - ADDITIONAL_SHARED_CONFIG
+    networks:
+      clearwater_nw:
+        aliases:
+          - astaire
+    ports:
+      - 22
+    deploy:
+      mode: global
+      placement:
+        constraints:
+         - node.labels.comp==astaire
+  chronos:
+    image: muhammadimran/chronos    
+    environment:
+      - ADDITIONAL_SHARED_CONFIG
+    networks:
+      clearwater_nw:
+        aliases:
+          - chronos
+    ports:
+      - 22
+    deploy:
+      mode: global
+      placement:
+        constraints:
+         - node.labels.comp==chronos
+  cassandra:
+    image: muhammadimran/cassandra
+    
+    environment:
+      - ADDITIONAL_SHARED_CONFIG
+    networks:
+      clearwater_nw:
+        aliases:
+          - cassandra
+    ports:
+      - 22
+    deploy:
+      mode: global
+      placement:
+        constraints:
+         - node.labels.comp==cassandra
+  bono:
+    image: muhammadimran/bono    
+    environment:
+      - PUBLIC_IP
+      - ADDITIONAL_SHARED_CONFIG
+    networks:
+      clearwater_nw:
+        aliases:
+          - bono
+    ports:
+      - 22
+      - "3478:3478"
+      - "3478:3478/udp"
+      - "5060:5060"
+      - "5060:5060/udp"
+      - "5062:5062"
+    deploy:
+      mode: global
+      placement:
+        constraints:
+         - node.labels.comp==bono
+  sprout:
+    image: muhammadimran/sprout    
+    environment:
+      - ADDITIONAL_SHARED_CONFIG
+    networks:
+      clearwater_nw:
+        aliases:
+          - sprout
+          - scscf.sprout
+          - icscf.sprout
+    ports:
+      - 22
+    deploy:
+      mode: global
+      placement:
+        constraints:
+         - node.labels.comp==sprout
+  homestead:
+    image: muhammadimran/homestead    
+    environment:
+      - ADDITIONAL_SHARED_CONFIG
+    networks:
+      clearwater_nw:
+        aliases:
+          - homestead
+          
+    ports:
+      - 22
+    deploy:
+      mode: global
+      placement:
+        constraints:
+         - node.labels.comp==homestead
+  homestead-prov:
+    image: muhammadimran/homestead-prov
+    
+    environment:
+      - ADDITIONAL_SHARED_CONFIG
+    networks:
+      clearwater_nw:
+        aliases:
+          - homestead-prov
+    ports:
+      - 22
+    deploy:
+      mode: global
+      placement:
+        constraints:
+         - node.labels.comp==homesteadprov
+  homer:
+    image: muhammadimran/homer    
+    environment:
+      - ADDITIONAL_SHARED_CONFIG
+    networks:
+      clearwater_nw:
+        aliases:
+          - homer
+    ports:
+      - 22
+    deploy:
+      mode: global
+      placement:
+        constraints:
+         - node.labels.comp==homer
+  ralf:
+    image: muhammadimran/ralf
+    environment:
+      - ADDITIONAL_SHARED_CONFIG
+    networks:
+      clearwater_nw:
+        aliases:
+          - ralf
+    ports:
+      - 22
+    deploy:
+      mode: global
+      placement:
+        constraints:
+         - node.labels.comp==ralf
+
+#use muhammadimran/elis instead of muhammadimran/ellis.  In muhammadimran/elis, the numbers are created and stored automatically in a container creation step. In muhammadimran/ellis,  you have to manually create numbers by executing /usr/share/clearwater/ellis/creaet_numbers.sh script. 
+  ellis:
+    image: muhammadimran/elis
+    environment:
+      - ADDITIONAL_SHARED_CONFIG
+    networks:
+      clearwater_nw:
+        aliases:
+          - ellis
+    ports:
+      - 22
+      - "80:80"
+    deploy:
+      mode: global
+      placement:
+        constraints:
+         - node.labels.comp==ellis
+
+  #Wrapper to run privileged container. This container will start the collector container as child.
+#  collector:
+#    image: alexanderacker/docker_wrapper
+#    environment:
+#      - SERVICE_NAME
+#    networks: 
+#      - dummy_nw
+#    volumes:
+#      - "/var/run/docker.sock:/var/run/docker.sock"
+#      - "/etc/hostname:/etc_host/hostname" 
+#    entrypoint: "/bin/bash"
+#    command: -c 'exec docker run --init --rm --privileged=true --cap-add=ALL --pid=host -e SERVICE_NAME=$SERVICE_NAME -p "5010:5010" -p "7777:7777" -v "/opt/bitflow/data-collector:/bitflow/data-collector" -v "/etc/hostname:/etc_host/hostname" --entrypoint="/bin/bash" antongulenko/bitflow-collector -c "bitflow-collector -tag host=\"$$SERVICE_NAME@$$(cat /etc_host/hostname).ims4\" -exclude \"pcap|net-io/nic\" -proc vnf=\"clearwater|vnf_\" -include vnf/ -ci 500ms -si 500ms -api :7777 -o :5010 -o /bitflow/data-collector/data.bin"'
+#    deploy:
+#      mode: global
+#      placement:
+#        constraints:
+#          - node.labels.comp!=sippstress
+
+#  injector_vm:
+#    image: alexanderacker/docker_wrapper
+#    networks:
+#      - dummy_nw
+#    volumes:
+#      - "/var/run/docker.sock:/var/run/docker.sock"
+#      - "/etc/hostname:/etc_host/hostname"
+#    entrypoint: "/bin/bash"
+#    command: -c 'exec docker run --init --rm --privileged=true --cap-add=ALL --pid=host --net=host -p "7888:7888" -v "/etc/hostname:/etc_host/hostname" --entrypoint="/bin/bash" alexanderacker/anomaly_injector -c "python3.6 ./injector_agent.py -host $$(cat /etc_host/hostname).ims4 -api-port 7888"'
+#    deploy:
+#      mode: global
+#      placement:
+#        constraints:
+#          - node.labels.comp!=sippstress
+
+#  injector_vnf:
+#    image: alexanderacker/docker_wrapper
+#    environment:
+#      - SERVICE_NAME
+#    networks:
+#      - dummy_nw
+#    volumes:
+#      - "/var/run/docker.sock:/var/run/docker.sock"
+#      - "/etc/hostname:/etc_host/hostname"
+#    entrypoint: "/bin/bash"
+#    command: -c 'exec docker run --init --rm --privileged=true --cap-add=ALL --pid=host --net=host -e SERVICE_NAME=$SERVICE_NAME -p "7889:7889" -v "/etc/hostname:/etc_host/hostname" --entrypoint="/bin/bash" alexanderacker/anomaly_injector -c "python3.6 ./injector_agent.py -host $$SERVICE_NAME@$$(cat /etc_host/hostname).ims4 -api-port 7889"'
+#    deploy:
+#      mode: global
+#      placement:
+#        constraints:
+#          - node.labels.comp!=sippstress
+  
+#  service_quality_measurement:
+    # TODO add the parameters for the bitflow script to read sipp from the mounted log, and write the results to the mounted /bitflow/service-quality-data folder
+#    image: antongulenko/bitflow.py
+#    networks: 
+#      - dummy_nw
+#    volumes:
+      # TODO also mount the log files generated by the sipp-stress tool. For this, the sipp-stress countainer needs a volume at /log/... to expose the generated logs to the host.
+     # Does not have to be created beforehand. Docker creates missing dirs in container and on host
+#     - /opt/bitflow/data/service_quality:/bitflow/service-quality-data
+#    deploy:
+#      placement:
+#        constraints:
+#          - node.labels.comp==sippstress
+
+#  sip-stress-core:
+#    image: muhammadimran/sip-stress-core
+#    environment:
+#      - ADDITIONAL_SHARED_CONFIG
+#    networks:
+#      - clearwater_nw
+#    deploy:
+#      mode: global
+#      placement:
+#        constraints:
+#          - node.labels.comp==sippstress
+
+  sip-stress:
+    image: muhammadimran/sipp-stress-1
+    environment:
+      - ADDITIONAL_SHARED_CONFIG
+    networks:
+      - clearwater_nw
+    volumes:
+      - "/opt/bitflow/sipp-stress/logs:/var/log/clearwater-sipp"
+      - "/opt/bitflow/sipp-stress/config:/usr/share/clearwater/sip-stress"
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - node.labels.comp==sippstress
+
+  livetest:
+    image: muhammadimran/clearwater-live-test
+    networks:
+      - clearwater_nw
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - node.labels.comp==sippstress
+    tty: true
+
+#https://docs.docker.com/engine/swarm/networking/#customize-an-overlay-network . in overlay network size limitation, it is recommended to use /24. because it is not possible to allocate more than 255 ips   in overlay network. the issue is reported on: https://github.com/moby/moby/issues/31019
+networks:
+  clearwater_nw:
+    driver: overlay
+    attachable: true    
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.254.0.0/24
+#  dummy_nw:
+#    driver: overlay
+#    attachable: true    
+#    ipam:
+#      driver: default
+#      config:
+#        - subnet: 10.253.0.0/24

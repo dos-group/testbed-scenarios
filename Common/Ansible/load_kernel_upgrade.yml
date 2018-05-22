@@ -1,0 +1,16 @@
+
+- name: Upgrade linux kernel Step 1
+  tags: [ kernel ]
+  apt: 
+    name: "linux-image-extra-{{ kernel_version }}"
+    state: present
+  register: kernel_1
+
+- name: Upgrade linux kernel Step 2
+  tags: [ kernel ]
+  apt: 
+    name: "linux-image-extra-virtual"
+    state: present
+  register: kernel_2
+
+- set_fact: changed="{{ changed is defined and (changed or kernel_1.changed or kernel_2.changed) }}"

@@ -1,0 +1,14 @@
+#!/usr/bin/env ansible-playbook
+
+- name: Remove swarm
+  hosts:
+    - vms
+  become: yes
+  tasks:
+    - include_tasks: ../../Common/Ansible/reboot_server.yml
+    - name: Restart service docker, in all cases
+      service:
+        name: docker
+        state: restarted
+    - name: Leave swarm
+      shell: docker swarm leave --force

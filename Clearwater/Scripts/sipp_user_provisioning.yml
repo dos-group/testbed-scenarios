@@ -1,0 +1,21 @@
+#!/usr/bin/env ansible-playbook
+
+- name: Provision users for sipp load generation
+  hosts:
+    - cassandra[0]
+  become: yes
+  vars:
+    remote_path_to_provision_script: "/usr/share/clearwater/crest-prov/src/metaswitch/crest/tools/stress_provision.sh"
+  tasks:
+    - name: Register cassandra docker container as variable
+      shell: "docker ps --format '{{ '{{' }} .Names {{ '}}' }}' | grep 'cassandra'"
+      register: cassandra_container
+    - assert:
+        that:
+          - "cassandra_container.stdout_lines[0] is defined"
+          - "cassandra_container.stdout_lines[0] != ''"
+        msg: "Cassandra container must run on VM endpoint {{ ansible_host }}"
+    - name: Run the command to generate users
+      shell: "docker exec -i {{ cassandra_container.stdout_lines[0] }} bash {{ remote_path_to_provision_script }}"
+      register: result
+      failed_when: "result.stderr != ''"

@@ -13,9 +13,11 @@ function output_group() {
     for host in $@; do
         PUBLIC_IP="${PUBLIC_IPS[$host]}"
         PRIVATE_IP="${PRIVATE_IPS[$host]}"
+		ZONE="${ZONES[$host]}"
         test -z "$PUBLIC_IP" && { warn "Warning: No public IP found for host $host. Not adding to group $NAME"; continue; }
         output="$host ansible_host=$PUBLIC_IP"
         test -n "$PRIVATE_IP" && { output="$output private_ip=$PRIVATE_IP"; }
+		test -n "$ZONE" && { output="$output zone=$ZONE"; }
         echo "$output"
     done
 }
@@ -31,16 +33,37 @@ function output_meta_group() {
 declare -A VM_GROUPS
 declare -A PUBLIC_IPS
 declare -A PRIVATE_IPS
+declare -A ZONES
 HYPERVISORS=""
 ALL_VMS=""
+
+warn "Querying hypervisor information..."
+HYPERVISOR_INFO=$(openstack hypervisor list -f json)
+for ID in $(echo "$HYPERVISOR_INFO" | jq -rM '.[]."ID"' | tr '\n' ' '); do
+	warn "Querying info of hypervisor '$ID'..."
+	INFO=$(openstack hypervisor show $ID -f json -c hypervisor_hostname -c service_host)
+	HYPERVISOR=$(echo "$INFO" | jq -rM '.service_host')
+	HYPERVISOR_HOSTNAME=$(echo "$INFO" | jq -rM '.hypervisor_hostname')
+	PUBLIC_IPS["$HYPERVISOR"]=$HYPERVISOR_HOSTNAME
+	HYPERVISORS="$HYPERVISORS $HYPERVISOR"
+done
+
+HOST_INFO=$(openstack host list -f json)
+while read -r hy_zone; do
+	hz=($hy_zone)
+	ZONES["${hz[0]}"]="${hz[1]}"
+done < <(echo "$HOST_INFO" | jq -rM '.[] | select(."Zone" != "internal") | ."Host Name" + " " + ."Zone"')
 
 warn "Querying list of VMs named '$PREFIX*'..."
 VM_IDS=$(openstack server list --name "^$PREFIX.*" -f json -c ID | jq -rM '.[].ID')
 for ID in $VM_IDS; do
     warn "Querying info of VM '$ID'..."
-    INFO=$(openstack server show "$ID" -f json -c name -c OS-EXT-SRV-ATTR:hypervisor_hostname -c addresses -c properties)
-    HYPERVISOR=$(echo "$INFO" | jq -rM '."OS-EXT-SRV-ATTR:hypervisor_hostname"')
+    INFO=$(openstack server show "$ID" -f json -c name -c addresses -c properties -c OS-EXT-AZ:availability_zone)
+
+	#Get VM name
     NAME=$(echo "$INFO" | jq -rM .name)
+	# Get availability zone of VM
+	ZONE=$(echo "$INFO" | jq -rM '."OS-EXT-AZ:availability_zone"')
 
     # Easiest hack to parse the stupid OpenStack metadata properties format: replace comma with semicolon and eval in a subshell
     # Example: stack='video-server-5', xxx='yyy'
@@ -67,11 +90,11 @@ for ID in $VM_IDS; do
     test -z "$PUBLIC_IP" && { echo "Private & public IPs not found for VM '$NAME' in network named '$PREFIX*', skipping VM. Network info: $NETWORKS"; continue; }
 
     # Do these assignments only after all above checks have passed
-    HYPERVISORS="$HYPERVISORS $HYPERVISOR"
     VM_GROUPS[$VM_GROUP]="${VM_GROUPS[$VM_GROUP]} $NAME"
     ALL_VMS="$ALL_VMS $NAME"
     PUBLIC_IPS[$NAME]="$PUBLIC_IP"
     PRIVATE_IPS[$NAME]="$PRIVATE_IP"
+	ZONES[$NAME]=$ZONE
 done
 
 # Create sections for VM_GROUPS
@@ -80,14 +103,5 @@ for group in ${!VM_GROUPS[@]}; do
 done
 output_meta_group vms:children ${!VM_GROUPS[@]}
 
-# Create a section for hypervisors
-HYPERVISORS=$(echo "$HYPERVISORS" | tr ' ' '\n' | sort | uniq | tr '\n' ' ')
-HYPERVISORS_SHORT=""
-for hv in $HYPERVISORS; do
-    # TODO this might be different for other hostnames. Here, we strip all DNS-name parts except for the first one.
-    HV_SHORT=$(echo "$hv" | cut -f1 -d".")
-    PUBLIC_IPS[$HV_SHORT]="$hv"
-    HYPERVISORS_SHORT="$HYPERVISORS_SHORT $HV_SHORT"
-done
-output_group hypervisors $HYPERVISORS_SHORT
+output_group hypervisors $HYPERVISORS
 

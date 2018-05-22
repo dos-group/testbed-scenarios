@@ -1,0 +1,8 @@
+
+local_sip_stress_script: "../Ansible/files/continous-stress-testing.sh"
+remote_sip_stress_script: "/opt/bitflow/sipp-stress/continous-stress-testing.sh"
+container_remote_sip_stress_script: "/usr/share/clearwater/bin/continous-stress-testing"
+
+local_sip_stress_run: "../Ansible/files/sip-stress-infinite-pass"
+remote_sip_stress_run: "/opt/bitflow/sipp-stress/sip-stress-infinite-pass"
+container_remote_sip_stress_run: "/usr/share/clearwater/bin/sip-stress"

@@ -1,0 +1,9 @@
+
+- name: "Set environment variable"
+  lineinfile:
+    path: /etc/environment
+    regexp: "^{{ env_var.name }}="
+    line: "{{ env_var.name }}={{ env_var.value }}"
+  register: env_set
+
+- set_fact: changed={{ changed is defined and (changed or env_set.changed) }}

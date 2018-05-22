@@ -1,0 +1,10 @@
+
+- name: determine swarm status
+  shell: >
+    docker info | egrep '^Swarm: ' | cut -d ' ' -f2
+  register: swarm_status
+
+- name: initialize swarm cluster
+  shell: >
+    docker swarm init --advertise-addr {{ private_ip }}:2377 --force-new-cluster
+  when: "'inactive' in swarm_status.stdout_lines"

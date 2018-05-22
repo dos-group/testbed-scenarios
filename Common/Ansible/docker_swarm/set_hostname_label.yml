@@ -1,0 +1,11 @@
+
+- name: retrieve swarm node names
+  shell: "docker node ls --format '{{ '{{' }} .Hostname {{ '}}' }}' | tr ' ' '\n'"
+  register: swarm_host_name
+
+#- debug: var=item.split('-')[1]
+#  with_items: "{{ swarm_host_name.stdout_lines[1:] }}"
+
+- name: add a label to swarm nodes
+  shell: docker node update --label-add comp={{ item.split('-')[1] }} {{ item }}
+  with_items: "{{ swarm_host_name.stdout_lines[1:] }}" #First element is empty

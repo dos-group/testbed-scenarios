@@ -1,0 +1,12 @@
+
+- name: retrieve swarm manager token
+  shell: docker swarm join-token -q manager
+  register: swarm_manager_token
+
+- set_fact: swarm_manager_token={{ swarm_manager_token.stdout }}
+
+- name: retrieve swarm worker token
+  shell: docker swarm join-token -q worker
+  register: swarm_worker_token
+
+- set_fact: swarm_worker_token={{ swarm_worker_token.stdout }}

@@ -1,0 +1,33 @@
+#!/usr/bin/env ansible-playbook
+
+- name: Start sip load generation via SIPPp on all load generation VMs
+  hosts:
+    - sippstress[0]
+  become: yes
+  tasks:
+    - set_fact: load_args=sipp.load_script_args
+      when: load_args is not defined or load_args == ""
+    - name: Register sippstress docker container as variable
+      shell: "docker ps --format '{{ '{{' }} .Names {{ '}}' }}' | grep 'sip-stress'"
+      register: sippstress_container
+    - assert:
+        that:
+          - "sippstress_container.stdout_lines[0] is defined"
+          - "sippstress_container.stdout_lines[0] != ''"
+        msg: "Sipp-stress container must run on VM endpoint {{ ansible_host }}"
+    - name: Copy load scripts
+      copy:
+        src: "{{ local_sip_stress_script }}"
+        dest: "{{ remote_sip_stress_script }}"
+        mode: 0744
+    - name: Copy load generation script inside docker container
+      shell: "docker cp {{ remote_sip_stress_script }} {{ sippstress_container.stdout_lines[0] }}:{{ container_remote_sip_stress_script }}"
+    - name: Copy load scripts
+      copy:
+        src: "{{ local_sip_stress_run }}"
+        dest: "{{ remote_sip_stress_run }}"
+        mode: 0744
+    - name: Copy load run script inside docker container
+      shell: "docker cp {{ remote_sip_stress_run }} {{ sippstress_container.stdout_lines[0] }}:{{ container_remote_sip_stress_run }}"
+    - name: starting sip load generation script
+      shell: "docker exec -di {{ sippstress_container.stdout_lines[0] }} bash -c \"{{ container_remote_sip_stress_script }} {{ load_args }}\""
