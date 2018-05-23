@@ -2,7 +2,8 @@
 # Required variables for this task: output_check_directory, max_file_age_seconds
 # Gets the latest modification time of all regular files in the directory and reports a change (rather than failing), if the oldest file is older than a given number of seconds.
 
-- shell: |
+- name: "Check if directory changed: {{ output_check_directory }}"
+  shell: |
     all_times=$(find "{{ output_check_directory }}" -type f -exec stat --format='%Y' {} \;)
     test -z "$all_times" && { echo "No files found in directory {{ output_check_directory }}!"; exit 55; }
     now_time=$(date +%s)
