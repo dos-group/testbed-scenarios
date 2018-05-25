@@ -1,16 +1,14 @@
 
-rtmp_clients_per_host: 3
-
 rtmp:
   port: 1935
   balancer_stats_port: 8080
   backend_http_port: 8080
   default_request_path: "/vod/example-big.flv"
-  client_log_dir_prefix: rtmp-client-output
-  client_log_dir: /opt/bitflow/rtmp-client
-  client_log_dir_mounted: /bitflow/rtmp-client
-  client_targets_dir: /opt/bitflow/rtmp-client-targets
-  client_targets_dir_mounted: /bitflow/rtmp-client-targets
+  client_log_dir: /opt/bitflow/client
+  client_log_dir_mounted: /bitflow/client
+  client_log_file: client.bin
+  client_api_port: 6767
+  client_data_port: 6768
 
 collector:
   container_name: bitflow-collector
