@@ -1,0 +1,19 @@
+#!/usr/bin/env ansible-playbook
+
+- name: Enable file output of data collectors
+  hosts:
+    - hypervisors
+    - vms:!client
+  tasks:
+    - uri:
+        url: "http://0.0.0.0:{{ collector.api_port }}/api/file_output"
+        method: POST
+
+- name: Enable file output of client statistics
+  hosts:
+    - client
+  tasks:
+    - uri:
+        url: "http://0.0.0.0:{{ rtmp.client_api_port }}/api/file_output"
+        method: POST
+

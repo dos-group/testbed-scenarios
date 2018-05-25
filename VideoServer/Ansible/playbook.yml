@@ -60,4 +60,3 @@
           RTMP_PORT: "{{ rtmp.port }}"
           STATS_PORT: "{{ rtmp.balancer_stats_port }}"
           RTMP_SERVERS: "{{ groups['backend'] | map('extract', hostvars, ['private_ip']) | join(' ') }}"
-

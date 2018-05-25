@@ -7,3 +7,14 @@
   tasks:
     - include_tasks: ../../Common/Ansible/reset-collector-injector-tasks.yml
 
+- name: Disable RTMP client file output and unset tags
+  hosts:
+    - client
+  tasks:
+    - uri:
+        url: "{{ item }}"
+        method: DELETE
+      with_items:
+        - "http://0.0.0.0:{{ rtmp.client_api_port }}/api/tags"
+        - "http://0.0.0.0:{{ rtmp.client_api_port }}/api/file_output"
+

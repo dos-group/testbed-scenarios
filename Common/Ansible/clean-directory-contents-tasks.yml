@@ -1,0 +1,8 @@
+
+- name: Clean contents of directory {{ cleaned_directory }}
+  raw: find "{{ cleaned_directory }}" -type f -delete -print | egrep '.*' &> /dev/null && exit 66 || exit 77
+  args:
+    executable: /bin/bash
+  register: clean_directory_contents
+  changed_when: clean_directory_contents.rc == 66
+  failed_when: clean_directory_contents.rc != 77 and clean_directory_contents.rc != 66
