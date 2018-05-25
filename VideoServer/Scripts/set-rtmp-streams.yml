@@ -1,0 +1,12 @@
+#!/usr/bin/env ansible-playbook
+
+# The variable NUM_RTMP_STREAMS must be set to an integer value with '-e' on the command line
+
+- name: Set the RTMP client load
+  hosts:
+    - client
+  tasks:
+    - uri:
+        url: "http://0.0.0.0:{{ rtmp.client_api_port }}/api/streams?num={{ NUM_RTMP_STREAMS }}"
+        method: POST
+
