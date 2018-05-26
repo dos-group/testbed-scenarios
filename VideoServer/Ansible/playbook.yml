@@ -2,8 +2,29 @@
 
 - import_playbook: playbook-base.yml
 
-#- import_playbook: playbook-ffmpeg-client.yml
-- import_playbook: playbook-golang-client.yml
+- name: Install the load generation client
+  hosts: client
+  tags: [ docker, client ]
+  tasks:
+    - name: Run video load generation client docker container
+      become: true
+      docker_container:
+        name: rtmp-client
+        image: antongulenko/stream-statistics-client
+        pull: true
+        command: |
+            -n 0
+            -o {{ rtmp.client_log_dir_mounted }}/{{ rtmp.client_log_file }}
+            -o :{{ rtmp.client_data_port }}
+            -api :{{ rtmp.client_api_port }}
+            {% for host in groups['load-balancer'] %}
+            rtmp://{{ hostvars[host]['private_ip'] }}:{{ rtmp.port }}{{ rtmp.default_request_path }}
+            {% endfor %}
+        volumes:
+          - "{{ rtmp.client_log_dir }}:{{ rtmp.client_log_dir_mounted }}"
+        ports:
+          - "{{ rtmp.client_data_port }}:{{ rtmp.client_data_port }}"
+          - "{{ rtmp.client_api_port }}:{{ rtmp.client_api_port }}"
 
 - name: Install the backend video server
   hosts: backend
@@ -39,4 +60,3 @@
           RTMP_PORT: "{{ rtmp.port }}"
           STATS_PORT: "{{ rtmp.balancer_stats_port }}"
           RTMP_SERVERS: "{{ groups['backend'] | map('extract', hostvars, ['private_ip']) | join(' ') }}"
-
