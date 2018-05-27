@@ -175,7 +175,7 @@ resources:
         - protocol: icmp
         - { protocol: tcp, port_range_min: 22, port_range_max: 22 }
 
-        # Data-Collection-Agent, RTMP, dashboards of RTMP server and load balancer
+        # Data-Collection-Agent, RTMP, dashboards of RTMP server and load balancer, plus a port range for future use (including RTMP client)
         - { protocol: tcp, port_range_min: 7777, port_range_max: 7777 }
         - { protocol: tcp, port_range_min: 7888, port_range_max: 7888 }
         - { protocol: tcp, port_range_min: 7889, port_range_max: 7889 }
@@ -183,6 +183,7 @@ resources:
         - { protocol: tcp, port_range_min: 1935, port_range_max: 1935 }
         - { protocol: tcp, port_range_min: 8080, port_range_max: 8080 }
         - { protocol: tcp, port_range_min: 8888, port_range_max: 8888 }
+        - { protocol: tcp, port_range_min: 6000, port_range_max: 7000 }
 
   # ================
   # === Servers  ===
