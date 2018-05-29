@@ -1,0 +1,10 @@
+---
+# tasks file for neo4j_deployment
+- name: Get Neo4J Image
+  docker_service:
+    project_src: docker-compose.yaml
+    build: no
+    #restarted: yes
+  register: neo4j_output
+
+
