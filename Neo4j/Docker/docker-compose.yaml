@@ -1,0 +1,19 @@
+version: '3.6'
+services:
+  neo4j:
+    image: neo4j/neo4j:latest
+    environment:
+      - NEO4J_AUTH=none  #find other environment variables to set
+      - NEO4J_HEAP_MEMORY=1024
+      - NEO4J_CACHE_MEMORY=1G
+    volumes:
+      - ${HOME}/neo4j/data:/data #for data storage. home:  /var/lib/neo4j
+      - ${HOME}/neo4j/logs:/log #for logs. logs: /var/lib/neo4j/logs logs. to check.
+      - ${HOME}/neo4j/conf:/conf #for conf.  conf: /var/lib/neo4j/conf. to check.
+    ports:
+      - "7474:7474"  # for http
+      - "7687:7687"  # for bolt
+  openstack_client:
+    image: muhammadimran/openstack_client
+    env_file:
+      - .env
