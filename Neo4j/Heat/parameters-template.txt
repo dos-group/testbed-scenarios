@@ -1,0 +1,8 @@
+--parameter key_name=KEYNAME
+--parameter internet_net_id=95ee9286-6543-4070-9188-efa53d5a769b
+--parameter public_net_id=9eb3c72f-8b05-41b0-a3e0-7455c1762b45
+--parameter flavor=t1.medium
+--parameter image=ubuntu1604
+--parameter zone=neo4j
+--parameter neo4j_cluster_size=1
+--parameter volume_size=1
