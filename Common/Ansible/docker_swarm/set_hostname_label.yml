@@ -9,3 +9,4 @@
 - name: add a label to swarm nodes
   shell: docker node update --label-add comp={{ item.split('-')[1] }} {{ item }}
   with_items: "{{ swarm_host_name.stdout_lines }}"
+  when: item is defined and item != ""
