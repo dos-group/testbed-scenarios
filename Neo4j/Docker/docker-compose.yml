@@ -10,8 +10,8 @@ services:
       #to specify other settings related to clusters, please see: https://neo4j.com/docs/operations-manual/current/installation/docker/ . But clustering seems to be  available only for enterprise addition 
     volumes:
       - ${HOME}/neo4j/data:/data #for data storage. home:  /var/lib/neo4j, path:  /var/lib/neo4j/data
-      - ${HOME}/neo4j/logs:/logs #for logs. home:  /var/lib/neo4j, path:  /var/lib/neo4j/logs
-      - ${HOME}/neo4j/conf:/conf #for conf. home:  /var/lib/neo4j, path:  /var/lib/neo4j/conf
+      #- ${HOME}/neo4j/logs:/logs #for logs. home:  /var/lib/neo4j, path:  /var/lib/neo4j/logs
+      #- ${HOME}/neo4j/conf:/conf #for conf. home:  /var/lib/neo4j, path:  /var/lib/neo4j/conf
     
     ports: # to read more about neo4j ports: https://neo4j.com/docs/operations-manual/current/configuration/ports/
       - "7474:7474"  # for http

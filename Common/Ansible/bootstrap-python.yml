@@ -1,9 +1,10 @@
 
 # This is required to execute any remote Ansible task
 # 'gather_facts: false' must be set on the play that includes this, and it should be the first play in the playbook
+# The 'apt update' fails sometimes because of missing signing keys...
 - name: Install python-minimal
   tags: [ bootstrap ]
-  raw: "type python &> /dev/null && exit 77 || { apt update && apt install -y python-minimal && exit 66; }"
+  raw: "type python &> /dev/null && exit 77 || { apt update &> /dev/null; apt install -y python-minimal && exit 66; }"
   args:
     executable: /bin/bash
   register: install_python_minimal

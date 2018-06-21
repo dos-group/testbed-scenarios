@@ -12,9 +12,9 @@ echo "$(date) $cassandra_cluster_info" >> /var/log/scale-down-cassandra.log
 values=$(echo $cassandra_cluster_info | jq -r .node.value)
 echo "$(date) Values in the ETCD are '$values'" >> /var/log/scale-down-cassandra.log
 ips=$(echo $values | jq -r  'keys[]')
-echo "$(date) Extracted IPs." >> /var/log/scale-down-cassandra.log
+echo "$(date) Extracted IPs: ${ips[@]}" >> /var/log/scale-down-cassandra.log
 is_value_changed=false
-for i in $ips;
+for i in ${ips[@]};
 do
 	echo "$(date) Pinging $i" >> /var/log/scale-down-cassandra.log
 	ping -c3 $i 2>/dev/null 1>/dev/null
