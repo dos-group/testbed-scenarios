@@ -14,6 +14,7 @@ RUN touch /var/log/scale-astaire.log
 
 COPY memcached.supervisord.conf /etc/supervisor/conf.d/memcached.conf
 COPY astaire.supervisord.conf /etc/supervisor/conf.d/astaire.conf
+COPY cron.supervisord.conf /etc/supervisor/conf.d/cron.conf
 COPY rogers.supervisord.conf /etc/supervisor/conf.d/rogers.conf
 COPY clearwater-group.supervisord.conf /etc/supervisor/conf.d/clearwater-group.conf
 
