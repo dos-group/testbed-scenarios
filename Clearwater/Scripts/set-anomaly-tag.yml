@@ -1,0 +1,9 @@
+#!/usr/bin/env ansible-playbook
+
+- name: Set collector anomaly tag
+  hosts: all:!sippstress:!etcd:!swarm_manager
+  vars:
+    anomaly_name: "cw-cassandra_node-0.ims4|corrupt_db"
+  tasks:
+    - include_tasks: ../../Common/Ansible/set-anomaly-tag.yml
+

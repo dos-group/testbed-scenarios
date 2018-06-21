@@ -1,0 +1,7 @@
+
+- name: Set collector anomaly tag
+  uri:
+    url: "{{ item }}"
+    method: PUT
+  with_items:
+    - "http://0.0.0.0:{{ collector.api_port }}/api/tags?target={{ anomaly_name }}"
