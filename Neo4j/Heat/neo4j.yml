@@ -1,0 +1,241 @@
+heat_template_version: 2016-10-14
+
+description: >
+  Neo4j VM Deploymenet
+
+parameters:
+  internet_net_id:
+    type: string
+    description: ID of internet network
+    constraints:
+      - custom_constraint: neutron.network
+        description: Must be a valid network ID
+
+  public_net_id:
+    type: string
+    description: ID of public network
+    constraints:
+      - custom_constraint: neutron.network
+        description: Must be a valid network ID
+
+  public_net_cidr:
+    type: string
+    description: Subnet address of public network
+    default: 10.0.42.0/24
+  private_net_cidr:
+    type: string
+    description: Private network address (CIDR notation)
+    default: 10.0.0.0/24
+
+  private_net_pool_start:
+    type: string
+    description: Start of private network IP address pool
+    default: 10.0.0.3
+  private_net_pool_end:
+    type: string
+    description: End of private network IP address pool
+    default: 10.0.0.254
+  
+  flavor:
+    type: string
+    description: Flavor to use
+    constraints:
+      - custom_constraint: nova.flavor
+        description: Must be a valid flavor name
+  
+        
+  image:
+    type: string
+    description: Name of image to use
+    constraints:
+      - custom_constraint: glance.image
+        description: Must be a valid image name
+  
+  key_name:
+    type: string
+    description: Name of keypair to assign
+    constraints:
+      - custom_constraint: nova.keypair
+        description: Must be a valid keypair name
+  
+  zone:
+    type: string
+    description: DNS zone
+    default: neo4j
+  zone_volume:
+    type: string
+    description: Zone for Volume
+    default: neo4j
+
+  neo4j_cluster_size:
+    type: number
+    description: Number of Neo4J nodes
+    default: 1
+
+  volume_size:
+    type: number
+    description: Size of the volume to be created.
+    default: 1
+    #constraints:
+    #  - range: { min: 1, max: 1024 }
+    #    description: must be between 1 and 1024 Gb.
+
+resources:
+
+  network_private_net:
+    type: OS::Neutron::Net
+    properties:
+      name: { str_replace: { params: { __stack__: { get_param: "OS::stack_name" } }, template: __stack__-private } }
+
+  network_private_subnet:
+    type: OS::Neutron::Subnet
+    properties:
+      name: { str_replace: { params: { __stack__: { get_param: "OS::stack_name" } }, template: __stack__-private } }
+      network_id: { get_resource: network_private_net }
+      cidr: { get_param: private_net_cidr }
+      gateway_ip: 10.0.0.1
+      host_routes:
+        - nexthop: 10.0.0.2
+          destination: { get_param: public_net_cidr }
+      allocation_pools:
+        - start: { get_param: private_net_pool_start }
+          end: { get_param: private_net_pool_end }
+
+  internet_router:
+    type: OS::Neutron::Router
+    properties:
+      name: { str_replace: { params: { __stack__: { get_param: "OS::stack_name" } }, template: __stack__-internet-router } }
+
+  internet_router_gateway:
+    type: OS::Neutron::RouterGateway
+    properties:
+      router_id: { get_resource: internet_router }
+      network_id: { get_param: internet_net_id }
+
+  internet_router_interface_port:
+    type: OS::Neutron::Port
+    properties:
+      network: { get_resource: network_private_net }
+      fixed_ips:
+        - ip_address: 10.0.0.1
+          subnet: { get_resource: network_private_subnet }
+
+  internet_router_interface:
+    type: OS::Neutron::RouterInterface
+    properties:
+      router_id: { get_resource: internet_router }
+      port_id: { get_resource: internet_router_interface_port }
+
+  network_router:
+    type: OS::Neutron::Router
+    properties:
+      name: { str_replace: { params: { __stack__: { get_param: "OS::stack_name" } }, template: __stack__-private } }
+
+  network_router_gateway:
+    type: OS::Neutron::RouterGateway
+    properties:
+      router_id: { get_resource: network_router }
+      network_id: { get_param: public_net_id }
+
+  network_router_interface_port:
+    type: OS::Neutron::Port
+    properties:
+      network: { get_resource: network_private_net }
+      fixed_ips:
+        - ip_address: 10.0.0.2
+          subnet: { get_resource: network_private_subnet }
+
+  network_router_interface:
+    type: OS::Neutron::RouterInterface
+    properties:
+      router_id: { get_resource: network_router }
+      port_id: { get_resource: network_router_interface_port }
+
+  security_groups_base:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      name: { str_replace: { params: { __name_prefix__: { get_param: "OS::stack_name" } }, template: __name_prefix__-base } }
+      description: Base security group for Neo4J
+      rules:
+        # ICMP
+        - protocol: icmp
+        # SSH
+        - protocol: tcp
+          port_range_min: 22
+          port_range_max: 22
+
+  security_groups_neo4j:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      name: { str_replace: { params: { __name_prefix__: { get_param: "OS::stack_name" } }, template: __name_prefix__-neo4j } }
+      description: Security group for Neo4J nodes
+      rules:
+        # HTTP
+        - protocol: tcp
+          port_range_min: 7474
+          port_range_max: 7474
+        # Bolt
+        - protocol: tcp
+          port_range_min: 7687
+          port_range_max: 7687
+
+  security_groups_swarm:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      name: { str_replace: { params: { __name_prefix__: { get_param: "OS::stack_name" } }, template: __name_prefix__-swarm } }
+      description: Security group for Swarm
+      rules:
+        - protocol: tcp
+          port_range_min: 2377
+          port_range_max: 2377
+        - protocol: tcp
+          port_range_min: 7946
+          port_range_max: 7946
+        - protocol: udp
+          port_range_min: 7946
+          port_range_max: 7946
+        - protocol: tcp
+          port_range_min: 4789
+          port_range_max: 4789
+  neo4j_server:
+    depends_on: [ network_router_interface_port, network_router_gateway]
+    type: OS::Heat::ResourceGroup
+    properties:
+      count: { get_param: neo4j_cluster_size }
+      resource_def:
+        type: server-floating.yaml
+        properties:
+          stack_name: { get_param: "OS::stack_name" }
+          group: neo4j
+          name: { str_replace: { params: { __index__: "%index%", __stack__: { get_param: "OS::stack_name" }, __zone__: { get_param: zone } }, template: __stack__-neo4j-__index__.__zone__ } }
+          image: { get_param: image }
+          flavor: { get_param: flavor }
+          key_name: { get_param: key_name }
+          external_network: { get_param: public_net_id }
+          network: { get_resource: network_private_net }
+          availability_zone: { get_param: zone }
+          security_groups:
+            - { get_resource: security_groups_base }
+            - { get_resource: security_groups_neo4j }
+            - { get_resource: security_groups_swarm }
+  cinder_volume:
+    type: OS::Cinder::Volume
+    properties:
+      size: { get_param: volume_size }
+      name: Neo4j_Volume
+      #availability_zone: { get_param: zone_volume }
+  volume_attachment:
+    type: OS::Cinder::VolumeAttachment
+    properties:
+      volume_id: { get_resource: cinder_volume }
+      instance_uuid: { get_resource: neo4j_server }
+      #mountpoint: /dev/vdb
+
+
+outputs:
+  zone:
+    description: availability zone
+    value: { get_param: zone }
+  neo4j_ips:
+    description: Neo4j Public IP
+    value: { get_attr: [neo4j_server, public_ip]}

@@ -544,7 +544,7 @@
     ]]>
   </send>
 
-  <recv request="BYE"  timeout="3000" ontimeout="5">
+  <recv request="BYE"  timeout="3000" ontimeout="1">
   </recv>
 
   <send>

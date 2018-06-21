@@ -1,0 +1,20 @@
+- name: Install Docker CE
+  hosts: neo4j
+  become: yes
+  tasks:
+    - include_role:
+        name: docker
+
+- name: Install Docker Compose
+  hosts: neo4j
+  become: yes
+  tasks:
+    - include_role:
+        name: docker_compose
+
+- name: Deploy Neo4J
+  hosts: neo4j
+  become: yes
+  tasks:
+    - include_role:
+        name: neo4j_deployment
