@@ -7,6 +7,13 @@
   tasks:
     - include_tasks: ../../Common/Ansible/bootstrap-python.yml
       become: true
+
+- name: Install Docker
+  tags: [ bootstrap ]
+  hosts: all
+  tasks:
+    - include_tasks: ../../Common/Ansible/install_docker.yml
+      become: true
     - include_tasks: ../../Common/Ansible/bootstrap-docker-tasks.yml
       become: true
 
@@ -21,4 +28,3 @@
     - include_tasks: ../../Common/Ansible/injector-tasks.yml
       tags: [ docker, injector ]
       become: true
-
