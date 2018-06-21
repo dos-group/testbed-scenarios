@@ -6,6 +6,8 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --force-
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --force-yes astaire
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --force-yes rogers
 
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --force-yes jq
+
 COPY scale_astaire.sh /usr/share/clearwater/bin/scale_astaire.sh
 COPY crontab /etc/cron.d/
 RUN chmod +x /usr/share/clearwater/bin/scale_astaire.sh && chmod 0600 /etc/cron.d/crontab 

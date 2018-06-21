@@ -15,9 +15,9 @@ echo "$(date) $memcached_cluster_info" >> $LOG_FILE
 values=$(echo $memcached_cluster_info | jq -r .node.value)
 echo "$(date) Values in the ETCD are '$values'" >> $LOG_FILE
 ips=$(echo $values | jq -r  'keys[]')
-echo "$(date) Extracted IPs." >> $LOG_FILE
+echo "$(date) Extracted IPs: ${ips[@]}" >> $LOG_FILE
 is_value_changed=false
-for i in $ips;
+for i in ${ips[@]};
 do
 	echo "$(date) Pinging $i" >> $LOG_FILE
 	ping -c3 $i 2>/dev/null 1>/dev/null
