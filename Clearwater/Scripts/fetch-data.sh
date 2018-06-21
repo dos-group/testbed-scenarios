@@ -10,4 +10,5 @@ TARGET_DIR="$FETCH_DIR/$NUM"
 mkdir -p "$TARGET_DIR"
 echo "Fetching data to $TARGET_DIR"
 "$home/fetch-data.yml" -e "fetch_dir=$TARGET_DIR"
-
+#Delete all empty directories
+find $TARGET_DIR -empty -type d -delete

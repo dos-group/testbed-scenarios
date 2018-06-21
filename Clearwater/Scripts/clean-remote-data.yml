@@ -10,7 +10,9 @@
     - include_tasks: ../../Common/Ansible/clean-directory-contents-tasks.yml
       become: true
 
-- name: Delete oad statistics data
+- import_playbook: stop_sipp_stress.yml
+
+- name: Delete sipp stress data
   hosts: sippstress
   vars:
     cleaned_directory: "{{ sipp.load_log_dir }}"
