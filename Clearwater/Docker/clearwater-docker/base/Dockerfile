@@ -27,8 +27,8 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --force-
 COPY clearwater-auto-config-docker /etc/init.d/
 
 RUN apt-get install -y --force-yes clearwater-snmpd
-RUN chmod +x /etc/init.d/clearwater-auto-config-docker && /etc/init.d/clearwater-auto-config-docker restart
-
+#RUN chmod +x /etc/init.d/clearwater-auto-config-docker && /etc/init.d/clearwater-auto-config-docker restart
+RUN /etc/init.d/clearwater-auto-config-docker restart
 
 RUN /etc/init.d/clearwater-infrastructure restart
 COPY clearwater-infrastructure.supervisord.conf /etc/supervisor/conf.d/clearwater-infrastructure.conf

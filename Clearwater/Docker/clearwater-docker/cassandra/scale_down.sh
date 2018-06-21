@@ -4,7 +4,7 @@
 echo "########################### START ###########################" >> /var/log/scale-down-cassandra.log
 
 #in start wait for other nodes to join
-#sleep 300
+sleep 300
 
 cassandra_cluster_info=$(curl -m 20 -L http://etcd:2379/v2/keys/clearwater/node_type_cassandra/clustering/cassandra)
 
