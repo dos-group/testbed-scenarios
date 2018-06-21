@@ -7,9 +7,9 @@ MEMCACHED_ETCD_KEY_URL="http://etcd:2379/v2/keys/clearwater/site1/node_type_memc
 echo "########################### START ###########################" >> $LOG_FILE
 
 #in start wait for other nodes to join
-sleep 300
+#sleep 300
 
-memcached_cluster_info=$(curl -L $MEMCACHED_ETCD_KEY_URL)
+memcached_cluster_info=$(curl -m 20 -L $MEMCACHED_ETCD_KEY_URL)
 
 echo "$(date) $memcached_cluster_info" >> $LOG_FILE
 values=$(echo $memcached_cluster_info | jq -r .node.value)
@@ -20,7 +20,7 @@ is_value_changed=false
 for i in ${ips[@]};
 do
 	echo "$(date) Pinging $i" >> $LOG_FILE
-	ping -c3 $i 2>/dev/null 1>/dev/null
+	ping -c3 -i1 $i 2>/dev/null 1>/dev/null
 	if [ $? -ne "0" ]
 	then
 		echo "$(date) Could not ping IP $i. Hence, removing it from ETCD" >> $LOG_FILE
@@ -32,6 +32,6 @@ done
 if [ "$is_value_changed" = true ]; 
 then
 	echo "$(date) Posting updated values to ETCD. The values are: $values" >> $LOG_FILE
-	curl $MEMCACHED_ETCD_KEY_URL -XPUT -d value=$values
+	curl -m 20 $MEMCACHED_ETCD_KEY_URL -XPUT -d value=$values
 fi
 echo "########################### END OF THE ITERATION ###########################" >> $LOG_FILE
