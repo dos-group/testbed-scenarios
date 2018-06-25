@@ -25,7 +25,7 @@ services:
         constraints:
          - node.labels.comp==etcd
   astaire:
-    image:  muhammadimran/astaire
+    image:  alexanderacker/astaire
     environment:
       - ADDITIONAL_SHARED_CONFIG
     networks:
@@ -55,7 +55,7 @@ services:
         constraints:
          - node.labels.comp==chronos
   cassandra:
-    image: muhammadimran/cassandra
+    image: alexanderacker/cassandra
     
     environment:
       - ADDITIONAL_SHARED_CONFIG

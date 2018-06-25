@@ -2,6 +2,8 @@
   shell: docker inspect --format='{{ '{{' }} .State.Status {{ '}}' }}' {{ container }}
   register: result
 
+- debug: var=result.stdout  
+
 - name: Start if not running
   shell: docker start {{ container }}
-  when: "'running' in result.stdout"
+  when: "'running' not in result.stdout"
