@@ -1,0 +1,7 @@
+- name: Check container status
+  shell: docker inspect --format='{{.State.Status}}' {{ container }}
+  register: result
+
+- name: Start if not running
+  shell: docker start {{ container }}
+  when: "'running' in result.stdout"
