@@ -1,6 +1,7 @@
 #!/usr/bin/env ansible-playbook
 
 - name: Start container if not running
+  hosts: all
   tasks:
     - include_tasks: ../../Common/Ansible/start-container-if-not-running.yml
       become: true
