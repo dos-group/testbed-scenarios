@@ -1,5 +1,7 @@
 [NUM_SPLITS] #Number of tmux splits per target
 [CMD] #Command that shold be executed on targets (leave emtpy line if no cmd should be executed)
+[INTERMEDIATE_SSH_HOST] #Intermediate SSH host to connect to the target hosts
+[SSH_KEY] #Path to the SSH key used to connect to the target hosts listed below
 10.0.42.70
 10.0.42.73
 10.0.42.72

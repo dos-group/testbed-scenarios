@@ -10,6 +10,8 @@ where:
     -n|--number-split number of tmux splits per target
     TARGETS Targets where the commands should be executed."
 
+SESSION_NAME="monitoring"
+
 parse_arguments() {
 	TARGET_HOSTS=()
     SSH_KEY=""
@@ -53,9 +55,9 @@ parse_arguments() {
 
 cmd() {
     if [ -z "$INTERMEDIATE_HOST" ]; then
-        local cmd="ssh -o StrictHostKeyChecking=no $SSH_KEY ubuntu@[TARGET] -t \"$COMMAND; bash -l\""
+        local cmd="ssh -o UserKnownHostsFile=/tmp/tmux-known-hosts -o StrictHostKeyChecking=no $SSH_KEY ubuntu@[TARGET] -t \"$COMMAND; bash -l\""
     else
-        local cmd="ssh -o StrictHostKeyChecking=no $INTERMEDIATE_HOST -t \"ssh -o StrictHostKeyChecking=no $SSH_KEY ubuntu@[TARGET] -t \\\"$COMMAND; bash -l\\\"; bash -l\""
+        local cmd="ssh -o UserKnownHostsFile=/tmp/tmux-known-hosts -o StrictHostKeyChecking=no $INTERMEDIATE_HOST -t \"ssh -o UserKnownHostsFile=/tmp/tmux-known-hosts -o StrictHostKeyChecking=no $SSH_KEY ubuntu@[TARGET] -t \\\"$COMMAND; bash -l\\\"; bash -l\""
     fi
 	echo "$cmd"
 }
@@ -96,17 +98,8 @@ if [ ${#TARGET_HOSTS[@]} -lt 1 ]; then
     echo $USAGE
 fi
 # Start session if it is not already started
-tmux has-session -t "tmux" &> /dev/null || tmux new-session -d -s "tmux"
+tmux has-session -t "$SESSION_NAME" &> /dev/null || tmux new-session -d -s "$SESSION_NAME"
 # Do the cmd executions
 starttmux
 tmux select-window -t 0
-
-
-
-
-
-
-
-
-
 
