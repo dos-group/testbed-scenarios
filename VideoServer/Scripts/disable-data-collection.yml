@@ -1,6 +1,6 @@
 #!/usr/bin/env ansible-playbook
 
-- name: Enable file output of data collectors
+- name: Disable file output of data collectors
   hosts:
     - hypervisors
     - vms:!client
@@ -9,7 +9,7 @@
         url: "http://0.0.0.0:{{ collector.api_port }}/api/file_output"
         method: DELETE
 
-- name: Enable file output of client statistics
+- name: Disable file output of client statistics
   hosts:
     - client
   tasks:
