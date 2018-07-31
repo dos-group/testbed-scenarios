@@ -18,6 +18,7 @@
       become: true
 
 - name: Install the Bitflow collector and injector
+  tags: [ injector ]
   hosts:
     - hypervisors
     - vms:!client
