@@ -17,6 +17,8 @@
             -o {{ rtmp.client_log_dir_mounted }}/{{ rtmp.client_log_file }}
             -o :{{ rtmp.client_data_port }}
             -api :{{ rtmp.client_api_port }}
+            -files-buf 8
+            -files-check-output 2s
             {% for host in groups['load-balancer'] %}
             rtmp://{{ hostvars[host]['private_ip'] }}:{{ rtmp.port }}{{ rtmp.default_request_path }}
             {% endfor %}
