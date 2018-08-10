@@ -13,3 +13,6 @@
     command: >
       -host "{{ injector.hostname }}"
       -api-port {{ injector.api_port }}
+      -collector-host "0.0.0.0"
+      -collector-port {{ collector.api_port }}
+      -set-collector-tags {{ injector.set_collector_tags }}

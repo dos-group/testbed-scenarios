@@ -21,6 +21,7 @@ injector_general:
   container_name: "injector"
   hostname: "{{ inventory_hostname }}"
   api_port: 7888
+  set_collector_tags: True
 
 # This can be used when we re-introduce a real service-layer data collection and injection
 #injector_vnf:
