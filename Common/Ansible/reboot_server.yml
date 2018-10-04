@@ -10,4 +10,3 @@
   until: result.rc == 0
   retries: 30
   delay: 10
-  ignore_errors: true

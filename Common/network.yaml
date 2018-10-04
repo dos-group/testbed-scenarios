@@ -1,0 +1,110 @@
+
+heat_template_version: 2013-05-23
+
+description: >
+  Network deployment
+
+parameters:
+  internet_net_id:
+    type: string
+    description: ID of internet network
+    constraints:
+      - custom_constraint: neutron.network
+        description: Must be a valid network ID
+  public_net_id:
+    type: string
+    description: ID of public network
+    constraints:
+      - custom_constraint: neutron.network
+        description: Must be a valid network ID
+  public_net_cidr:
+    type: string
+    description: Subnet address of public network
+    default: 10.0.42.0/24
+  private_net_cidr:
+    type: string
+    description: Private network address (CIDR notation)
+    default: 10.0.0.0/24
+  private_net_pool_start:
+    type: string
+    description: Start of private network IP address pool
+    default: 10.0.0.3
+  private_net_pool_end:
+    type: string
+    description: End of private network IP address pool
+    default: 10.0.0.254
+
+resources:
+  network_private_net:
+    type: OS::Neutron::Net
+    properties:
+      name: { str_replace: { params: { __stack__: { get_param: "OS::stack_name" } }, template: __stack__-private } }
+
+  network_private_subnet:
+    type: OS::Neutron::Subnet
+    properties:
+      name: { str_replace: { params: { __stack__: { get_param: "OS::stack_name" } }, template: __stack__-private } }
+      network_id: { get_resource: network_private_net }
+      cidr: { get_param: private_net_cidr }
+      #dns_nameservers:
+      #  - 193.174.75.142
+      #  - 130.149.7.7
+      gateway_ip: 10.0.0.1
+      host_routes:
+        - nexthop: 10.0.0.2
+          destination: { get_param: public_net_cidr }
+      allocation_pools:
+        - start: { get_param: private_net_pool_start }
+          end: { get_param: private_net_pool_end }
+
+  internet_router:
+    type: OS::Neutron::Router
+    properties:
+      name: { str_replace: { params: { __stack__: { get_param: "OS::stack_name" } }, template: __stack__-internet-router } }
+
+  internet_router_gateway:
+    type: OS::Neutron::RouterGateway
+    properties:
+      router_id: { get_resource: internet_router }
+      network_id: { get_param: internet_net_id }
+
+  internet_router_interface_port:
+    type: OS::Neutron::Port
+    properties:
+      network: { get_resource: network_private_net }
+      fixed_ips:
+        - ip_address: 10.0.0.1
+          subnet: { get_resource: network_private_subnet }
+
+  internet_router_interface:
+    type: OS::Neutron::RouterInterface
+    properties:
+      router_id: { get_resource: internet_router }
+      port_id: { get_resource: internet_router_interface_port }
+
+  network_router:
+    type: OS::Neutron::Router
+    properties:
+      name: { str_replace: { params: { __stack__: { get_param: "OS::stack_name" } }, template: __stack__-private } }
+
+  network_router_gateway:
+    type: OS::Neutron::RouterGateway
+    properties:
+      router_id: { get_resource: network_router }
+      network_id: { get_param: public_net_id }
+
+  network_router_interface_port:
+    type: OS::Neutron::Port
+    properties:
+      network: { get_resource: network_private_net }
+      fixed_ips:
+        - ip_address: 10.0.0.2
+          subnet: { get_resource: network_private_subnet }
+
+  network_router_interface:
+    type: OS::Neutron::RouterInterface
+    properties:
+      router_id: { get_resource: network_router }
+      port_id: { get_resource: network_router_interface_port }
+
+
