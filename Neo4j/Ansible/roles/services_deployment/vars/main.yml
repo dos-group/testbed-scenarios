@@ -1,0 +1,4 @@
+---
+# vars file for neo4j_deployment
+compose_dir: "/var/tmp/docker-files"
+home: "/home/ubuntu"
