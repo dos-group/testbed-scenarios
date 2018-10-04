@@ -1,34 +1,29 @@
----
-# tasks file for neo4j_deployment
-- set_fact:
-    compose_dir: /var/tmp/ansible-docker-service
-    home: /home/ubuntu
-
-- file: 
+# tasks file for services_deployment
+- file:
     path: "{{ compose_dir }}"
     state: directory
-- file:
-    path: "{{home}}/neo4j/data"
-    state: directory
     mode: 0777
-  become: true
-  become_method: sudo
-  
 
 - file:
-    path: "{{home}}/neo4j/logs"
+    path: "{{ home }}/neo4j/data"
     state: directory
     mode: 0777
   become: true
   become_method: sudo
 
 - file:
-    path: "{{home}}/neo4j/conf"
+    path: "{{ home }}/neo4j/logs"
     state: directory
     mode: 0777
   become: true
   become_method: sudo
 
+- file:
+    path: "{{ home }}/neo4j/conf"
+    state: directory
+    mode: 0777
+  become: true
+  become_method: sudo
 
 - name: Upload docker-compose files
   synchronize: 
@@ -36,23 +31,11 @@
     dest: "{{ compose_dir }}"
   with_items:
     - "../files/docker-compose.yml"
+    - "../file..env"
 
-- name: Install PIP3
-  apt: 
-    name: python3-pip
-    state: present
-- name: remove docker-py
-  pip:
-    name: docker-py
-    state: absent
-    executable: pip3
-- name: Install docker python module
-  pip:
-    name: "docker-compose==1.21.0"
-    executable: pip3
 - name: Get Neo4J Image
   docker_service:
     project_src: "{{ compose_dir }}"    
     build: no
     restarted: yes
-  register: neo4j_output
+  register: deployment_output
