@@ -106,9 +106,9 @@ resources:
       #  - 193.174.75.142
       #  - 130.149.7.7
       gateway_ip: 10.0.0.1
-      host_routes:
-        - nexthop: 10.0.0.2
-          destination: { get_param: public_net_cidr }
+      #host_routes:
+      #  - nexthop: 10.0.0.2
+      #    destination: { get_param: public_net_cidr }
       allocation_pools:
         - start: 10.0.0.3
           end: 10.0.0.254
