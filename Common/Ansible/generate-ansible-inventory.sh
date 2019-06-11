@@ -14,10 +14,14 @@ function output_group() {
         PUBLIC_IP="${PUBLIC_IPS[$host]}"
         PRIVATE_IP="${PRIVATE_IPS[$host]}"
 		ZONE="${ZONES[$host]}"
+        HYPERVISOR="${HYPERVISORS[$host]}"
+        LIBVIRT_ID="${LIBVIRT_IDS[$host]}"
         test -z "$PUBLIC_IP" && { warn "Warning: No public IP found for host $host. Not adding to group $NAME"; continue; }
         output="$host ansible_host=$PUBLIC_IP"
         test -n "$PRIVATE_IP" && { output="$output private_ip=$PRIVATE_IP"; }
 		test -n "$ZONE" && { output="$output zone=$ZONE"; }
+        test -n "$HYPERVISOR" && { output="$output hypervisor=$HYPERVISOR"; }
+        test -n "$LIBVIRT_ID" && { output="$output libvirt_id=$LIBVIRT_ID"; }
         echo "$output"
     done
 }
@@ -34,6 +38,8 @@ declare -A VM_GROUPS
 declare -A PUBLIC_IPS
 declare -A PRIVATE_IPS
 declare -A ZONES
+declare -A HYPERVISORS
+declare -A LIBVIRT_IDS
 HYPERVISORS=""
 ALL_VMS=""
 
@@ -58,13 +64,17 @@ warn "Querying list of VMs named '$PREFIX*'..."
 VM_IDS=$(openstack server list --name "^$PREFIX.*" -f json -c ID | jq -rM '.[].ID')
 for ID in $VM_IDS; do
     warn "Querying info of VM '$ID'..."
-    INFO=$(openstack server show "$ID" -f json -c name -c addresses -c properties -c OS-EXT-AZ:availability_zone)
+    INFO=$(openstack server show "$ID" -f json -c name -c addresses -c properties -c OS-EXT-AZ:availability_zone -c OS-EXT-SRV-ATTR:host -c OS-EXT-SRV-ATTR:instance_name)
 
 	#Get VM name
     NAME=$(echo "$INFO" | jq -rM .name)
 	# Get availability zone of VM
 	ZONE=$(echo "$INFO" | jq -rM '."OS-EXT-AZ:availability_zone"')
-
+    # Get hypervisor of VM
+    HYPERVISOR=$(echo "$INFO" | jq -rM '."OS-EXT-SRV-ATTR:host"')
+    # Get Libvirt ID of VM
+    LIBVIRT_ID=$(echo "$INFO" | jq -rM '."OS-EXT-SRV-ATTR:instance_name"')
+    
     # Easiest hack to parse the stupid OpenStack metadata properties format: replace comma with semicolon and eval in a subshell
     # Example: stack='video-server-5', xxx='yyy'
     META=$(echo "$INFO" | jq -rM .properties)
@@ -95,6 +105,8 @@ for ID in $VM_IDS; do
     PUBLIC_IPS[$NAME]="$PUBLIC_IP"
     PRIVATE_IPS[$NAME]="$PRIVATE_IP"
 	ZONES[$NAME]=$ZONE
+    HYPERVISORS[$NAME]=$HYPERVISOR
+    LIBVIRT_IDS[$NAME]=$LIBVIRT_ID
 done
 
 # Create sections for VM_GROUPS

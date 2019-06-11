@@ -3,7 +3,7 @@
   tags: [ docker, injector ]
   docker_container:
     name: "{{ injector.container_name }}"
-    image: alexanderacker/anomaly_injector
+    image: teambitflow/anomaly-injector-agent
     pull: true
     ports:
       - "{{ injector.api_port }}:{{ injector.api_port }}"

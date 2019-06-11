@@ -1,6 +1,11 @@
 
 collector:
-  extra_args: -tag "host={{ inventory_hostname }}" -exclude "net-io/nic/" -files-check-output 2s -files-buf 64
+  extra_args: -exclude "net-io/nic/" -files-check-output 2s -files-buf 64 -s "tags(layer=virtual, vm='{{ libvirt_id }}', node='{{ hypervisor }}', component='{{ hypervisor }}-{{ libvirt_id }}')"
+
+apt_list:
+  - htop
+  - bmon
+  - jq
 
 # Below arguments would be used to collect service specific metrics
 # extra_args: -proc-children 'video=antongulenko/rtmp|vnf_' -include video/ 
