@@ -8,7 +8,7 @@
   tags: [ docker, collector ]
   docker_container:
     name: "{{ collector.container_name }}"
-    image: antongulenko/bitflow-collector
+    image: teambitflow/bitflow-collector
     pull: true
     pid_mode: host
     network_mode: host
