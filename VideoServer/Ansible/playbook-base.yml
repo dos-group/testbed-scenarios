@@ -4,7 +4,7 @@
   tags: [ bootstrap ]
   hosts:
     - vms
-    #- wally193
+    - hypervisors
   gather_facts: false
   tasks:
     - include_tasks: ../../Common/Ansible/bootstrap-python.yml
@@ -14,7 +14,7 @@
   tags: [ bootstrap ]
   hosts:
     - vms
-    #- wally193
+    - hypervisors
   tasks:
     - include_tasks: ../../Common/Ansible/install_docker.yml
       become: true
@@ -25,7 +25,7 @@
   tags: [ injector ]
   hosts:
     - vms:!client
-    #- wally193
+    - hypervisors
   tasks:
     - include_tasks: ../../Common/Ansible/bitflow-collector-tasks.yml
       tags: [ docker, collector ]
