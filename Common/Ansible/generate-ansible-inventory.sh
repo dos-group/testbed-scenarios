@@ -1,21 +1,57 @@
 #!/bin/bash
 set -e
 
+usage="$(basename $0) -p|--prefix [--hypervisors] -- reset VoD testbed
+
+where:
+    -p|--prefix         Prefix to indentify testbed VMs and networks. Should be the same as the one used at the heat stack creation. Required option.
+    --hypervisors       Generate inventory entries for hypervisor nodes. Note that you must have admin rights in OpenStack. 
+                        Otherwise enabling this option will cause the script to fail.
+    -h|--help           Print this help message."
+
 function warn() { >&2 echo $@; }
 
-test $# = 1 || { warn "Need 1 parameter: prefix to identify VMs and networks to use"; exit 1; }
-PREFIX="$1"
+PREFIX=""
+GENERATE_HYPERVISOR_ENTRIES=false
+while [[ $# -gt 0 ]]; do
+    key="$1"
+    case $key in
+        -p|--prefix)
+        PREFIX="$2"
+        shift 
+        shift 
+        ;;
+        --hypervisors)
+        GENERATE_HYPERVISOR_ENTRIES=true
+        shift
+        ;;
+        -h|--help)
+        echo $usage
+        exit 0
+        ;;
+        *)    # unknown option
+        echo "Bad parametrization."
+        echo $usage
+        exit -1
+        ;;
+    esac
+done
+if [ -z $PREFIX ]; then
+    warn "Need -p|--prefix parameter: Prefix to identify VMs and networks to use." 
+    echo $usage
+    exit 1
+fi
 
 function output_group() {
     NAME="$1"
     echo -e "\n[$NAME]"
     shift
     for host in $@; do
-        PUBLIC_IP="${PUBLIC_IPS[$host]}"
-        PRIVATE_IP="${PRIVATE_IPS[$host]}"
-		ZONE="${ZONES[$host]}"
-        HYPERVISOR="${HYPERVISORS[$host]}"
-        LIBVIRT_ID="${LIBVIRT_IDS[$host]}"
+        local PUBLIC_IP="${PUBLIC_IPS[$host]}"
+        local PRIVATE_IP="${PRIVATE_IPS[$host]}"
+		local ZONE="${ZONES[$host]}"
+        local HYPERVISOR="${HYPERVISOR_LIST[$host]}"
+        local LIBVIRT_ID="${LIBVIRT_IDS[$host]}"
         test -z "$PUBLIC_IP" && { warn "Warning: No public IP found for host $host. Not adding to group $NAME"; continue; }
         output="$host ansible_host=$PUBLIC_IP"
         test -n "$PRIVATE_IP" && { output="$output private_ip=$PRIVATE_IP"; }
@@ -38,21 +74,23 @@ declare -A VM_GROUPS
 declare -A PUBLIC_IPS
 declare -A PRIVATE_IPS
 declare -A ZONES
-declare -A HYPERVISORS
+declare -A HYPERVISOR_LIST
 declare -A LIBVIRT_IDS
 HYPERVISORS=""
 ALL_VMS=""
 
-warn "Querying hypervisor information..."
-HYPERVISOR_INFO=$(openstack hypervisor list -f json)
-for ID in $(echo "$HYPERVISOR_INFO" | jq -rM '.[]."ID"' | tr '\n' ' '); do
-	warn "Querying info of hypervisor '$ID'..."
-	INFO=$(openstack hypervisor show $ID -f json -c hypervisor_hostname -c service_host)
-	HYPERVISOR=$(echo "$INFO" | jq -rM '.service_host')
-	HYPERVISOR_HOSTNAME=$(echo "$INFO" | jq -rM '.hypervisor_hostname')
-	PUBLIC_IPS["$HYPERVISOR"]=$HYPERVISOR_HOSTNAME
-	HYPERVISORS="$HYPERVISORS $HYPERVISOR"
-done
+if $GENERATE_HYPERVISOR_ENTRIES ; then
+    warn "Querying hypervisor information..."
+    HYPERVISOR_INFO=$(openstack hypervisor list -f json)
+    for ID in $(echo "$HYPERVISOR_INFO" | jq -rM '.[]."ID"' | tr '\n' ' '); do
+	    warn "Querying info of hypervisor '$ID'..."
+	    INFO=$(openstack hypervisor show $ID -f json -c hypervisor_hostname -c service_host)
+	    HYPERVISOR=$(echo "$INFO" | jq -rM '.service_host')
+	    HYPERVISOR_HOSTNAME=$(echo "$INFO" | jq -rM '.hypervisor_hostname')
+	    PUBLIC_IPS["$HYPERVISOR"]=$HYPERVISOR_HOSTNAME
+	    HYPERVISORS="$HYPERVISORS $HYPERVISOR"
+    done
+fi
 
 HOST_INFO=$(openstack host list -f json)
 while read -r hy_zone; do
@@ -105,7 +143,7 @@ for ID in $VM_IDS; do
     PUBLIC_IPS[$NAME]="$PUBLIC_IP"
     PRIVATE_IPS[$NAME]="$PRIVATE_IP"
 	ZONES[$NAME]=$ZONE
-    HYPERVISORS[$NAME]=$HYPERVISOR
+    HYPERVISOR_LIST[$NAME]=$HYPERVISOR
     LIBVIRT_IDS[$NAME]=$LIBVIRT_ID
 done
 
@@ -115,5 +153,7 @@ for group in ${!VM_GROUPS[@]}; do
 done
 output_meta_group vms:children ${!VM_GROUPS[@]}
 
-output_group hypervisors $HYPERVISORS
+if $GENERATE_HYPERVISOR_ENTRIES ; then
+    output_group hypervisors $HYPERVISORS
+fi
 
