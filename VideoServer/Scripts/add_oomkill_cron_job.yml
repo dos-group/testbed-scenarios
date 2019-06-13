@@ -1,0 +1,11 @@
+#!/usr/bin/env ansible-playbook
+
+
+- name: Adding a cronjob that disables oom kill on memleak anomaly injections
+  hosts: vms:!client
+  vars:
+    - cron_job: "{{ injector.cron_job }}"
+  tasks:
+    - include_tasks: ../../Common/Ansible/add_cron_job.yml
+      become: true
+

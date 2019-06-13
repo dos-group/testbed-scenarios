@@ -1,6 +1,9 @@
 
 collector:
-  extra_args: -exclude "net-io/nic/" -files-check-output 2s -files-buf 64 -s "tags(layer=virtual, vm='{{ libvirt_id }}', node='{{ hypervisor }}', component='{{ hypervisor }}-{{ libvirt_id }}')"
+  extra_args: -exclude "net-io/nic/" -files-check-output 2s -files-buf 64 -s "tags(tags={ layer='virtual', vm='{{ libvirt_id }}', node='{{ hypervisor }}', component='{{ hypervisor }}-{{ libvirt_id }}' })"
+
+injector:
+  cron_job: pgrep -f '(mem_alloc|python3.6)' | while read PID; do echo -17 > /proc/$PID/oom_adj; done
 
 apt_list:
   - htop
