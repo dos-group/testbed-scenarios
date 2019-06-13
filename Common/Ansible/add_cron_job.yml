@@ -1,0 +1,8 @@
+
+- name: Add cron job
+  cron:
+    name: "disable_oom_for_memleak"
+    minute: "*/1"
+    job: "{{ cron_job }}"
+  register: cron_job
+  when: ((cron_job is defined))

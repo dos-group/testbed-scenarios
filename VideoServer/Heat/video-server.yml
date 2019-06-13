@@ -61,6 +61,10 @@ parameters:
     type: number
     description: Number of load generation clients
     default: 1
+  swap_size:
+    type: integer
+    label: Amount of swap space for each VM. Note that the respective flavor needs to support it.
+    default: 0
 
   install_docker_script:
     type: string
