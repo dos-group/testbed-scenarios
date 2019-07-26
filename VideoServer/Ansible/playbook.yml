@@ -36,7 +36,7 @@
       become: true
       docker_container:
         name: rtmp-server
-        image: antongulenko/rtmp-nginx-server
+        image: teambitflow/rtmp-nginx-server
         pull: true
         ports:
           # The container ports are hardcoded because they cannot be configured
