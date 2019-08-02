@@ -59,7 +59,7 @@ parameters:
         label: Value for the "group" metadata item of the new VM. Used by the generate-ansible-inventory.sh script.
         default: ""
     swap_size:
-        type: integer
+        type: number
         label: Amount of swap space for each VM. Note that the respective flavor needs to support it.
         default: 0
 

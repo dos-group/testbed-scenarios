@@ -2,42 +2,50 @@
 
 - import_playbook: playbook-base.yml
 
-- name: Install the load generation client
-  hosts: client
-  tags: [ docker, client ]
-  tasks:
-    - name: Run video load generation client docker container
-      become: true
-      docker_container:
-        name: rtmp-client
-        image: antongulenko/stream-statistics-client
-        pull: true
-        command: |
-            -n 0
-            -o {{ rtmp.client_log_dir_mounted }}/{{ rtmp.client_log_file }}
-            -o :{{ rtmp.client_data_port }}
-            -api :{{ rtmp.client_api_port }}
-            -files-buf 8
-            -files-check-output 2s
-            {% for host in groups['load-balancer'] %}
-            rtmp://{{ hostvars[host]['private_ip'] }}:{{ rtmp.port }}{{ rtmp.default_request_path }}
-            {% endfor %}
-        volumes:
-          - "{{ rtmp.client_log_dir }}:{{ rtmp.client_log_dir_mounted }}"
-        ports:
-          - "{{ rtmp.client_data_port }}:{{ rtmp.client_data_port }}"
-          - "{{ rtmp.client_api_port }}:{{ rtmp.client_api_port }}"
-
 - name: Install the backend video server
   hosts: backend
   tags: [ docker, backend ]
   tasks:
+    - name: Create vod directory to be mounted
+      become: true
+      file:
+        path: "{{ rtmp.server_video_dir }}"
+        state: directory
+    - name: Download sample videos
+      become: true
+      get_url:
+        url: "{{ item.url }}"
+        dest: "{{ rtmp.server_video_dir }}/{{ rtmp.server_video_file_prefix }}-{{ item.size }}-{{ item.resolution }}-1{{ rtmp.server_video_file_postfix }}"
+        mode: "0644"
+      with_items: "{{ rtmp.server_remote_videos }}"
+    - name: Create empty list.
+      set_fact:
+        counter_list: "{{ [] }}"
+    # Hacky way to allow server_number_local_video_file_copies variable to be 1
+    - name: Helper to set up counter list variable.
+      set_fact:
+        counter_list: "{{ counter_list }} + [ '{{ item }}' ]"
+      with_sequence: start=2 end="{{ rtmp.server_number_local_video_file_copies|int if rtmp.server_number_local_video_file_copies > 1 else 2}}"
+      when: rtmp.server_number_local_video_file_copies|int > 1
+    - name: Make "{{ rtmp.server_number_local_video_file_copies - 1}}" copies of each sample video
+      become: true
+      copy:
+        src: "{{ rtmp.server_video_dir }}/{{ rtmp.server_video_file_prefix }}-{{ item[0].size }}-{{ item[0].resolution }}-1{{ rtmp.server_video_file_postfix }}"
+        dest: "{{ rtmp.server_video_dir }}/{{ rtmp.server_video_file_prefix }}-{{ item[0].size }}-{{ item[0].resolution }}-{{ item[1] }}{{ rtmp.server_video_file_postfix }}"
+        remote_src: true
+        force: false
+        mode: "0644"
+      with_nested:
+        - "{{ rtmp.server_remote_videos }}"
+        - "{{ counter_list }}"
     - name: Run backend video server docker container
       become: true
       docker_container:
         name: rtmp-server
         image: teambitflow/rtmp-nginx-server
         pull: true
+        volumes:
+          - "{{ rtmp.server_video_dir }}:{{ rtmp.server_video_dir_mounted }}"
         ports:
           # The container ports are hardcoded because they cannot be configured
           - "{{ rtmp.backend_http_port }}:8080"
@@ -62,3 +70,34 @@
           RTMP_PORT: "{{ rtmp.port }}"
           STATS_PORT: "{{ rtmp.balancer_stats_port }}"
           RTMP_SERVERS: "{{ groups['backend'] | map('extract', hostvars, ['private_ip']) | join(' ') }}"
+
+- name: Install the load generation client
+  hosts: client
+  tags: [ docker, client ]
+  tasks:
+    - name: Run video load generation client docker container
+      become: true
+      docker_container:
+        name: rtmp-client
+        image: teambitflow/stream-statistics-client:test
+        pull: true
+        command: |
+            -n 0
+            -o {{ rtmp.client_log_dir_mounted }}/{{ rtmp.client_log_file }}
+            -o :{{ rtmp.client_data_port }}
+            -api :{{ rtmp.client_api_port }}
+            -files-buf 8
+            -files-check-output 2s
+            -restartDelayDistribution const:5ms
+            -test
+            {% for host in groups['load-balancer'] %}
+            {% for video in rtmp.server_remote_videos %}
+            "rtmp://{{ hostvars[host]['private_ip'] }}:{{ rtmp.port }}/vod/{{ rtmp.server_video_file_prefix }}-{{ video['size'] }}-{{ video['resolution'] }}-{{ '{{' }}{{ 1 }} {{ rtmp.server_number_local_video_file_copies }}{{ '}}' }}{{ rtmp.server_video_file_postfix }}"
+            {% endfor %}
+            {% endfor %}
+        volumes:
+          - "{{ rtmp.client_log_dir }}:{{ rtmp.client_log_dir_mounted }}"
+        ports:
+          - "{{ rtmp.client_data_port }}:{{ rtmp.client_data_port }}"
+          - "{{ rtmp.client_api_port }}:{{ rtmp.client_api_port }}"
+

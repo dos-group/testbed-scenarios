@@ -3,7 +3,24 @@ rtmp:
   port: 1935
   balancer_stats_port: 8080
   backend_http_port: 8080
-  default_request_path: "/vod/example-big.flv"
+  server_video_dir: "/opt/bitflow/vod"
+  server_video_dir_mounted: "/opt/rtmp/vod"
+  server_remote_videos:
+    - { url: "https://www.sample-videos.com/video123/flv/720/big_buck_bunny_720p_10mb.flv", size: "10mb", resolution: 720 }
+    - { url: "https://www.sample-videos.com/video123/flv/480/big_buck_bunny_480p_10mb.flv", size: "10mb", resolution: 480 }
+    - { url: "https://www.sample-videos.com/video123/flv/360/big_buck_bunny_360p_10mb.flv", size: "10mb", resolution: 360 }
+    - { url: "https://www.sample-videos.com/video123/flv/240/big_buck_bunny_240p_10mb.flv", size: "10mb", resolution: 240 }
+    - { url: "https://www.sample-videos.com/video123/flv/720/big_buck_bunny_720p_20mb.flv", size: "20mb", resolution: 720 }
+    - { url: "https://www.sample-videos.com/video123/flv/480/big_buck_bunny_480p_20mb.flv", size: "20mb", resolution: 480 }
+    - { url: "https://www.sample-videos.com/video123/flv/360/big_buck_bunny_360p_20mb.flv", size: "20mb", resolution: 360 }
+    - { url: "https://www.sample-videos.com/video123/flv/240/big_buck_bunny_240p_20mb.flv", size: "20mb", resolution: 240 }
+    - { url: "https://www.sample-videos.com/video123/flv/720/big_buck_bunny_720p_30mb.flv", size: "30mb", resolution: 720 }
+    - { url: "https://www.sample-videos.com/video123/flv/480/big_buck_bunny_480p_30mb.flv", size: "30mb", resolution: 480 }
+    - { url: "https://www.sample-videos.com/video123/flv/360/big_buck_bunny_360p_30mb.flv", size: "30mb", resolution: 360 }
+    - { url: "https://www.sample-videos.com/video123/flv/240/big_buck_bunny_240p_30mb.flv", size: "30mb", resolution: 240 }
+  server_video_file_prefix: "video"
+  server_video_file_postfix: ".flv"
+  server_number_local_video_file_copies: 10
   client_log_dir: /opt/bitflow/client
   client_log_dir_mounted: /bitflow/client
   client_log_file: client.bin
@@ -24,5 +41,5 @@ injector:
   container_name: injector
   hostname: "{{ inventory_hostname }}"
   api_port: 7888
-  set_collector_tags: True
+  set_collector_tags: False
 

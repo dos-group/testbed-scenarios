@@ -2,9 +2,7 @@
 
 - name: Install Python
   tags: [ bootstrap ]
-  hosts:
-    - vms
-    #- wally193
+  hosts: vms
   gather_facts: false
   tasks:
     - include_tasks: ../../Common/Ansible/bootstrap-python.yml
@@ -12,9 +10,7 @@
 
 - name: Install Docker
   tags: [ bootstrap ]
-  hosts:
-    - vms
-    #- wally193
+  hosts: vms
   tasks:
     - include_tasks: ../../Common/Ansible/install_docker.yml
       become: true
@@ -22,9 +18,8 @@
       become: true
 
 - name: Install the Bitflow collector and injector
-  tags: [ injector ]
-  hosts:
-    - vms:!client
+  tags: [ injector, collector ]
+  hosts: all:!client
     #- wally193
   tasks:
     - include_tasks: ../../Common/Ansible/bitflow-collector-tasks.yml

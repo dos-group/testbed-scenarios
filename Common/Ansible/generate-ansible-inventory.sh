@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-usage="$(basename $0) -p|--prefix [--hypervisors] -- reset VoD testbed
+usage="$(basename $0) -p|--prefix [--hypervisors] -- generate ansible inventory file in ini format.
 
 where:
     -p|--prefix         Prefix to indentify testbed VMs and networks. Should be the same as the one used at the heat stack creation. Required option.
@@ -46,6 +46,11 @@ function output_group() {
     NAME="$1"
     echo -e "\n[$NAME]"
     shift
+    if [ "$NAME" = "hypervisors" ]; then
+        local HOST_TYPE="hypervisor"
+    else
+        local HOST_TYPE="vm"
+    fi
     for host in $@; do
         local PUBLIC_IP="${PUBLIC_IPS[$host]}"
         local PRIVATE_IP="${PRIVATE_IPS[$host]}"
@@ -58,6 +63,7 @@ function output_group() {
 		test -n "$ZONE" && { output="$output zone=$ZONE"; }
         test -n "$HYPERVISOR" && { output="$output hypervisor=$HYPERVISOR"; }
         test -n "$LIBVIRT_ID" && { output="$output libvirt_id=$LIBVIRT_ID"; }
+        test -n "$HOST_TYPE" && { output="$output host_type=$HOST_TYPE"; }
         echo "$output"
     done
 }
@@ -151,9 +157,9 @@ done
 for group in ${!VM_GROUPS[@]}; do
     output_group $group ${VM_GROUPS[$group]}
 done
-output_meta_group vms:children ${!VM_GROUPS[@]}
+output_meta_group "vms:children" ${!VM_GROUPS[@]}
 
 if $GENERATE_HYPERVISOR_ENTRIES ; then
-    output_group hypervisors $HYPERVISORS
+    output_group "hypervisors" $HYPERVISORS
 fi
 
