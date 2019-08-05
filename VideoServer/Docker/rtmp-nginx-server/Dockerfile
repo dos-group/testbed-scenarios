@@ -6,10 +6,10 @@ EXPOSE 8080
 
 # Download some example videos for streaming
 WORKDIR /opt/rtmp/vod
-RUN curl -sL http://www.sample-videos.com/video/flv/720/big_buck_bunny_720p_1mb.flv > example-6s.flv
-RUN curl -sL http://www.sample-videos.com/video/flv/480/big_buck_bunny_480p_1mb.flv > example-7s.flv
-RUN curl -sL http://www.sample-videos.com/video/flv/240/big_buck_bunny_240p_1mb.flv > example-11s.flv
-RUN curl -sL http://www.sample-videos.com/video/flv/720/big_buck_bunny_720p_50mb.flv > example-big.flv
+RUN curl -sL http://www.sample-videos.com/video123/flv/720/big_buck_bunny_720p_1mb.flv > example-6s.flv
+RUN curl -sL http://www.sample-videos.com/video123/flv/480/big_buck_bunny_480p_1mb.flv > example-7s.flv
+RUN curl -sL http://www.sample-videos.com/video123/flv/240/big_buck_bunny_240p_1mb.flv > example-11s.flv
+RUN curl -sL http://www.sample-videos.com/video123/flv/720/big_buck_bunny_720p_30mb.flv > example-720.flv
 RUN mkdir -p /opt/rtmp/vod_mirror && chmod 777 /opt/rtmp/vod_mirror
 
 COPY nginx.conf /etc/nginx/nginx.conf

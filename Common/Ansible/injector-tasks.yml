@@ -16,3 +16,4 @@
       -collector-host "{{ ansible_default_ipv4.address }}"
       -collector-port {{ collector.api_port }}
       -set-collector-tags {{ injector.set_collector_tags }}
+      -anomaly-pool "{{ host_type }}"
