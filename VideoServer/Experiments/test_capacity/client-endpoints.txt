@@ -1,0 +1,4 @@
+vod-client-1#tcp://10.0.42.51:5011
+vod-client-0#tcp://10.0.42.19:5011
+vod-client-2#tcp://10.0.42.21:5011
+vod-client-3#tcp://10.0.42.42:5011
