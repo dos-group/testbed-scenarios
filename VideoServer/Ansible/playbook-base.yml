@@ -19,7 +19,7 @@
 
 - name: Install the Bitflow collector and injector
   tags: [ injector, collector ]
-  hosts: all:!client
+  hosts: all
     #- wally193
   tasks:
     - include_tasks: ../../Common/Ansible/bitflow-collector-tasks.yml
@@ -27,4 +27,7 @@
       become: true
     - include_tasks: ../../Common/Ansible/injector-tasks.yml
       tags: [ docker, injector ]
+      become: true
+    - include_tasks: ../../Common/Ansible/ebpf-agent-tasks.yml
+      tags: [ docker, ebpf-agent ]
       become: true
