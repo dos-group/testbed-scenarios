@@ -24,8 +24,8 @@ rtmp:
   client_log_dir: /opt/bitflow/client
   client_log_dir_mounted: /bitflow/client
   client_log_file: client.bin
-  client_api_port: 7777
-  client_data_port: 7778
+  client_api_port: 7776
+  client_data_port: 5011
 
 collector:
   container_name: bitflow-collector
@@ -42,4 +42,7 @@ injector:
   hostname: "{{ inventory_hostname }}"
   api_port: 7888
   set_collector_tags: False
+
+ebpf-agent:
+  container_name: ebpf-agent
 
