@@ -1,0 +1,14 @@
+
+- name: Run the Docker event exposer docker container
+  tags: [ docker, docker-event-exposer ]
+  docker_container:
+    name: "{{ docker-event-exposer.container_name }}"
+    image: teambitflow/anomaly-injector-agent
+    pull: true
+    privileged: yes
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    env:
+      - RABBITMQ_URL_DOCKER: "{{ docker-event-exposer.rabbitmq_url }}"
+      - RABBITMQ_HOST: "{{ docker-event-exposer.rabbitmq_host }}"
+      - RABBITMQ_PORT: "{{ docker-event-exposer.rabbitmq_port }}"

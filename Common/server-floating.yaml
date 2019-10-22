@@ -58,10 +58,14 @@ parameters:
         type: string
         label: Value for the "group" metadata item of the new VM. Used by the generate-ansible-inventory.sh script.
         default: ""
-    swap_size:
+    volume_size:
         type: number
-        label: Amount of swap space for each VM. Note that the respective flavor needs to support it.
-        default: 0
+        label: Size (in GB) of the volume to create
+        default: 10
+    affinity_group:
+        type: string
+        label: ServerGroup (defines affinity for instances)
+        default: ""
 
 resources:
 
@@ -113,7 +117,6 @@ resources:
         properties:
             name: { get_param: name }
             key_name: { get_param: key_name }
-            image: { get_param: image }
             flavor: { get_param: flavor }
             networks:
                 - network: { get_param: network }
@@ -125,7 +128,10 @@ resources:
                 group: { get_param: group }
             availability_zone: { get_param : availability_zone }
             block_device_mapping_v2:
-                - swap_size: { get_param: swap_size }
+                - image: { get_param: image }
+                  volume_size: { get_param: volume_size }
+            scheduler_hints:
+                group: { get_param: affinity_group }
 
     floating_ip:
         type: OS::Neutron::FloatingIP

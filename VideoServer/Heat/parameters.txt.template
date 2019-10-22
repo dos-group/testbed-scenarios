@@ -7,6 +7,7 @@
 --parameter load_generator_zone=Load-Generators
 --parameter backend_zone=Video-Backends
 --parameter balancer_zone=Video-Frontends
+--parameter volume_size=15
 --parameter num_backend_servers=20
 --parameter num_balancers=6
 --parameter num_clients=10

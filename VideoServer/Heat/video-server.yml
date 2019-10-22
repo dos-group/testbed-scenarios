@@ -61,10 +61,10 @@ parameters:
     type: number
     description: Number of load generation clients
     default: 1
-  swap_size:
+  volume_size:
     type: number
-    label: Amount of swap space for each VM. Note that the respective flavor needs to support it.
-    default: 0
+    label: Size (in GB) of the volume to create
+    default: 10
 
   install_docker_script:
     type: string
@@ -193,6 +193,12 @@ resources:
   # === Servers  ===
   # ================
 
+  affinity_group:
+    type: OS::Nova::ServerGroup
+    properties:
+      policies:
+      - soft-anti-affinity
+
   backend_server:
     depends_on: [ network_router_interface_port, network_router_gateway ]
     type: OS::Heat::ResourceGroup
@@ -208,8 +214,10 @@ resources:
           external_network: { get_param: public_net_id }
           network: { get_resource: net }
           availability_zone: { get_param: backend_zone }
+          volume_size: { get_param: volume_size }
           stack_name: { get_param: "OS::stack_name" }
           group: backend
+          affinity_group: { get_resource: affinity_group }
           security_groups:
             - { get_resource: security_group }
           root_setup: { get_param: install_docker_script }
@@ -229,8 +237,10 @@ resources:
           external_network: { get_param: public_net_id }
           network: { get_resource: net }
           availability_zone: { get_param: balancer_zone }
+          volume_size: { get_param: volume_size }
           stack_name: { get_param: "OS::stack_name" }
           group: load-balancer
+          affinity_group: { get_resource: affinity_group }
           security_groups:
             - { get_resource: security_group }
           root_setup: { get_param: install_docker_script }
@@ -250,8 +260,10 @@ resources:
           external_network: { get_param: public_net_id }
           network: { get_resource: net }
           availability_zone: { get_param: load_generator_zone }
+          volume_size: { get_param: volume_size }
           stack_name: { get_param: "OS::stack_name" }
           group: client
+          affinity_group: { get_resource: affinity_group }
           security_groups:
             - { get_resource: security_group }
           root_setup: { get_param: install_docker_script }

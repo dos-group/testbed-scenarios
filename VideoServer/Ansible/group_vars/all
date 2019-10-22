@@ -46,3 +46,8 @@ injector:
 ebpf-agent:
   container_name: ebpf-agent
 
+docker-event-exposer:
+  container_name: docker-event-exposer
+  rabbitmq_url: "amqp://openstack:xtiskHf79tA9gaD0M5mzsfyfq55Ox0YF2mkiWjow@130.149.249.187:5672"
+  rabbitmq_host: "130.149.249.187"
+  rabbitmq_port: "5672"

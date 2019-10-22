@@ -18,7 +18,7 @@
       become: true
 
 - name: Install the Bitflow collector and ebpf-agents
-  tags: [ injector, collector ]
+  tags: [ collector ]
   hosts: all
   tasks:
     - include_tasks: ../../Common/Ansible/bitflow-collector-tasks.yml
@@ -29,9 +29,17 @@
       become: true
 
 - name: Install the injector
-  tags: [ injector, collector ]
+  tags: [ injector ]
   hosts: all:!clients
   tasks:
     - include_tasks: ../../Common/Ansible/injector-tasks.yml
       tags: [ docker, injector ]
+      become: true
+
+- name: Install the Docker event exposer
+  tags: [ docker-event-exposer ]
+  hosts: all:!clients
+  tasks:
+    - include_tasks: ../../Common/Ansible/docker-event-exposer-tasks.yml
+      tags: [ docker, docker-event-exposer ]
       become: true
