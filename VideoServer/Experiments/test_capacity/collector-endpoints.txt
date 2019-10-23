@@ -1,0 +1,11 @@
+wally193#tcp://wally193.cit.tu-berlin.de:5010
+wally180#tcp://wally180.cit.tu-berlin.de:5010
+wally198#tcp://wally198.cit.tu-berlin.de:5010
+vod-balancer-0#tcp://10.0.42.8:5010
+vod-balancer-1#tcp://10.0.42.79:5010
+vod-client-1#tcp://10.0.42.51:5010
+vod-client-0#tcp://10.0.42.19:5010
+vod-client-2#tcp://10.0.42.21:5010
+vod-client-3#tcp://10.0.42.42:5010
+vod-video-1#tcp://10.0.42.50:5010
+vod-video-0#tcp://10.0.42.81:5010

@@ -1,0 +1,41 @@
+#!/usr/bin/env ansible-playbook
+
+- name: Helper for collector endpoint extraction
+  hosts: all
+  connection: local
+  vars:
+    output_file_path: "../Experiments/test_capacity/collector-endpoints.txt"
+  tags: [ collector ]
+  tasks:
+    - name: Delete collector file if present
+      local_action:
+        module: file
+        state: absent
+        path: "{{ output_file_path }}"
+      run_once: true
+    - name: Add a line to a file, create if the file does not exist
+      local_action: 
+        module: lineinfile
+        path: "{{ output_file_path }}"
+        line: "{{ inventory_hostname }}#tcp://{{ ansible_host }}:{{ collector.port }}"
+        create: yes
+
+- name: Helper for client endpoint extraction
+  hosts: client
+  connection: local
+  vars:
+    output_file_path: "../Experiments/test_capacity/client-endpoints.txt"
+  tags: [ client ]
+  tasks:
+    - name: Delete client file if present
+      local_action:
+        module: file
+        state: absent
+        path: "{{ output_file_path }}"
+      run_once: true
+    - name: Add a line to a file, create if the file does not exist
+      local_action: 
+        module: lineinfile
+        path: "{{ output_file_path }}"
+        line: "{{ inventory_hostname }}#tcp://{{ ansible_host }}:{{ rtmp.client_data_port }}"
+        create: yes
