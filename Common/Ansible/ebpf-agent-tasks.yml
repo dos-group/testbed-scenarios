@@ -2,7 +2,7 @@
 - name: Run ebpf-agent docker container
   tags: [ docker, ebpf-agent ]
   docker_container:
-    name: "{{ ebpf-agent.container_name }}"
+    name: "{{ ebpf_agent.container_name }}"
     image: teambitflow/ebpf-prometheus-agent
     pull: true
     pid_mode: host

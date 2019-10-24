@@ -8,5 +8,5 @@
   tasks:
     - uri:
         url: "http://0.0.0.0:{{ rtmp.client_api_port }}/api/streams?num={{ NUM_RTMP_STREAMS }}"
+        timeout: 120
         method: POST
-

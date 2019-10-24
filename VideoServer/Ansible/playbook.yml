@@ -15,7 +15,7 @@
       become: true
       get_url:
         url: "{{ item.url }}"
-        dest: "{{ rtmp.server_video_dir }}/{{ rtmp.server_video_file_prefix }}-{{ item.size }}-{{ item.resolution }}-1{{ rtmp.server_video_file_postfix }}"
+        dest: "{{ rtmp.server_video_dir }}/{{ rtmp.server_video_file_prefix }}-{{ item.name }}-{{ item.size }}mb-{{ item.resolution }}-1.{{ item.format }}"
         mode: "0644"
       with_items: "{{ rtmp.server_remote_videos }}"
     - name: Create empty list.
@@ -25,13 +25,13 @@
     - name: Helper to set up counter list variable.
       set_fact:
         counter_list: "{{ counter_list }} + [ '{{ item }}' ]"
-      with_sequence: start=2 end="{{ rtmp.server_number_local_video_file_copies|int if rtmp.server_number_local_video_file_copies > 1 else 2}}"
+      with_sequence: start=2 end="{{ rtmp.server_number_local_video_file_copies|int if rtmp.server_number_local_video_file_copies > 1 else 2 }}"
       when: rtmp.server_number_local_video_file_copies|int > 1
-    - name: Make "{{ rtmp.server_number_local_video_file_copies - 1}}" copies of each sample video
+    - name: Make "{{ rtmp.server_number_local_video_file_copies - 1 }}" copies of each sample video
       become: true
       copy:
-        src: "{{ rtmp.server_video_dir }}/{{ rtmp.server_video_file_prefix }}-{{ item[0].size }}-{{ item[0].resolution }}-1{{ rtmp.server_video_file_postfix }}"
-        dest: "{{ rtmp.server_video_dir }}/{{ rtmp.server_video_file_prefix }}-{{ item[0].size }}-{{ item[0].resolution }}-{{ item[1] }}{{ rtmp.server_video_file_postfix }}"
+        src: "{{ rtmp.server_video_dir }}/{{ rtmp.server_video_file_prefix }}-{{ item[0].name }}-{{ item[0].size }}mb-{{ item[0].resolution }}-1.{{ item[0].format }}"
+        dest: "{{ rtmp.server_video_dir }}/{{ rtmp.server_video_file_prefix }}-{{ item[0].name }}-{{ item[0].size }}mb-{{ item[0].resolution }}-{{ item[1] }}.{{ item[0].format }}"
         remote_src: true
         force: false
         mode: "0644"
@@ -79,20 +79,21 @@
       become: true
       docker_container:
         name: rtmp-client
-        image: teambitflow/stream-statistics-client:test
+        image: antongulenko/stream-statistics-client:antontest
         pull: true
         command: |
             -n 0
             -o {{ rtmp.client_log_dir_mounted }}/{{ rtmp.client_log_file }}
+            -s 'tags(tags={ host="{{ ansible_hostname }}" })'
             -o :{{ rtmp.client_data_port }}
             -api :{{ rtmp.client_api_port }}
             -files-buf 8
             -files-check-output 2s
-            -restartDelayDistribution const:5ms
+            -restartDelayDistribution norm:10s,5s
             -test
             {% for host in groups['load-balancer'] %}
             {% for video in rtmp.server_remote_videos %}
-            "rtmp://{{ hostvars[host]['private_ip'] }}:{{ rtmp.port }}/vod/{{ rtmp.server_video_file_prefix }}-{{ video['size'] }}-{{ video['resolution'] }}-{{ '{{' }}{{ 1 }} {{ rtmp.server_number_local_video_file_copies }}{{ '}}' }}{{ rtmp.server_video_file_postfix }}"
+            "rtmp://{{ hostvars[host]['private_ip'] }}:{{ rtmp.port }}/vod/{{ rtmp.server_video_file_prefix }}-{{ video['name'] }}-{{ video['size'] }}mb-{{ video['resolution'] }}-{{ '{{' }}{{ 1 }} {{ rtmp.server_number_local_video_file_copies }}{{ '}}' }}.{{ video['format'] }}?pixels={{ video['pixel'] }}"
             {% endfor %}
             {% endfor %}
         volumes:
@@ -100,4 +101,3 @@
         ports:
           - "{{ rtmp.client_data_port }}:{{ rtmp.client_data_port }}"
           - "{{ rtmp.client_api_port }}:{{ rtmp.client_api_port }}"
-

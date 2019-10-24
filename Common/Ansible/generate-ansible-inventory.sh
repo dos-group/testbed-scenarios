@@ -26,19 +26,19 @@ while [[ $# -gt 0 ]]; do
         shift
         ;;
         -h|--help)
-        echo $usage
+        warn $usage
         exit 0
         ;;
         *)    # unknown option
-        echo "Bad parametrization."
-        echo $usage
+        warn "Bad parametrization."
+        warn $usage
         exit -1
         ;;
     esac
 done
 if [ -z $PREFIX ]; then
     warn "Need -p|--prefix parameter: Prefix to identify VMs and networks to use." 
-    echo $usage
+    warn $usage
     exit 1
 fi
 

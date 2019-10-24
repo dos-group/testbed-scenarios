@@ -69,9 +69,9 @@ parameters:
   install_docker_script:
     type: string
     description: Setup script for Docker. This parameter should not be set, it is here to reuse the code for multiple VMs.
-    default: >
+    default: |
         apt update
-        apt install -y jq linux-image-extra-$(uname -r) linux-image-extra-virtual apt-transport-https ca-certificates curl software-properties-common
+        apt install -y jq linux-image-extra-$(uname -r) linux-image-extra-virtual apt-transport-https ca-certificates curl software-properties-common bmon htop iotop
 
         # Reduce the apt update/install timeout to 20 seconds
         echo -e 'Acquire::http::Timeout "20";\nAcquire::ftp::Timeout "10";' > /etc/apt/apt.conf.d/99timeout
@@ -180,10 +180,12 @@ resources:
         - { protocol: tcp, port_range_min: 22, port_range_max: 22 }
 
         # Data-Collection-Agent, RTMP, dashboards of RTMP server and load balancer, plus a port range for future use (including RTMP client)
+        - { protocol: tcp, port_range_min: 7776, port_range_max: 7776 }
         - { protocol: tcp, port_range_min: 7777, port_range_max: 7777 }
         - { protocol: tcp, port_range_min: 7888, port_range_max: 7888 }
         - { protocol: tcp, port_range_min: 7889, port_range_max: 7889 }
         - { protocol: tcp, port_range_min: 5010, port_range_max: 5010 }
+        - { protocol: tcp, port_range_min: 5011, port_range_max: 5011 }
         - { protocol: tcp, port_range_min: 1935, port_range_max: 1935 }
         - { protocol: tcp, port_range_min: 8080, port_range_max: 8080 }
         - { protocol: tcp, port_range_min: 8888, port_range_max: 8888 }
@@ -193,11 +195,11 @@ resources:
   # === Servers  ===
   # ================
 
-  affinity_group:
+  backend_server_affinity_group:
     type: OS::Nova::ServerGroup
     properties:
       policies:
-      - soft-anti-affinity
+      - anti-affinity
 
   backend_server:
     depends_on: [ network_router_interface_port, network_router_gateway ]
@@ -217,10 +219,16 @@ resources:
           volume_size: { get_param: volume_size }
           stack_name: { get_param: "OS::stack_name" }
           group: backend
-          affinity_group: { get_resource: affinity_group }
+          affinity_group: { get_resource: backend_server_affinity_group }
           security_groups:
             - { get_resource: security_group }
           root_setup: { get_param: install_docker_script }
+
+  load_balancer_affinity_group:
+    type: OS::Nova::ServerGroup
+    properties:
+      policies:
+      - anti-affinity
 
   load_balancer:
     depends_on: [ network_router_interface_port, network_router_gateway, backend_server ]
@@ -240,10 +248,16 @@ resources:
           volume_size: { get_param: volume_size }
           stack_name: { get_param: "OS::stack_name" }
           group: load-balancer
-          affinity_group: { get_resource: affinity_group }
+          affinity_group: { get_resource: load_balancer_affinity_group }
           security_groups:
             - { get_resource: security_group }
           root_setup: { get_param: install_docker_script }
+
+  client_affinity_group:
+    type: OS::Nova::ServerGroup
+    properties:
+      policies:
+      - soft-anti-affinity
 
   client:
     depends_on: [ network_router_interface_port, network_router_gateway, load_balancer ]
@@ -263,7 +277,7 @@ resources:
           volume_size: { get_param: volume_size }
           stack_name: { get_param: "OS::stack_name" }
           group: client
-          affinity_group: { get_resource: affinity_group }
+          affinity_group: { get_resource: client_affinity_group }
           security_groups:
             - { get_resource: security_group }
           root_setup: { get_param: install_docker_script }

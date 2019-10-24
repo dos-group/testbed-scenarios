@@ -7,6 +7,7 @@
   tasks:
     - uri:
         url: "http://0.0.0.0:{{ collector.api_port }}/api/file_output"
+        timeout: 120
         method: POST
 
 - name: Enable file output of client statistics
@@ -15,5 +16,6 @@
   tasks:
     - uri:
         url: "http://0.0.0.0:{{ rtmp.client_api_port }}/api/file_output"
+        timeout: 120
         method: POST
 

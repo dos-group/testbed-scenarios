@@ -5,3 +5,6 @@ collector:
 apt_list:
   - htop
   - bmon
+
+docker_events_exposer:
+  local_server_name: "{{ ansible_fqdn }}" # For Hypervisors, the hostname must be given from the outside

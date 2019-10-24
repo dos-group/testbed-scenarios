@@ -1,0 +1,35 @@
+#!/usr/bin/env ansible-playbook
+
+- name: Aggregate and visualize metrics from all VOD clients
+  hosts:
+    - bastion[0]
+  tasks:
+    - become: true
+      ignore_errors: yes
+      docker_container:
+        image: teambitflow/go-bitflow:latest
+        name: aggregate-rtmp-client-metrics
+        tty: true
+        pull: true
+        recreate: true
+        ports:
+          - 8009:8009
+        command: |
+          {% for host in groups['client'] %}
+          {{ hostvars[host]['ansible_host'] }}:{{ rtmp.client_data_port }}
+          {% endfor %}
+          -> csv://-
+          -> bin://:8009
+    - debug:
+        msg: "Attach to aggregation output with command: ssh {{ ansible_host }} docker logs -f aggregate-rtmp-client-metrics"
+    - debug:
+        msg: "Analyse aggregated data stream locally: docker run -ti teambitflow/go-bitflow '{{ ansible_host }}:8009 -> csv://-'"
+
+# - name: Make sure the temporary aggregation container is stopped
+#   hosts:
+#     - bastion[0]
+#   tasks:
+#     - become: true
+#       docker_container:
+#         name: aggregate-rtmp-client-metrics
+#         state: absent
