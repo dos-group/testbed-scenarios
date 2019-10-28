@@ -1,0 +1,29 @@
+tags(tags={ node='{{ ansible_hostname }}' })
+    -> split(regex='^libvirt/(?P<vm>[^/]*)/')
+    -> fork_tag(tag=vm, regex=true) {
+
+        # With 'vm' tag
+        '.+' 
+            -> tags(tags={ layer=virtual, component='${node}-${vm}' }) 
+            -> zerops-notify(
+                kube-namespace={{ collector.kube_namespace }},
+                kube={{ collector.path }}/kube-config,
+                tag=component, 
+                name='bitflow-collector-${component}',
+                dataSourceUrl=http://{{ ansible_default_ipv4.address }}:{{ collector.http_data_port }},
+                update-after=1m, expire-after=10s, expire-on-close=true,
+                labels={ collector=bitflow,layer='${layer}',node='${node}',vm='${vm}',component='${component}' });
+
+        # Without 'vm' tag
+        '^$'
+            -> tags(tags={ layer=physical, component='${node}' })
+            -> zerops-notify(
+                kube-namespace={{ collector.kube_namespace }},
+                kube={{ collector.path }}/kube-config,
+                tag=component, 
+                name='bitflow-collector-${component}',
+                dataSourceUrl=http://{{ ansible_default_ipv4.address }}:{{ collector.http_data_port }},
+                update-after=1m, expire-after=10s, expire-on-close=true,
+                labels={ collector=bitflow,layer='${layer}',node='${node}',component='${component}' });
+    }
+    -> 'http://:{{ collector.http_data_port }}?tag=component'

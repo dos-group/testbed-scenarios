@@ -1,0 +1,23 @@
+
+- name: Check required variables
+  fail:
+    msg: "Variable 'docker_events_exposer.{{ item }}' is not defined or empty"
+  when: item not in vars['docker_events_exposer'] or vars['docker_events_exposer'][item] == ""
+  with_items:
+    - rabbitmq_host
+    - rabbitmq_url
+
+- name: Run the Docker event exposer docker container
+  tags: [ docker-container, docker-events-exposer ]
+  docker_container:
+    name: "{{ docker_events_exposer.container_name }}"
+    image: teambitflow/docker-events-exposer
+    pull: true
+    privileged: yes
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    env:
+      RABBITMQ_URL: "{{ docker_events_exposer.rabbitmq_url }}"
+      RABBITMQ_HOST: "{{ docker_events_exposer.rabbitmq_host }}"
+      RABBITMQ_PORT: "{{ docker_events_exposer.rabbitmq_port }}"
+      LOCAL_SERVER_NAME: "{{ docker_events_exposer.local_server_name }}"

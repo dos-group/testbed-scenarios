@@ -68,26 +68,8 @@ parameters:
 
   install_docker_script:
     type: string
-    description: Setup script for Docker. This parameter should not be set, it is here to reuse the code for multiple VMs.
-    default: |
-        apt update
-        apt install -y jq linux-image-extra-$(uname -r) linux-image-extra-virtual apt-transport-https ca-certificates curl software-properties-common bmon htop iotop
-
-        # Reduce the apt update/install timeout to 20 seconds
-        echo -e 'Acquire::http::Timeout "20";\nAcquire::ftp::Timeout "10";' > /etc/apt/apt.conf.d/99timeout
-
-        # Try to install docker-ce until it is done
-        until type docker &> /dev/null; do
-          curl --connect-timeout 10 -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
-          apt-key fingerprint 0EBFCD88
-          add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-          apt update
-          apt install -y docker-ce
-        done
-
-        service docker restart
-        wget -O /usr/local/bin/docker-compose -L https://github.com/docker/compose/releases/download/1.17.1/docker-compose-`uname -s`-`uname -m`
-        chmod +x /usr/local/bin/docker-compose
+    description: Setup script. Empty by default, bootstrapping handled by Ansible.
+    default: ""
 
 resources:
 

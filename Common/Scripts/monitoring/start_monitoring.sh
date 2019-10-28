@@ -23,6 +23,7 @@ for i in $HOST_FILES; do
 
     # Intermediate SSH host
     INTER_HOST="${TMP[2]}"
+    test "$INTER_HOST" == "NONE" && INTER_HOST=
     test -n "$INTER_HOST" && INTER_HOST="--ihost $INTER_HOST"
     unset TMP[2]
 

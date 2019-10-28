@@ -1,7 +1,5 @@
 #!/usr/bin/env ansible-playbook
 
-- import_playbook: playbook-base.yml
-
 - name: Install the backend video server
   hosts: backend
   tags: [ docker, backend ]

@@ -1,0 +1,20 @@
+
+- name: start injector-agent docker container
+  tags: [ docker-container, injector ]
+  docker_container:
+      image: "{{ injector.image }}"
+      name: "{{ injector.container_name }}"
+      hostname: "{{ inventory_hostname }}"
+      state: started
+      pid_mode: host
+      network_mode: host
+      pull: "true"
+      privileged: "yes"
+      restart_policy: always
+      ports:
+      - "{{ injector.api_port }}:{{ injector.api_port }}"
+      command: [
+          "-api-port", "{{ injector.api_port }}",
+          "-host", "{{ inventory_hostname }}",
+          "-anomaly-pool", "{{ injector.anomaly_pool }}"
+      ]

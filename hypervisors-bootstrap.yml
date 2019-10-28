@@ -1,0 +1,22 @@
+#!/usr/bin/env ansible-playbook
+
+- name: Bootstrap Python
+  hosts: hypervisors
+  gather_facts: false
+  roles:
+    - ./roles/bootstrap
+
+- name: Bootstrap hypervisors
+  hosts: hypervisors
+  tasks:
+    - name: Install required packages with apt
+      apt:
+        name: [
+          tree, curl, wget, git,
+          htop, bmon, iotop
+        ]
+        state: present
+        update_cache: yes
+  roles:
+    - ./roles/docker
+    - ./roles/docker-compose

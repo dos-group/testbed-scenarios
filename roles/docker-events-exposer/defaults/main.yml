@@ -1,0 +1,11 @@
+
+docker_events_exposer:
+  local_server_name: "" # Empty for VMs. Hypervisors should use "{{ ansbile_hostname }}" or "{{ ansible_fqdn }}".
+  container_name: docker-events-exposer
+  rabbitmq_port: "5672"
+
+  # The following two variables must be specified when invoking this role
+  # This can be specified in the inventory file with a line like the following in the [all:vars] section:
+  # docker_events_exposer={"rabbitmq_url": "amqp://<user>:<password>@<host>:5672", "rabbitmq_host": "<host>"}
+  rabbitmq_url: ""
+  rabbitmq_host: ""

@@ -1,0 +1,64 @@
+#!/usr/bin/env ansible-playbook
+
+- name: Install Python
+  tags: [ bootstrap ]
+  hosts: vms
+  gather_facts: false
+  roles:
+    - ../../roles/bootstrap
+
+# - name: Setup VMs
+#   tags: [ obsolete ]
+#   hosts:
+#     - vms
+#   become: yes
+#   vars:
+#     env_var: { name: "HOSTNAME", value: "{{  inventory_hostname }}" }
+#     changed: false
+#     kernel_version: "4.4.0-119-generic"
+#   tasks:
+# #    Load specific kernel that works with clearwater astaire and rogers. Works only as upgrade. Not as downgrade.
+# #    - include_tasks: ../../Common/Ansible/load_kernel_upgrade.yml var=changed
+#     - include_tasks: ../../Common/Ansible/reboot_server.yml
+#       when: changed
+#     - name: apt update
+#       apt: update_cache=yes
+#     - include_tasks: ../../Common/Ansible/reboot_server.yml
+#       when: changed
+
+- name: Install Docker and packages
+  hosts: vms
+  tags: [ bootstrap ]
+  tasks:
+    - name: Install required packages with apt
+      apt:
+        name: [ apt-transport-https, ca-certificates, curl,
+              software-properties-common,
+              htop, bmon, jq, iotop ]
+        state: present
+        update_cache: yes
+  roles:
+    - ../../roles/docker
+    - ../../roles/docker-compose
+
+# - name: Install the Bitflow data collector
+#   hosts: vms:!sippstress:!etcd:!swarm_manager
+#   tags: [ collector ]
+#   tasks: 
+#     - include_tasks: ../../Common/Ansible/bitflow-collector-tasks.yml
+#       become: true
+
+- name: Install the anomaly injector
+  hosts: vms:!sippstress:!etcd:!swarm_manager
+  tags: [ injector ]
+  vars:
+    injector: "{{ injector_general }}"
+  tasks: 
+    - include_tasks: ../../Common/Ansible/injector-tasks.yml
+      become: true
+
+- name: Install Docker events exposer
+  hosts: vms
+  tags: [ docker-events-exposer ]
+  roles:
+    - ../../roles/docker-events-exposer

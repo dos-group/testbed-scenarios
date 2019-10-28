@@ -1,0 +1,40 @@
+
+- name: Import Docker CE repository gpg key
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+    id: 9DC858229FC7DD38854AE2D88D81803C0EBFCD88
+
+- name: Import Docker repository key from ubuntu keyserver
+  apt_key:
+    keyserver: keyserver.ubuntu.com
+    id: 7EA0A9C3F273FCD8
+
+- name: Add Docker CE repository
+  apt_repository:
+    repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+    state: present
+
+- name: Install docker
+  apt:
+    name: docker-ce
+    state: present
+    update_cache: yes
+
+- name: Install docker Python module
+  tags: [ bootstrap ]
+  pip:
+    name: docker
+    state: present
+
+# TODO check if required, or delete
+
+# until type docker &> /dev/null; do
+#           curl --connect-timeout 10 -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+#           apt-key fingerprint 0EBFCD88
+#           add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+#           apt update
+#           apt install -y docker-ce
+#         done
+
+# service docker restart

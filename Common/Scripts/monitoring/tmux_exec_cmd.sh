@@ -55,7 +55,7 @@ parse_arguments() {
 
 cmd() {
     if [ -z "$INTERMEDIATE_HOST" ]; then
-        local cmd="ssh -o UserKnownHostsFile=/tmp/tmux-known-hosts -o StrictHostKeyChecking=no $SSH_KEY ubuntu@[TARGET] -t \"$COMMAND; bash -l\""
+        local cmd="ssh -o UserKnownHostsFile=/tmp/tmux-known-hosts -o StrictHostKeyChecking=no $SSH_KEY [TARGET] -t \"$COMMAND; bash -l\""
     else
         local cmd="ssh -o UserKnownHostsFile=/tmp/tmux-known-hosts -o StrictHostKeyChecking=no $INTERMEDIATE_HOST -t \"ssh -o UserKnownHostsFile=/tmp/tmux-known-hosts -o StrictHostKeyChecking=no $SSH_KEY ubuntu@[TARGET] -t \\\"$COMMAND; bash -l\\\"; bash -l\""
     fi

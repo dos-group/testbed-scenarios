@@ -74,7 +74,7 @@ parameters:
     constraints:
       - custom_constraint: nova.flavor
         description: Must be a valid flavor name
-  flavor_big:
+  flavor_cassandra:
     type: string
     description: Flavor to use
     constraints:
@@ -162,29 +162,8 @@ parameters:
     default: 1
   root_init_script:
     type: string
-    description: Setup script for each VM. This parameter should not be set, it is here to reuse the code for multiple VMs.
-    default: >
-      #apt update
-      #apt install -y linux-image-extra-$(uname -r) linux-image-extra-virtual apt-transport-https ca-certificates curl software-properties-common
-      #Install some useful monitoring tools
-      #apt -y install htop bmon jq
-      #Set service name environment variable
-      #echo -e "SERVICE_NAME=$(echo $(hostname) | tr "-" "\n" | sed -n "1p")" >> /etc/environment
-      #Reduce the apt update/install timeout to 20 seconds
-      #echo -e 'Acquire::http::Timeout "20";\nAcquire::ftp::Timeout "10";' > /etc/apt/apt.conf.d/99timeout
-      #Try to install docker-ce until it is done
-      #until type docker &> /dev/null; do
-      #  curl --connect-timeout 10 -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
-      #  apt-key fingerprint 0EBFCD88
-      #  add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-      #  apt update
-      #  apt install -y docker-ce
-      #done
-      #service docker restart
-      #wget -O /usr/local/bin/docker-compose -L https://github.com/docker/compose/releases/download/1.17.1/docker-compose-`uname -s`-`uname -m`
-      #chmod +x /usr/local/bin/docker-compose
-      #apt update && apt -y upgrade
-      #shutdown -r now
+    description: Setup script. Empty by default, handled by Ansible.
+    default: ""
 
 resources:
 
@@ -659,6 +638,12 @@ resources:
           port_range_max: 4789
           #remote_mode: remote_group_id
 
+  affinity_group:
+    type: OS::Nova::ServerGroup
+    properties:
+      policies:
+      - soft-anti-affinity
+
   swarm_manager:
     depends_on: [ network_router_interface_port, network_router_gateway]
     type: OS::Heat::ResourceGroup
@@ -667,6 +652,7 @@ resources:
       resource_def:
         type: server-floating.yaml
         properties:
+          affinity_group: { get_resource: affinity_group }
           stack_name: { get_param: "OS::stack_name" }
           group: swarm_manager
           name: { str_replace: { params: { __index__: "%index%", __stack__: { get_param: "OS::stack_name" }, __zone__: { get_param: zone } }, template: __stack__-swarm_manager-__index__.__zone__ } }
@@ -689,6 +675,7 @@ resources:
       resource_def:
         type: server-floating.yaml
         properties:
+          affinity_group: { get_resource: affinity_group }
           stack_name: { get_param: "OS::stack_name" }
           group: etcd
           name: { str_replace: { params: { __index__: "%index%", __stack__: { get_param: "OS::stack_name" }, __zone__: { get_param: zone } }, template: __stack__-etcd_node-__index__.__zone__ } }
@@ -711,6 +698,7 @@ resources:
       resource_def:
         type: server-floating.yaml
         properties:
+          affinity_group: { get_resource: affinity_group }
           stack_name: { get_param: "OS::stack_name" }
           group: astaire
           name: { str_replace: { params: { __index__: "%index%", __stack__: { get_param: "OS::stack_name" }, __zone__: { get_param: zone } }, template: __stack__-astaire_node-__index__.__zone__ } }
@@ -734,11 +722,12 @@ resources:
       resource_def:
         type: server-floating.yaml
         properties:
+          affinity_group: { get_resource: affinity_group }
           stack_name: { get_param: "OS::stack_name" }
           group: cassandra
           name: { str_replace: { params: { __index__: "%index%", __stack__: { get_param: "OS::stack_name" }, __zone__: { get_param: zone } }, template: __stack__-cassandra_node-__index__.__zone__ } }
           image: { get_param: image }
-          flavor: { get_param: flavor_big }
+          flavor: { get_param: flavor_cassandra }
           key_name: { get_param: key_name }
           external_network: { get_param: public_net_id }
           network: { get_resource: network_private_net }
@@ -757,6 +746,7 @@ resources:
       resource_def:
         type: server-floating.yaml
         properties:
+          affinity_group: { get_resource: affinity_group }
           stack_name: { get_param: "OS::stack_name" }
           group: chronos
           name: { str_replace: { params: { __index__: "%index%", __stack__: { get_param: "OS::stack_name" }, __zone__: { get_param: zone } }, template: __stack__-chronos_node-__index__.__zone__ } }
@@ -780,6 +770,7 @@ resources:
       resource_def:
         type: server-floating.yaml
         properties:
+          affinity_group: { get_resource: affinity_group }
           stack_name: { get_param: "OS::stack_name" }
           group: homestead
           name: { str_replace: { params: { __index__: "%index%", __stack__: { get_param: "OS::stack_name" }, __zone__: { get_param: zone } }, template: __stack__-homestead_node-__index__.__zone__ } }
@@ -803,6 +794,7 @@ resources:
       resource_def:
         type: server-floating.yaml
         properties:
+          affinity_group: { get_resource: affinity_group }
           stack_name: { get_param: "OS::stack_name" }
           group: homesteadprov
           name: { str_replace: { params: { __index__: "%index%", __stack__: { get_param: "OS::stack_name" }, __zone__: { get_param: zone } }, template: __stack__-homesteadprov_node-__index__.__zone__ } }
@@ -826,6 +818,7 @@ resources:
       resource_def:
         type: server-floating.yaml
         properties:
+          affinity_group: { get_resource: affinity_group }
           stack_name: { get_param: "OS::stack_name" }
           group: homer
           name: { str_replace: { params: { __index__: "%index%", __stack__: { get_param: "OS::stack_name" }, __zone__: { get_param: zone } }, template: __stack__-homer_node-__index__.__zone__ } }
@@ -849,6 +842,7 @@ resources:
       resource_def:
         type: server-floating.yaml
         properties:
+          affinity_group: { get_resource: affinity_group }
           stack_name: { get_param: "OS::stack_name" }
           group: ralf
           name: { str_replace: { params: { __index__: "%index%", __stack__: { get_param: "OS::stack_name" }, __zone__: { get_param: zone } }, template: __stack__-ralf_node-__index__.__zone__ } }
@@ -872,6 +866,7 @@ resources:
       resource_def:
         type: server-floating.yaml
         properties:
+          affinity_group: { get_resource: affinity_group }
           stack_name: { get_param: "OS::stack_name" }
           group: sprout
           name: { str_replace: { params: { __index__: "%index%", __stack__: { get_param: "OS::stack_name" }, __zone__: { get_param: zone } }, template: __stack__-sprout_node-__index__.__zone__ } }
@@ -896,6 +891,7 @@ resources:
       resource_def:
         type: server-floating.yaml
         properties:
+          affinity_group: { get_resource: affinity_group }
           stack_name: { get_param: "OS::stack_name" }
           group: bono
           name: { str_replace: { params: { __index__: "%index%", __stack__: { get_param: "OS::stack_name" }, __zone__: { get_param: zone } }, template: __stack__-bono_node-__index__.__zone__ } }
@@ -919,6 +915,7 @@ resources:
       resource_def:
         type: server-floating.yaml
         properties:
+          affinity_group: { get_resource: affinity_group }
           stack_name: { get_param: "OS::stack_name" }
           group: ellis
           name: { str_replace: { params: { __index__: "%index%", __stack__: { get_param: "OS::stack_name" }, __zone__: { get_param: zone } }, template: __stack__-ellis_node-__index__.__zone__ } }
@@ -942,6 +939,7 @@ resources:
       resource_def:
         type: server-floating.yaml
         properties:
+          affinity_group: { get_resource: affinity_group }
           stack_name: { get_param: "OS::stack_name" }
           group: sippstress
           name: { str_replace: { params: { __index__: "%index%", __stack__: { get_param: "OS::stack_name" }, __zone__: { get_param: zone } }, template: __stack__-sippstress_node-__index__.__zone__ } }

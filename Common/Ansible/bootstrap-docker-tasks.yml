@@ -8,8 +8,8 @@
   changed_when: install_python_pip.rc == 66
   failed_when: install_python_pip.rc != 77 and install_python_pip.rc != 66
 
-- name: Install docker-py
+- name: Install docker module
   tags: [ bootstrap ]
   pip:
-    name: docker-py
+    name: docker
     state: present

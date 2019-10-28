@@ -1,39 +1,34 @@
 #!/usr/bin/env ansible-playbook
 
-- name: Install Python
-  tags: [ bootstrap ]
-  hosts: all
-  gather_facts: false
-  tasks:
-    - include_tasks: ../../Common/Ansible/bootstrap-python.yml
-      become: true
-    - include_tasks: ../../Common/Ansible/bootstrap-docker-tasks.yml
-      become: true
-
-- name: Setup VMs
-  hosts:
-    - vms
+- name: Upgrade kernel
+  hosts: astaire
   become: yes
   vars:
-    docker_compose_bin: "/usr/local/bin/docker-compose"
-    docker_compose_version: "1.21.0"
-    env_var: { name: "HOSTNAME", value: "{{  inventory_hostname }}" }
-    changed: false
     kernel_version: "4.4.0-119-generic"
   tasks:
-#    Load specific kernel that works with clearwater astaire and rogers. Works only as upgrade. Not as downgrade.
-#    - include_tasks: ../../Common/Ansible/load_kernel_upgrade.yml var=changed
-    - include_tasks: ../../Common/Ansible/reboot_server.yml
-      when: changed
-    - include_tasks: ../../Common/Ansible/install_packages_with_apt.yml
-    - set_fact: changed="false"
-    - include_tasks: ../../Common/Ansible/install_docker.yml var=changed
-    - include_tasks: ../../Common/Ansible/install_docker_compose.yml var=changed
-    - name: apt update
-      apt: update_cache=yes
-    - include_tasks: ../../Common/Ansible/add_environment_variable.yml var=env_var var=changed
-    - include_tasks: ../../Common/Ansible/reboot_server.yml
-      when: changed
+    - name: Upgrade linux kernel Step 1
+      tags: [ kernel ]
+      apt: 
+        name: "linux-image-extra-{{ kernel_version }}"
+        state: present
+      register: kernel_1
+    - name: Upgrade linux kernel Step 2
+      tags: [ kernel ]
+      apt: 
+        name: "linux-image-extra-virtual"
+        state: present
+      register: kernel_2
+
+- name: Set environment variable
+  hosts: vms
+  vars:
+    env_var: { name: "HOSTNAME", value: "{{  inventory_hostname }}" }
+  tasks:
+    - name: "Set environment variable"
+      lineinfile:
+        path: /etc/environment
+        regexp: "^{{ env_var.name }}="
+        line: "{{ env_var.name }}={{ env_var.value }}"
 
 - name: Setup sipp stress VMs
   hosts:
@@ -47,13 +42,6 @@
       with_items:
         - "{{ sipp.load_log_dir }}"
         - "{{ sipp.load_config_dir }}"
-
-- name: Setup Hypervisors
-  hosts:
-    - hypervisors
-  become: yes
-  tasks:
-    - include_tasks: ../../Common/Ansible/install_packages_with_apt.yml
 
 - name: Bootstrap docker swarm cluster
   hosts: swarm_manager[0]
@@ -113,20 +101,3 @@
       when: leader
     - include_tasks: ../../Common/Ansible/docker_swarm/deploy_docker_swarm_services.yml
       when:  leader
-
-- name: Install the Bitflow data collector and injector
-  hosts: all:!sippstress:!etcd:!swarm_manager
-  tags: [ collector, injector ]
-  vars:
-    injector: "{{ injector_general }}"
-  tasks: 
-    - include_tasks: ../../Common/Ansible/bootstrap-docker-tasks.yml
-      become: true
-    - include_tasks: ../../Common/Ansible/bitflow-collector-tasks.yml
-      become: true
-    - include_tasks: ../../Common/Ansible/injector-tasks.yml
-      become: true
-
-
-
-

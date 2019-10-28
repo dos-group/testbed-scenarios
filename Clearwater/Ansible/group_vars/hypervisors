@@ -5,3 +5,4 @@ collector:
 apt_list:
   - htop
   - bmon
+  - iotop

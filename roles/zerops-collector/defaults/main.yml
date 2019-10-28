@@ -1,0 +1,17 @@
+
+collector:
+  image: teambitflow/bitflow-collector-zerops:latest
+  container_name: zerops-collector
+  path: /opt/zerops-collector
+  path_mounted: /opt/zerops-collector
+
+  http_data_port: 8050
+  api_port: 8051
+
+  libvirt:
+    socket: /var/run/libvirt
+    socket_mounted: /var/run/libvirt
+
+  kube_namespace: default
+
+  extra_args: ""

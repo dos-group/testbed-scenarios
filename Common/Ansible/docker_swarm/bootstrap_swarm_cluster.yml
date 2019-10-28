@@ -1,7 +1,7 @@
 
 - name: determine swarm status
   shell: >
-    docker info | egrep '^Swarm: ' | cut -d ' ' -f2
+    docker info -f '{{ '{{' }}.Swarm.LocalNodeState {{ '}}' }}'
   register: swarm_status
 
 - name: initialize swarm cluster

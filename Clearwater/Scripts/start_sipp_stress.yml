@@ -2,7 +2,7 @@
 
 - name: Start sip load generation via SIPPp on all load generation VMs
   hosts:
-    - sippstress[0]
+    - sippstress
   become: yes
   tasks:
     - set_fact: load_args=sipp.load_script_args

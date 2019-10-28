@@ -1,0 +1,4 @@
+
+docker_compose:
+  bin: "/usr/local/bin/docker-compose"
+  version: "1.21.0"

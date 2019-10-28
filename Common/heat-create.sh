@@ -25,6 +25,7 @@ echo "openstack $HEAT_CMD with name $NAME"
 KEYS="$home/keys"
 mkdir -p "$KEYS"
 # Create key pair that will be used by the VMs to access each other
+
 echo -e 'y\n' | ssh-keygen -q -t rsa -b 4096 -f "$KEYS/id_rsa" -N '' 1>/dev/null
 
 if [ -z $EXISTING ]; then

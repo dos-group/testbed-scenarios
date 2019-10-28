@@ -10,3 +10,4 @@ apt_list:
   - htop
   - bmon
   - jq
+  - iotop

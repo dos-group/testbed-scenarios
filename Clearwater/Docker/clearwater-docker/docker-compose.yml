@@ -14,6 +14,7 @@ services:
       -initial-cluster-state new
   astaire:
     build: astaire
+    
     environment:
       - ADDITIONAL_SHARED_CONFIG
     ports:
