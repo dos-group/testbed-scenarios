@@ -1,0 +1,50 @@
+
+rtmp:
+  port: 1935
+  balancer_stats_port: 8080
+  backend_http_port: 8080
+  server_video_dir: "/opt/bitflow/vod"
+  server_video_dir_mounted: "/opt/rtmp/vod"
+
+  server_video_file_prefix: "video"
+  server_number_local_video_file_copies: 10
+  client_log_dir: /opt/bitflow/client
+  client_log_dir_mounted: /bitflow/client
+  client_log_file: client.bin
+  client_api_port: 7776
+  client_data_port: 5011
+
+  server_remote_videos:
+
+    - { url: "https://file-examples.com/wp-content/uploads/2017/04/file_example_MP4_480_1_5MG.mp4", name: "v1.1", size: "1.5", resolution: "480x270", pixel: 129600, format: mp4 }
+    - { url: "https://file-examples.com/wp-content/uploads/2017/04/file_example_MP4_640_3MG.mp4", name: "v1.2", size: "3", resolution: "640x360", pixel: 230400, format: mp4 }
+    - { url: "https://file-examples.com/wp-content/uploads/2017/04/file_example_MP4_1280_10MG.mp4", name: "v1.3", size: "10", resolution: "1280x720", pixel: 921600, format: mp4 }
+    - { url: "https://file-examples.com/wp-content/uploads/2017/04/file_example_MP4_1920_18MG.mp4", name: "v1.4", size: "18", resolution: "1920x1080", pixel: 2073600, format: mp4 }
+
+    - { url: "http://mirrors.standaloneinstaller.com/video-sample/jellyfish-25-mbps-hd-hevc.mp4", name: "v2.1", size: "31.3", resolution: "1920x1080", pixel: 2073600, format: mp4 }
+    - { url: "http://mirrors.standaloneinstaller.com/video-sample/P6090053.mp4", name: "v2.2", size: "2.4", resolution: "320x240", pixel: 76800, format: mp4 }
+    - { url: "http://mirrors.standaloneinstaller.com/video-sample/small.mp4", name: "v2.3", size: "0.17", resolution: "560x320", pixel: 179200, format: mp4 }
+    - { url: "http://mirrors.standaloneinstaller.com/video-sample/lion-sample.mp4", name: "v2.5", size: "10.27", resolution: "384x288", pixel: 110592, format: mp4 }
+    - { url: "http://mirrors.standaloneinstaller.com/video-sample/TRA3106.mp4", name: "v2.6", size: "6.77", resolution: "720x496", pixel: 357120, format: mp4 }
+    - { url: "http://mirrors.standaloneinstaller.com/video-sample/page18-movie-4.mp4", name: "v2.7", size: "27.80", resolution: "480x270", pixel: 129600, format: mp4 }
+    - { url: "http://mirrors.standaloneinstaller.com/video-sample/Panasonic_HDC_TM_700_P_50i.mp4", name: "v2.8", size: "25.19", resolution: "1920x1080", pixel: 2073600, format: mp4 }
+    - { url: "http://mirrors.standaloneinstaller.com/video-sample/grb_2.mp4", name: "v2.9", size: "0.44", resolution: "720x480", pixel: 345600, format: mp4 }
+    - { url: "http://mirrors.standaloneinstaller.com/video-sample/DLP_PART_2_768k.mp4", name: "v2.10", size: "5.26", resolution: "400x300", pixel: 120000, format: mp4 }
+    - { url: "http://mirrors.standaloneinstaller.com/video-sample/star_trails.mp4", name: "v2.11", size: "37.83", resolution: "1280x720", pixel: 921600, format: mp4 }
+    - { url: "http://mirrors.standaloneinstaller.com/video-sample/dolbycanyon.mp4", name: "v2.12", size: "3.01", resolution: "720x480", pixel: 345600, format: mp4 }
+
+    # This video is disabled, because it is 22 min long. The longest other video is approx. 3:30.
+    #- { url: "http://mirrors.standaloneinstaller.com/video-sample/metaxas-keller-Bell.mp4", name: "v2.4", size: "20.31", resolution: "176x98", pixel: 17248, format: mp4 }
+
+    #- { url: "https://www.sample-videos.com/video123/flv/720/big_buck_bunny_720p_10mb.flv", size: "10", resolution: 720, pixel: 0 }
+    #- { url: "https://www.sample-videos.com/video123/flv/480/big_buck_bunny_480p_10mb.flv", size: "10", resolution: 480, pixel: 0 }
+    #- { url: "https://www.sample-videos.com/video123/flv/360/big_buck_bunny_360p_10mb.flv", size: "10", resolution: 360, pixel: 0 }
+    #- { url: "https://www.sample-videos.com/video123/flv/240/big_buck_bunny_240p_10mb.flv", size: "10", resolution: 240, pixel: 0 }
+    #- { url: "https://www.sample-videos.com/video123/flv/720/big_buck_bunny_720p_20mb.flv", size: "20", resolution: 720, pixel: 0 }
+    #- { url: "https://www.sample-videos.com/video123/flv/480/big_buck_bunny_480p_20mb.flv", size: "20", resolution: 480, pixel: 0 }
+    #- { url: "https://www.sample-videos.com/video123/flv/360/big_buck_bunny_360p_20mb.flv", size: "20", resolution: 360, pixel: 0 }
+    #- { url: "https://www.sample-videos.com/video123/flv/240/big_buck_bunny_240p_20mb.flv", size: "20", resolution: 240, pixel: 0 }
+    #- { url: "https://www.sample-videos.com/video123/flv/720/big_buck_bunny_720p_30mb.flv", size: "30", resolution: 720, pixel: 0 }
+    #- { url: "https://www.sample-videos.com/video123/flv/480/big_buck_bunny_480p_30mb.flv", size: "30", resolution: 480, pixel: 0 }
+    #- { url: "https://www.sample-videos.com/video123/flv/360/big_buck_bunny_360p_30mb.flv", size: "30", resolution: 360, pixel: 0 }
+    #- { url: "https://www.sample-videos.com/video123/flv/240/big_buck_bunny_240p_30mb.flv", size: "30", resolution: 240, pixel: 0 }

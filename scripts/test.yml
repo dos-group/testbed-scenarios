@@ -1,8 +1,0 @@
-#!/usr/bin/env ansible-playbook
-
-- name: Test
-  hosts: all
-  tasks:
-      - debug:
-          var: sipp.load_log_dir
-

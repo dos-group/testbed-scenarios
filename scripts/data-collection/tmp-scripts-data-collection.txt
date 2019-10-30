@@ -1,0 +1,27 @@
+
+Experiment start: 28.10., 18:35
+SIPP load ended 1:27
+manual fixes around 29.10. 14:45
+user provisioning 15:35
+SIPP load resumed: 
+
+
+# Check data
+ansible hypervisors -i alexcloud.inventory -m shell -a 'tree /opt/zerops-collector/data'
+
+# ENABLE COLLECTION
+ansible hypervisors -i alexcloud.inventory -m shell -a 'curl -X POST localhost:8051/api/file_output'
+
+# DISABLE COLLECTION
+ansible hypervisors -i alexcloud.inventory -m shell -a 'curl -X DELETE localhost:8051/api/file_output'
+
+
+# Check VOD client data
+ansible client -i VideoServer/Ansible/ansible-inventory.ini -m shell -a 'tree /opt/bitflow/client'
+
+# Start VOD client collection
+ansible client -i VideoServer/Ansible/ansible-inventory.ini -m shell -a 'curl -X POST localhost:7776/api/file_output'
+
+# Stop VOD client collection
+ansible client -i VideoServer/Ansible/ansible-inventory.ini -m shell -a 'curl -X DELETE localhost:7776/api/file_output'
+

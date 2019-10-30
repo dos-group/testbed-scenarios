@@ -1,22 +1,20 @@
-*.retry
-*.inventory
-*.hosts
 
-# Created by https://www.gitignore.io/api/ansible,visualstudiocode
-# Edit at https://www.gitignore.io/?templates=ansible,visualstudiocode
+### Heat ###
+parameters*.txt
+keys/
 
 ### Ansible ###
+*.inventory
+ansible-inventory*.ini
+*.hosts
 *.retry
 
 ### VisualStudioCode ###
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
+.vscode/
 
 ### VisualStudioCode Patch ###
 # Ignore all local history of files
 .history
 
-# End of https://www.gitignore.io/api/ansible,visualstudiocode
+### Python ###
+*.pyc

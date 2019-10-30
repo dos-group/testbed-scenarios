@@ -1,4 +1,9 @@
 
+# TODO is this usefull/required?
+#injector:
+#  cron_job: pgrep -f '(mem_alloc|python3.6)' | while read PID; do echo -17 > /proc/$PID/oom_adj; done
+
+
 - name: start injector-agent docker container
   tags: [ docker-container, injector ]
   docker_container:
