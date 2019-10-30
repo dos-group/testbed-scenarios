@@ -3,7 +3,6 @@
 - name: Enable file output of data collectors
   hosts:
     - hypervisors
-    - vms:!client
   tasks:
     - uri:
         url: "http://0.0.0.0:{{ collector.api_port }}/api/file_output"

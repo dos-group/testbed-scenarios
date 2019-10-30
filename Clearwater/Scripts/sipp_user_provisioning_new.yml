@@ -1,0 +1,79 @@
+
+
+# set -e
+# echo "Creating $num_users users..."
+# /usr/share/clearwater/crest-prov/src/metaswitch/crest/tools/bulk_create.py $filename > /dev/null 2>&1
+# /tmp/$$.users.create_homestead.sh > /dev/null 2>&1
+# echo "Created $num_users users"
+# rm /tmp/$$.users.*
+
+
+# ========= TODO Plan to consistently provision cassandra users
+# execute cassandra-cli -B -f <FILE>
+# Wait for line that indicates error (Line XXXXX => null), see below
+# Take line number that errored, delete all lines BEFORE that line with sed.
+# Re-start cassandra-cli, until no error occurs until the end.
+
+
+# Example output from cassandra-cli:
+
+# Value inserted.
+# Elapsed time: 0.86 msec(s).
+# Value inserted.
+# Elapsed time: 0.94 msec(s).
+# Value inserted.
+# Elapsed time: 0.57 msec(s).
+# Value inserted.
+# Elapsed time: 0.75 msec(s).
+# Value inserted.
+# Elapsed time: 0.46 msec(s).
+# Value inserted.
+# Elapsed time: 0.57 msec(s).
+# Value inserted.
+# Elapsed time: 0.69 msec(s).
+# Value inserted.
+# Elapsed time: 0.64 msec(s).
+# Line 24192 => null
+# TimedOutException(acknowledged_by:0)
+# 	at org.apache.cassandra.thrift.Cassandra$insert_result$insert_resultStandardScheme.read(Cassandra.java:21785)
+# 	at org.apache.cassandra.thrift.Cassandra$insert_result$insert_resultStandardScheme.read(Cassandra.java:21753)
+# 	at org.apache.cassandra.thrift.Cassandra$insert_result.read(Cassandra.java:21687)
+# 	at org.apache.thrift.TServiceClient.receiveBase(TServiceClient.java:78)
+# 	at org.apache.cassandra.thrift.Cassandra$Client.recv_insert(Cassandra.java:916)
+# 	at org.apache.cassandra.thrift.Cassandra$Client.insert(Cassandra.java:900)
+# 	at org.apache.cassandra.cli.CliClient.executeSet(CliClient.java:989)
+# 	at org.apache.cassandra.cli.CliClient.executeCLIStatement(CliClient.java:234)
+# 	at org.apache.cassandra.cli.CliMain.processStatementInteractive(CliMain.java:203)
+# 	at org.apache.cassandra.cli.CliMain.evaluateFileStatements(CliMain.java:387)
+# 	at org.apache.cassandra.cli.CliMain.main(CliMain.java:262)
+
+
+- name: Provision Cassandra users
+  hosts:
+    - cassandra[0]
+  become: yes
+  vars:
+    num_users: 50000
+  tasks:
+    - name: Copy Cassandra provisioning file
+      copy:
+        src: cassandra-user-provisioning/{{item}}
+        dest: "{{item}}"
+      with_items:
+        - create_homestead_cache.casscli
+        - create_homestead_provisioning.casscli
+    - name: Copy Cassandra provisioning file into container
+      shell: |
+        container_name=$(docker ps --format '{{ '{{' }} .Names {{ '}}' }}' | grep 'cassandra')
+        docker cp "{{item}}" "$container_name:{{item}}"
+      with_items:
+        - create_homestead_cache.casscli
+        - create_homestead_provisioning.casscli
+    - name: Execute Cassandra provisioning
+      shell: |
+        container_name=$(docker ps --format '{{ '{{' }} .Names {{ '}}' }}' | grep 'cassandra')
+        docker exec -ti "$container_name" cassandra-cli -B -f {{item}}
+      failed_when: false
+      with_items:
+        - create_homestead_cache.casscli
+        - create_homestead_provisioning.casscli

@@ -1,0 +1,22 @@
+#!/usr/bin/env ansible-playbook
+
+- name: Delete collector data
+  hosts: all:!sippstress:!etcd:!swarm_manager
+  vars:
+    injector: "{{ injector_general }}"
+    cleaned_directory: "{{ collector.data_path }}"
+  tasks:
+    - include_tasks: ../../Common/Ansible/reset-collector-injector-tasks.yml
+    - include_tasks: ../../Common/Ansible/clean-directory-contents-tasks.yml
+      become: true
+
+- import_playbook: stop_sipp_stress.yml
+
+- name: Delete sipp stress data
+  hosts: sippstress
+  vars:
+    cleaned_directory: "{{ sipp.load_log_dir }}"
+  tasks:
+    - include_tasks: ../../Common/Ansible/clean-directory-contents-tasks.yml
+      become: true
+

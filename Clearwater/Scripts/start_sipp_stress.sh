@@ -2,7 +2,7 @@
 
 home=`dirname $(readlink -e $0)`
 
-duration=36000
+duration=36000000
 t_load_change=1200
 min_users=5000
 max_users=8000

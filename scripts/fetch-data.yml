@@ -1,0 +1,16 @@
+#!/usr/bin/env ansible-playbook
+
+# The variable 'fetch_dir' must be defined on the command line with ansible-playbook -e fetch_dir=DIR
+
+- name: Fetch sippstress statistics data
+  hosts: sippstress
+  tasks:
+    - synchronize:
+        mode: pull
+        src: "{{ sipp.load_log_dir }}"
+        dest: "{{ fetch_dir }}/{{ inventory_hostname }}/"
+
+- name: Fetch data collector data from remote hosts
+  hosts: all:!sippstress:!etcd:!swarm_manager
+  tasks:
+    - include_tasks: ../../Common/Ansible/fetch-collector-data-tasks.yml

@@ -1,0 +1,8 @@
+
+collector:
+  extra_args: -exclude "net-io/nic/" -exclude "ovsdb/" -files-check-output 2s -files-buf 64 -s "tags(layer=physical, node='{{ ansible_hostname }}', component='{{ ansible_hostname }}')"
+
+apt_list:
+  - htop
+  - bmon
+  - iotop

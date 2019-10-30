@@ -1,0 +1,30 @@
+
+docker_file: "docker-compose.yaml"
+stack_name: "cw"
+
+sipp:
+  load_log_dir: /opt/bitflow/sipp-stress/logs
+  load_config_dir: /opt/bitflow/sipp-stress/config
+  load_script_args: "--min_users 8000 --max_users 9000 -d 36000 --t_load_change 1200"
+
+collector:
+  container_name: bitflow-collector
+  interval: 500ms
+  api_port: 0.0.0.0:7777
+  port: 5010
+  file_name: data.bin
+  data_path: /opt/bitflow/data-collector
+  data_path_mounted: /opt/bitflow/data-collector
+  extra_args: ""
+
+injector_general:
+  container_name: "injector"
+  hostname: "{{ inventory_hostname }}"
+  api_port: 7888
+  set_collector_tags: True
+
+# This can be used when we re-introduce a real service-layer data collection and injection
+#injector_vnf:
+#  container_name: "injector_vnf"
+#  hostname: "{{ group_names[0] }}@{{{ inventory_hostname }}"
+#  api_port: 7889

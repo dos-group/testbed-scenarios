@@ -1,0 +1,19 @@
+#!/usr/bin/env ansible-playbook
+
+- name: Check data collector output
+  hosts:
+    - hypervisors
+    - vms:!sippstress:!etcd:!swarm_manager
+  vars:
+    output_check_directory: "{{ collector.data_path }}"
+    max_file_age_seconds: 300 # 5 minutes
+  tasks:
+    - include_tasks: ../../Common/Ansible/check-output-directory-tasks.yml
+
+- name: Check sipp data output
+  hosts: sippstress
+  vars:
+    output_check_directory: "{{ sipp.load_log_dir }}"
+    max_file_age_seconds: 300 # 5 minutes
+  tasks:
+    - include_tasks: ../../Common/Ansible/check-output-directory-tasks.yml

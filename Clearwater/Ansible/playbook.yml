@@ -43,6 +43,15 @@
         - "{{ sipp.load_log_dir }}"
         - "{{ sipp.load_config_dir }}"
 
+- name: Create Cassandra data directory
+  hosts:
+    - cassandra
+  become: yes
+  tasks:
+    - file:
+        path: /opt/cassandra-data
+        state: directory
+
 - name: Bootstrap docker swarm cluster
   hosts: swarm_manager[0]
   become: yes

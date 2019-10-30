@@ -1,0 +1,2 @@
+
+shared_config: "diameter_timeout_ms=600\nsprout_homestead_timeout_ms=550\nralf_threads=300\ndns_timeout=400"

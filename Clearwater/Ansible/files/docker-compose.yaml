@@ -65,6 +65,8 @@ services:
           - cassandra
     ports:
       - 22
+    volumes:
+      - /opt/cassandra-data:/var/lib/cassandra
     deploy:
       mode: global
       placement:

@@ -1,0 +1,8 @@
+#!/usr/bin/env ansible-playbook
+
+- name: Check injector and collector container status for VM and Host layer
+  hosts: all:!sippstress:!etcd:!swarm_manager
+  vars:
+    injector: "{{ injector_general }}"
+  tasks:
+    - include_tasks: ../../Common/Ansible/check-collector-injector-tasks.yml
