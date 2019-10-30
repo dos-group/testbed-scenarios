@@ -1,7 +1,0 @@
-8 clients, 6 backend, 6 balancers
-metric: bytes/(pixel*second)
-
-150 streams: 0.4
-250 streams: 0.04 - 0.3
-400 streams: < 0.1
-

@@ -4,3 +4,12 @@ injector:
 
 docker_events_exposer:
   local_server_name: "" # Empty on purpose
+
+bootstrap_packages: [
+  tree, curl, wget, git, jq,
+  htop, bmon, iotop,
+  software-properties-common, apt-transport-https, ca-certificates
+
+  #linux-image-extra-$(uname -r)
+  #linux-image-extra-virtual 
+]

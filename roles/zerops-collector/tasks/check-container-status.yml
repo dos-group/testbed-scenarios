@@ -1,0 +1,5 @@
+
+- name: Check collector container status
+  uri:
+    url: "http://0.0.0.0:{{ collector.api_port }}/api/tags"
+    method: GET

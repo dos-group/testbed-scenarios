@@ -1,0 +1,25 @@
+#!/usr/bin/env ansible-playbook
+
+- name: Bootstrap Python
+  hosts: all
+  gather_facts: false
+  roles:
+    - ../roles/bootstrap
+
+- name: Install packages and Docker
+  hosts: all
+  tasks:
+    - name: Install required packages with apt
+      apt:
+        name: "{{ bootstrap_packages }}"
+        state: present
+        update_cache: yes
+  #roles:
+  #  - ../roles/docker
+  #  - ../roles/docker-compose
+
+# TODO?
+# echo -e 'Acquire::http::Timeout "20";\nAcquire::ftp::Timeout "10";' > /etc/apt/apt.conf.d/99timeout
+
+# TODO?
+# apt update && apt -y upgrade

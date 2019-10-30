@@ -1,0 +1,6 @@
+
+- name: Clean remote data
+  become: true
+  vars:
+    cleaned_directory: "{{ collector.path }}/data"
+  include_tasks: ../../../ansible-common/clean-directory-contents.yml

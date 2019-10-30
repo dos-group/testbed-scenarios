@@ -1,21 +1,16 @@
 #!/usr/bin/env ansible-playbook
 
 - name: Disable file output of data collectors
-  hosts:
-    - hypervisors
-    - vms:!client
+  hosts: zerops-collector
   tasks:
-    - uri:
-        url: "http://0.0.0.0:{{ collector.api_port }}/api/file_output"
-        timeout: 120
-        method: DELETE
+    - include_role:
+        name: ../../roles/zerops-collector
+        tasks_from: disable-data-collection
 
 - name: Disable file output of client statistics
-  hosts:
-    - client
+  hosts: client
   tasks:
     - uri:
         url: "http://0.0.0.0:{{ rtmp.client_api_port }}/api/file_output"
         timeout: 120
         method: DELETE
-

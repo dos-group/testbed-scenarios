@@ -1,0 +1,6 @@
+
+- name: Reset collector tags
+  uri:
+    url: "http://0.0.0.0:{{ collector.api_port }}/api/tags"
+    timeout: 120
+    method: DELETE

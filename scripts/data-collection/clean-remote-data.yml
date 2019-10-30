@@ -1,22 +1,26 @@
 #!/usr/bin/env ansible-playbook
 
+- import_playbook: reset-collector-injector.yml
+
 - name: Delete collector data
-  hosts: all:!sippstress:!etcd:!swarm_manager
-  vars:
-    injector: "{{ injector_general }}"
-    cleaned_directory: "{{ collector.data_path }}"
+  hosts: zerops-collector
   tasks:
-    - include_tasks: ../../Common/Ansible/reset-collector-injector-tasks.yml
-    - include_tasks: ../../Common/Ansible/clean-directory-contents-tasks.yml
+    - include_role:
+        name: ../../roles/zerops-collector
+        tasks_from: clean-data
+
+- name: Delete client statistics data
+  hosts: client
+  vars:
+    cleaned_directory: "{{ rtmp.client_log_dir }}"
+  tasks:
+    - include_tasks: ../../Common/Ansible/clean-directory-contents.yml
       become: true
 
-- import_playbook: stop_sipp_stress.yml
-
-- name: Delete sipp stress data
+- name: Delete SIPP logs
   hosts: sippstress
   vars:
     cleaned_directory: "{{ sipp.load_log_dir }}"
   tasks:
-    - include_tasks: ../../Common/Ansible/clean-directory-contents-tasks.yml
+    - include_tasks: ../../Common/Ansible/clean-directory-contents.yml
       become: true
-

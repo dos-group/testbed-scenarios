@@ -1,20 +1,16 @@
 #!/usr/bin/env ansible-playbook
 
 - name: Enable file output of data collectors
-  hosts:
-    - hypervisors
+  hosts: zerops-collector
   tasks:
-    - uri:
-        url: "http://0.0.0.0:{{ collector.api_port }}/api/file_output"
-        timeout: 120
-        method: POST
+    - include_role:
+        name: ../../roles/zerops-collector
+        tasks_from: enable-data-collection
 
 - name: Enable file output of client statistics
-  hosts:
-    - client
+  hosts: client
   tasks:
     - uri:
         url: "http://0.0.0.0:{{ rtmp.client_api_port }}/api/file_output"
         timeout: 120
         method: POST
-

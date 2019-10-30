@@ -1,0 +1,24 @@
+#!/usr/bin/env ansible-playbook
+
+# TODO limit the vms that install collector/injector/exposer?
+
+- name: Install zerops-collector
+  hosts: zerops-collector
+  roles:
+    - ../roles/zerops-collector
+
+- name: Install anomaly injector
+  hosts: anomaly-injector
+  roles:
+    - ../roles/anomaly-injector
+
+- name: Install Docker event exposer
+  hosts: docker-event-exposer
+  roles:
+    - ../roles/docker-events-exposer
+
+# TODO turn this into a role
+#tasks:
+#- include_tasks: ../../Common/Ansible/ebpf-agent-tasks.yml
+#      tags: [ docker, ebpf-agent ]
+#      become: true

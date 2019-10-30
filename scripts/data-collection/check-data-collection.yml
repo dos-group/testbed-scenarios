@@ -1,19 +1,16 @@
 #!/usr/bin/env ansible-playbook
 
 - name: Check data collector output
-  hosts:
-    - hypervisors
-    - vms:!sippstress:!etcd:!swarm_manager
-  vars:
-    output_check_directory: "{{ collector.data_path }}"
-    max_file_age_seconds: 300 # 5 minutes
+  hosts: zerops-collector
   tasks:
-    - include_tasks: ../../Common/Ansible/check-output-directory-tasks.yml
+    - include_role:
+        name: ../../roles/zerops-collector
+        tasks_from: check-data-directory
 
 - name: Check sipp data output
   hosts: sippstress
   vars:
     output_check_directory: "{{ sipp.load_log_dir }}"
-    max_file_age_seconds: 300 # 5 minutes
+    max_file_age_seconds: 300
   tasks:
-    - include_tasks: ../../Common/Ansible/check-output-directory-tasks.yml
+    - include_tasks: ../../ansible-common/check-output-directory.yml

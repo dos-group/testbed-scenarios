@@ -1,0 +1,6 @@
+
+- name: Fetch data collector data from remote hosts
+  synchronize:
+    mode: pull
+    src: "{{ collector.path }}/data"
+    dest: "{{ fetch_dir }}/{{ inventory_hostname }}/"

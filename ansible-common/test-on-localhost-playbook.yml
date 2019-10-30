@@ -20,4 +20,3 @@
     - include_tasks: ../../Common/Ansible/bootstrap-docker-tasks.yml
     - include_tasks: ../../Common/Ansible/bitflow-collector-tasks.yml
     - include_tasks: ../../Common/Ansible/injector-tasks.yml
-

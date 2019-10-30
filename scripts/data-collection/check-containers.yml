@@ -1,0 +1,15 @@
+#!/usr/bin/env ansible-playbook
+
+- name: Check collector container status
+  hosts: zerops-collector
+  tasks:
+    - include_role:
+        name: ../../roles/zerops-collector
+        tasks_from: check-container-status
+
+- name: Check injector container status
+  hosts: anomaly-injector
+  tasks:
+    - include_role:
+        name: ../../roles/anomaly-injector
+        tasks_from: check-container-status

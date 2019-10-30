@@ -1,9 +1,29 @@
 #!/usr/bin/env ansible-playbook
 
-- name: Unset collector tags, stop file outputs, stop all running anomalies on VM and Host layer
-  hosts: all:!sippstress:!etcd:!swarm_manager
-  vars:
-    injector: "{{ injector_general }}"
+- name: Unset collector tags, stop file outputs of collectors and 
+  hosts: zerops-collector
   tasks:
-    - include_tasks: ../../Common/Ansible/reset-collector-injector-tasks.yml
+    - include_role:
+        name: ../../roles/zerops-collector
+        tasks_from: disable-data-collection
+    - include_role:
+        name: ../../roles/zerops-collector
+        tasks_from: reset-tags
 
+- name: Stop all running anomalies
+  hosts: anomaly-injector
+  tasks:
+    - include_role:
+        name: ../../roles/anomaly-injector
+        tasks_from: stop-all-anomalies
+
+- name: Disable RTMP client file output and unset tags
+  hosts: client
+  tasks:
+    - uri:
+        url: "{{ item }}"
+        timeout: 120
+        method: DELETE
+      with_items:
+        - "http://0.0.0.0:{{ rtmp.client_api_port }}/api/tags"
+        - "http://0.0.0.0:{{ rtmp.client_api_port }}/api/file_output"

@@ -1,0 +1,6 @@
+
+- name: "Check if data output directory changed"
+  vars:
+    max_file_age_seconds: 300
+    output_check_directory: "{{ collector.path }}/data"
+  include_tasks: ../../../ansible-common/check-output-directory.yml

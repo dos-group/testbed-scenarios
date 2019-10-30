@@ -1,0 +1,5 @@
+
+- name: Check injector container status
+  uri:
+    url: "http://0.0.0.0:{{ injector.api_port }}/api/anomalies"
+    method: GET

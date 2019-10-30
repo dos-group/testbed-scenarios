@@ -1,0 +1,6 @@
+
+- name: Disable data collection
+  uri:
+    url: "http://0.0.0.0:{{ collector.api_port }}/api/file_output"
+    timeout: 120
+    method: DELETE
