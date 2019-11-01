@@ -1,4 +1,6 @@
 
+*.injector-experiment.yml
+
 ### Heat ###
 parameters*.txt
 keys/

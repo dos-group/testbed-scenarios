@@ -23,7 +23,11 @@ injector_groups=(
     #swarm_manager IMS "$vms_component_jq_query"
     #homesteadprov IMS "$vms_component_jq_query"
 
-    hypervisors HYPERVISORS ""
+    #hypervisors HYPERVISORS ""
+    wally196 HYPERVISORS ""
+    wally180 HYPERVISORS ""
+    wally194 HYPERVISORS ""
+    wally179 HYPERVISORS ""
 )
 
 i=0
