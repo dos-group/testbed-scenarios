@@ -1,4 +1,4 @@
-
+#!/usr/bin/env ansible-playbook
 
 # set -e
 # echo "Creating $num_users users..."

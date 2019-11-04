@@ -1,7 +1,4 @@
 
-injector:
-  anomaly_pool: physical
-
 collector:
     extra_args: "-exclude net-io/nic/ -exclude ovsdb/"
 

@@ -56,15 +56,15 @@
   hosts: swarm_manager[0]
   become: yes
   vars:
-    dockerfile_local: "./files/{{ docker_file }}"
+    dockerfile_local: "./files/clearwater/{{ docker_file }}"
     dockerfile_remote: "~/{{ docker_file }}"
   tasks:
     - name: Copy docker compose file from local to remote host
       copy:
         src: "{{ dockerfile_local }}"
         dest: "{{ dockerfile_remote }}"
-    - include_tasks: ../../Common/Ansible/docker_swarm/bootstrap_swarm_cluster.yml
-    - include_tasks: ../../Common/Ansible/docker_swarm/retrieve_join_tokens.yml
+    - include_tasks: ../ansible-common/docker_swarm/bootstrap_swarm_cluster.yml
+    - include_tasks: ../ansible-common/docker_swarm/retrieve_join_tokens.yml
     - set_fact: swarm_manager_token={{ swarm_manager_token }}
     - set_fact: swarm_worker_token={{ swarm_worker_token }}
 
@@ -72,7 +72,7 @@
   hosts: swarm_manager[1:]
   become: yes
   vars:
-    dockerfile_local: "./files/{{ docker_file }}"
+    dockerfile_local: "./files/clearwater/{{ docker_file }}"
     dockerfile_remote: "~/{{ docker_file }}"
     token_host: "{{ hostvars[inventory_hostname]['groups']['swarm_manager'][0] }}"
     token: "{{ hostvars[token_host]['swarm_manager_token'] }}"
@@ -82,18 +82,18 @@
       copy:
         src: "{{ dockerfile_local }}"
         dest: "{{ dockerfile_remote }}"
-    - include_tasks: ../../Common/Ansible/docker_swarm/join_swarm.yml    
+    - include_tasks: ../ansible-common/docker_swarm/join_swarm.yml    
 
 - name: Join docker swarm worker nodes
   hosts:
-    - vms:!swarm_manager
+    - clearwater:!swarm_manager
   become: yes
   vars:
     token_host: "{{ hostvars[inventory_hostname]['groups']['swarm_manager'][0] }}"
     token: "{{ hostvars[token_host]['swarm_worker_token'] }}"
     manager_ip: "{{ hostvars[token_host]['private_ip'] }}"
   tasks:
-    - include_tasks: ../../Common/Ansible/docker_swarm/join_swarm.yml
+    - include_tasks: ../ansible-common/docker_swarm/join_swarm.yml
 
 - name: Deploy docker swarm services
   hosts:
@@ -104,9 +104,9 @@
   environment:
     ADDITIONAL_SHARED_CONFIG: "{{ shared_config }}"
   tasks:
-    - include_tasks: ../../Common/Ansible/docker_swarm/set_leader_fact.yml
+    - include_tasks: ../ansible-common/docker_swarm/set_leader_fact.yml
     - debug: msg={{ leader }}
-    - include_tasks: ../../Common/Ansible/docker_swarm/set_hostname_label.yml
+    - include_tasks: ../ansible-common/docker_swarm/set_hostname_label.yml
       when: leader
-    - include_tasks: ../../Common/Ansible/docker_swarm/deploy_docker_swarm_services.yml
+    - include_tasks: ../ansible-common/docker_swarm/deploy_docker_swarm_services.yml
       when:  leader

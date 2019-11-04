@@ -1,7 +1,4 @@
 
-injector:
-  anomaly_pool: virtual
-
 docker_events_exposer:
   local_server_name: "" # Empty on purpose
 

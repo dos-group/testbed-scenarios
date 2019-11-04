@@ -11,6 +11,8 @@ services:
       - "2380:2380"
       - "4001:4001"
       - "2379:2379"
+    # volumes:
+    #   - /opt/clearwater-logs:/var/log
     command: >
       -name etcd0
       -advertise-client-urls http://etcd:2379,http://etcd:4001
@@ -34,6 +36,8 @@ services:
           - astaire
     ports:
       - 22
+    # volumes:
+    #   - /opt/clearwater-logs:/var/log
     deploy:
       mode: global
       placement:
@@ -49,6 +53,8 @@ services:
           - chronos
     ports:
       - 22
+    # volumes:
+    #   - /opt/clearwater-logs:/var/log
     deploy:
       mode: global
       placement:
@@ -66,6 +72,7 @@ services:
     ports:
       - 22
     volumes:
+      # - /opt/clearwater-logs:/var/log
       - /opt/cassandra-data:/var/lib/cassandra
     deploy:
       mode: global
@@ -88,6 +95,8 @@ services:
       - "5060:5060"
       - "5060:5060/udp"
       - "5062:5062"
+    # volumes:
+    #   - /opt/clearwater-logs:/var/log
     deploy:
       mode: global
       placement:
@@ -103,6 +112,8 @@ services:
           - sprout
           - scscf.sprout
           - icscf.sprout
+    # volumes:
+    #   - /opt/clearwater-logs:/var/log
     ports:
       - 22
     deploy:
@@ -118,9 +129,10 @@ services:
       clearwater_nw:
         aliases:
           - homestead
-          
     ports:
       - 22
+    # volumes:
+    #   - /opt/clearwater-logs:/var/log
     deploy:
       mode: global
       placement:
@@ -128,7 +140,6 @@ services:
          - node.labels.comp==homestead
   homestead-prov:
     image: muhammadimran/homestead-prov
-    
     environment:
       - ADDITIONAL_SHARED_CONFIG
     networks:
@@ -137,6 +148,8 @@ services:
           - homestead-prov
     ports:
       - 22
+    # volumes:
+    #   - /opt/clearwater-logs:/var/log
     deploy:
       mode: global
       placement:
@@ -152,6 +165,8 @@ services:
           - homer
     ports:
       - 22
+    # volumes:
+    #   - /opt/clearwater-logs:/var/log
     deploy:
       mode: global
       placement:
@@ -167,6 +182,8 @@ services:
           - ralf
     ports:
       - 22
+    # volumes:
+    #   - /opt/clearwater-logs:/var/log
     deploy:
       mode: global
       placement:
@@ -185,6 +202,8 @@ services:
     ports:
       - 22
       - "80:80"
+    # volumes:
+    #   - /opt/clearwater-logs:/var/log
     deploy:
       mode: global
       placement:
@@ -224,6 +243,7 @@ services:
     networks:
       - clearwater_nw
     volumes:
+      # - /opt/clearwater-logs:/var/log
       - "/opt/bitflow/sipp-stress/logs:/var/log/clearwater-sipp"
       - "/opt/bitflow/sipp-stress/config:/usr/share/clearwater/sip-stress"
     deploy:

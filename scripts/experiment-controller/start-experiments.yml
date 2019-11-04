@@ -1,0 +1,79 @@
+#!/usr/bin/env ansible-playbook
+
+- name: Prepare and start experiments
+  hosts: experiment-controller
+  vars:
+    - base_dir: experiments
+  tasks:
+    - name: Get non-existing experiment directory
+      shell: |
+        i=1
+        while [ -e "{{base_dir}}/logs-$i" ]; do i=$((i+1)); done
+        realpath "{{base_dir}}/logs-$i"
+      register: experiment_dir_command
+    - set_fact:
+        experiment_dir: "{{ experiment_dir_command.stdout }}"
+    - debug:
+        msg: "Using experiment directory: {{ experiment_dir }}"
+    - name: Create experiment directory
+      file:
+        path: "{{ experiment_dir }}"
+        state: directory
+    - name: Copy controller jar
+      copy:
+        src: experiment-controller/anomaly-experiment-controller-0.0.1-jar-with-dependencies.jar
+        dest: "{{ base_dir }}/controller.jar" # Put in base dir to avoid repeated copying
+    - name: Copy experiment configuration YML
+      copy:
+        src: experiment-controller/experiment-configuration.yml
+        dest: "{{ experiment_dir }}/experiment.yml"
+    
+    - name: Start experiment data collector
+      docker_container:
+        image: teambitflow/bitflow-collector
+        name: experiment-collector # Use fixed name so no two experiments are started at the same time
+        hostname: "{{ inventory_hostname }}"
+        state: started
+        pull: "true"
+        restart_policy: unless-stopped
+        tty: true
+        ports:
+          - "5010:5010"
+        volumes:
+          - "{{ experiment_dir }}:/data"
+        command: |
+          -XXXX # Fail on purpose for testing
+          -api :5010
+          -o /data/experiment.csv
+          -default-enable-file-output
+          -include XXX
+          -files-buf 32
+          -files-check-output 2s
+          -ci 1s
+          -si 1s
+
+    - name: Start experiment controller
+      docker_container:
+        image: openjdk:11-jre-slim
+        name: experiment-controller
+        hostname: "{{ inventory_hostname }}"
+        state: started
+        pull: "yes"
+        restart_policy: "no"
+        network_mode: host
+        tty: "yes"
+        working_dir: "/injector/logs"
+        ports:
+          - "5010:5010"
+        volumes:
+          - "{{ experiment_dir }}:/injector/logs"
+          - "{{ experiment_dir }}/../controller.jar:/injector/controller.jar"
+        command: |
+          java -jar /injector/controller.jar
+          -XXX # Fail on purpose
+          -i full.injector-experiment.yml
+          -n 5
+          -t_anomaly C5m
+          -t_load C2m
+          -auto_recovery_delay 20s
+          -c http://localhost:5010

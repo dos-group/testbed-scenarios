@@ -3,4 +3,4 @@ injector:
   image: teambitflow/anomaly-injector-agent:latest
   container_name: anomaly-injector
   api_port: 7888
-  anomaly_pool: physical # Should be defined in external variables
+  anomaly_pool: virtual # The "virtual" pool contains all anomalies. Can be overwritten in external variables.

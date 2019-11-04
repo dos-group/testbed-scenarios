@@ -2,5 +2,6 @@
 - name: Fetch data collector data from remote hosts
   synchronize:
     mode: pull
+    use_ssh_args: yes
     src: "{{ collector.path }}/data"
     dest: "{{ fetch_dir }}/{{ inventory_hostname }}/"

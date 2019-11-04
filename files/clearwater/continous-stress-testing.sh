@@ -5,7 +5,7 @@ hel() {
 }
 
 #setup scenario file
-default_scenario_file="https://raw.githubusercontent.com/bitflow-stream/testbed-scenarios/master/Clearwater/Docker/clearwater-docker/sip-stress/sip-stress_aa.xml"
+default_scenario_file="https://raw.githubusercontent.com/citlab/testbed-scenarios/master/projects/Clearwater/Docker/clearwater-docker/sip-stress/sip-stress_aa.xml"
 new_scenario_file_url=$default_scenario_file
 min_users=8000
 max_users=12000

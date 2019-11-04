@@ -1,4 +1,5 @@
 #!/bin/bash
+# This script generates the hostGroups: section of files/experiment-controller/experiment-configuration.yml
 set -e
 
 vms_component_jq_query='.hypervisor + "-" + .libvirt_id'
@@ -11,12 +12,12 @@ injector_groups=(
 
     sprout IMS "$vms_component_jq_query"
     bono IMS "$vms_component_jq_query"
-    cassandra IMS "$vms_component_jq_query"
+    cassandra IMS_NO_NET "$vms_component_jq_query"
     homer IMS "$vms_component_jq_query"
     homestead IMS "$vms_component_jq_query"
-    ralf IMS "$vms_component_jq_query"
     chronos IMS "$vms_component_jq_query"
     astaire IMS "$vms_component_jq_query"
+    #ralf IMS "$vms_component_jq_query"
     #etcd IMS "$vms_component_jq_query"
     #sippstress IMS "$vms_component_jq_query"
     #ellis IMS "$vms_component_jq_query"

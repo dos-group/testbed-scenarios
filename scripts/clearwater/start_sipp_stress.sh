@@ -41,4 +41,5 @@ done
 load_args="\"--min_users $min_users --max_users $max_users -d $duration --t_load_change $t_load_change\""
 echo $load_args
 
-ansible-playbook -i "$home/../Ansible/ansible-inventory.ini" -e "load_args=$load_args" "$home/start_sipp_stress.yml"
+"$home/start_sipp_stress.yml" -e "load_args=$load_args" 
+

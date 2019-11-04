@@ -7,33 +7,22 @@ where:
     -p|--prefix         Prefix to indentify testbed VMs and networks. Should be the same as the one used at the heat stack creation. Required option.
     --hypervisors       Generate inventory entries for hypervisor nodes. Note that you must have admin rights in OpenStack. 
                         Otherwise enabling this option will cause the script to fail.
+    --vms               Output a [vms:children] group containing all generated hosts
     -h|--help           Print this help message."
 
 function warn() { >&2 echo $@; }
 
 PREFIX=""
 GENERATE_HYPERVISOR_ENTRIES=false
+GENERATE_VMS_GROUP=false
 while [[ $# -gt 0 ]]; do
     key="$1"
     case $key in
-        -p|--prefix)
-        PREFIX="$2"
-        shift 
-        shift 
-        ;;
-        --hypervisors)
-        GENERATE_HYPERVISOR_ENTRIES=true
-        shift
-        ;;
-        -h|--help)
-        warn $usage
-        exit 0
-        ;;
-        *)    # unknown option
-        warn "Bad parametrization."
-        warn $usage
-        exit -1
-        ;;
+        -p|--prefix) PREFIX="$2"; shift 2 ;;
+        --hypervisors) GENERATE_HYPERVISOR_ENTRIES=true; shift ;;
+        --vms) GENERATE_VMS_GROUP=true; shift ;;
+        -h|--help) warn $usage; exit 0 ;;
+        *) warn "Bad parametrization."; warn $usage; exit -1 ;;
     esac
 done
 if [ -z $PREFIX ]; then
@@ -157,9 +146,10 @@ done
 for group in ${!VM_GROUPS[@]}; do
     output_group $group ${VM_GROUPS[$group]}
 done
-output_meta_group "vms:children" ${!VM_GROUPS[@]}
 
-if $GENERATE_HYPERVISOR_ENTRIES ; then
+if $GENERATE_VMS_GROUP; then
+    output_meta_group "vms:children" ${!VM_GROUPS[@]}
+fi
+if $GENERATE_HYPERVISOR_ENTRIES; then
     output_group "hypervisors" $HYPERVISORS
 fi
-

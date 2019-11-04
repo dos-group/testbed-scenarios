@@ -1,0 +1,59 @@
+#!/usr/bin/env ansible-playbook
+
+# The variable 'fetch_dir' or 'fetch_dir_base' can be defined on the command line like so:
+# ansible-playbook fetch-data.yml -e fetch_dir=DIR
+
+- name: Select fetch target dir, if not specified, and create it
+  gather_facts: false
+  hosts: all
+  run_once: true
+  tasks:
+    - set_fact:
+        fetch_dir_base: "$HOME/fetched-data"
+      when: fetch_dir is undefined and fetch_dir_base is undefined
+    - name: Find non-existing directory to fetch data into
+      delegate_to: localhost
+      shell: |
+        fetch_dir_base="{{ fetch_dir_base }}"
+        i=1
+        while [ -e "$fetch_dir_base/$i"* ]; do i=$((i+1)); done
+        realpath "$fetch_dir_base/$i"
+      register: fetch_dir_selection
+      when: fetch_dir is undefined
+    - set_fact:
+        fetch_dir: "{{ fetch_dir_selection.stdout }}"
+      when: fetch_dir is undefined
+    - debug:
+        msg: "Fetching data to local directory: {{ fetch_dir }}"
+    - delegate_to: localhost
+      file:
+        path: "{{ fetch_dir }}"
+        state: directory
+
+- name: Fetch data collector data from remote hosts
+  hosts: zerops-collector
+  tasks:
+    - include_role:
+        name: ../../roles/zerops-collector
+        tasks_from: fetch-data
+
+- name: Fetch sippstress statistics data
+  hosts: sippstress
+  tasks:
+    - file:
+        path: "{{ sipp.load_log_dir }}/sip-stress.1.out"
+        state: absent
+    - synchronize:
+        mode: pull
+        use_ssh_args: yes
+        src: "{{ sipp.load_log_dir }}"
+        dest: "{{ fetch_dir }}/{{ inventory_hostname }}/"
+
+- name: Fetch vod client statistics data
+  hosts: client
+  tasks:
+    - synchronize:
+        mode: pull
+        use_ssh_args: yes
+        src: "{{ rtmp.client_log_dir }}"
+        dest: "{{ fetch_dir }}/{{ inventory_hostname }}/"
