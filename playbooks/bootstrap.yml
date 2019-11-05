@@ -14,9 +14,9 @@
         name: "{{ bootstrap_packages }}"
         state: present
         update_cache: yes
-  #roles:
-  #  - ../roles/docker
-  #  - ../roles/docker-compose
+  roles:
+    - ../roles/docker
+    - ../roles/docker-compose
 
 # TODO?
 # echo -e 'Acquire::http::Timeout "20";\nAcquire::ftp::Timeout "10";' > /etc/apt/apt.conf.d/99timeout

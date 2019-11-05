@@ -10,4 +10,7 @@ for i in $@; do
     "$home/scripts/generate-project-inventory.sh" -p "$i" >> "$home/ansible-inventory.ini"
 done
 
+"$home/scripts/generate-project-inventory.sh" --hypervisors >> "$home/ansible-inventory.ini"
+
 test -f "$home/ansible-inventory-extra.ini" && cat "$home/ansible-inventory-extra.ini" >> "$home/ansible-inventory.ini"
+

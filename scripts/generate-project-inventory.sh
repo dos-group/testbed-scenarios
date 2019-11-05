@@ -25,11 +25,6 @@ while [[ $# -gt 0 ]]; do
         *) warn "Bad parametrization."; warn $usage; exit -1 ;;
     esac
 done
-if [ -z $PREFIX ]; then
-    warn "Need -p|--prefix parameter: Prefix to identify VMs and networks to use." 
-    warn $usage
-    exit 1
-fi
 
 function output_group() {
     NAME="$1"
@@ -40,7 +35,9 @@ function output_group() {
     else
         local HOST_TYPE="vm"
     fi
-    for host in $@; do
+
+    sorted_hosts=$(echo $@ | tr  [:space:] '\n' | sort -V)
+    for host in $sorted_hosts; do
         local PUBLIC_IP="${PUBLIC_IPS[$host]}"
         local PRIVATE_IP="${PRIVATE_IPS[$host]}"
 		local ZONE="${ZONES[$host]}"
@@ -93,54 +90,56 @@ while read -r hy_zone; do
 	ZONES["${hz[0]}"]="${hz[1]}"
 done < <(echo "$HOST_INFO" | jq -rM '.[] | select(."Zone" != "internal") | ."Host Name" + " " + ."Zone"')
 
-warn "Querying list of VMs named '$PREFIX*'..."
-VM_IDS=$(openstack server list --name "^$PREFIX.*" -f json -c ID | jq -rM '.[].ID')
-for ID in $VM_IDS; do
-    warn "Querying info of VM '$ID'..."
-    INFO=$(openstack server show "$ID" -f json -c name -c addresses -c properties -c OS-EXT-AZ:availability_zone -c OS-EXT-SRV-ATTR:host -c OS-EXT-SRV-ATTR:instance_name)
+if [ -n "$PREFIX" ]; then
+    warn "Querying list of VMs named '$PREFIX*'..."
+    VM_IDS=$(openstack server list --name "^$PREFIX.*" -f json -c ID | jq -rM '.[].ID')
+    for ID in $VM_IDS; do
+        warn "Querying info of VM '$ID'..."
+        INFO=$(openstack server show "$ID" -f json -c name -c addresses -c properties -c OS-EXT-AZ:availability_zone -c OS-EXT-SRV-ATTR:host -c OS-EXT-SRV-ATTR:instance_name)
 
-	#Get VM name
-    NAME=$(echo "$INFO" | jq -rM .name)
-	# Get availability zone of VM
-	ZONE=$(echo "$INFO" | jq -rM '."OS-EXT-AZ:availability_zone"')
-    # Get hypervisor of VM
-    HYPERVISOR=$(echo "$INFO" | jq -rM '."OS-EXT-SRV-ATTR:host"')
-    # Get Libvirt ID of VM
-    LIBVIRT_ID=$(echo "$INFO" | jq -rM '."OS-EXT-SRV-ATTR:instance_name"')
-    
-    # Easiest hack to parse the stupid OpenStack metadata properties format: replace comma with semicolon and eval in a subshell
-    # Example: stack='video-server-5', xxx='yyy'
-    META=$(echo "$INFO" | jq -rM .properties)
-    VM_GROUP=$(eval $(echo "$META" | sed "s/,/;/g"); echo "$group")
-    test -z "$VM_GROUP" && {
-        warn "No 'group' metadata found for VM '$NAME'. Using 'default' group."
-        VM_GROUP="default"
-    }
+        #Get VM name
+        NAME=$(echo "$INFO" | jq -rM .name)
+        # Get availability zone of VM
+        ZONE=$(echo "$INFO" | jq -rM '."OS-EXT-AZ:availability_zone"')
+        # Get hypervisor of VM
+        HYPERVISOR=$(echo "$INFO" | jq -rM '."OS-EXT-SRV-ATTR:host"')
+        # Get Libvirt ID of VM
+        LIBVIRT_ID=$(echo "$INFO" | jq -rM '."OS-EXT-SRV-ATTR:instance_name"')
+        
+        # Easiest hack to parse the stupid OpenStack metadata properties format: replace comma with semicolon and eval in a subshell
+        # Example: stack='video-server-5', xxx='yyy'
+        META=$(echo "$INFO" | jq -rM .properties)
+        VM_GROUP=$(eval $(echo "$META" | sed "s/,/;/g"); echo "$group")
+        test -z "$VM_GROUP" && {
+            warn "No 'group' metadata found for VM '$NAME'. Using 'default' group."
+            VM_GROUP="default"
+        }
 
-    # Example output: "private-net=10.0.0.11, 10.0.42.65; other-net=192.168.0.11"
-    # Most likely, the first IP address is the private one, the second is public
-    NETWORKS=$(echo "$INFO" | jq -rM .addresses)
-    PRIVATE_IP=""
-    PUBLIC_IP=""
-    MYIFS="${IFS},=" # Treat '=' and ',' like white space for simpler processing
-    while IFS="$MYIFS" read -d ';' net_name ip1 ip2 remainder; do
-        if [[ "$net_name" = $PREFIX* ]]; then
-            PRIVATE_IP="$ip1"
-            PUBLIC_IP="$ip2"
-            break
-        fi
-    done <<< "${NETWORKS};" # Append a semicolon to enable 'read' to process the last (and possibly only) entry
-    test -z "$PUBLIC_IP" && { echo "Private & public IPs not found for VM '$NAME' in network named '$PREFIX*', skipping VM. Network info: $NETWORKS"; continue; }
+        # Example output: "private-net=10.0.0.11, 10.0.42.65; other-net=192.168.0.11"
+        # Most likely, the first IP address is the private one, the second is public
+        NETWORKS=$(echo "$INFO" | jq -rM .addresses)
+        PRIVATE_IP=""
+        PUBLIC_IP=""
+        MYIFS="${IFS},=" # Treat '=' and ',' like white space for simpler processing
+        while IFS="$MYIFS" read -d ';' net_name ip1 ip2 remainder; do
+            if [[ "$net_name" = $PREFIX* ]]; then
+                PRIVATE_IP="$ip1"
+                PUBLIC_IP="$ip2"
+                break
+            fi
+        done <<< "${NETWORKS};" # Append a semicolon to enable 'read' to process the last (and possibly only) entry
+        test -z "$PUBLIC_IP" && { echo "Private & public IPs not found for VM '$NAME' in network named '$PREFIX*', skipping VM. Network info: $NETWORKS"; continue; }
 
-    # Do these assignments only after all above checks have passed
-    VM_GROUPS[$VM_GROUP]="${VM_GROUPS[$VM_GROUP]} $NAME"
-    ALL_VMS="$ALL_VMS $NAME"
-    PUBLIC_IPS[$NAME]="$PUBLIC_IP"
-    PRIVATE_IPS[$NAME]="$PRIVATE_IP"
-	ZONES[$NAME]=$ZONE
-    HYPERVISOR_LIST[$NAME]=$HYPERVISOR
-    LIBVIRT_IDS[$NAME]=$LIBVIRT_ID
-done
+        # Do these assignments only after all above checks have passed
+        VM_GROUPS[$VM_GROUP]="${VM_GROUPS[$VM_GROUP]} $NAME"
+        ALL_VMS="$ALL_VMS $NAME"
+        PUBLIC_IPS[$NAME]="$PUBLIC_IP"
+        PRIVATE_IPS[$NAME]="$PRIVATE_IP"
+        ZONES[$NAME]=$ZONE
+        HYPERVISOR_LIST[$NAME]=$HYPERVISOR
+        LIBVIRT_IDS[$NAME]=$LIBVIRT_ID
+    done
+fi
 
 # Create sections for VM_GROUPS
 for group in ${!VM_GROUPS[@]}; do
