@@ -1,13 +1,13 @@
 #!/usr/bin/env ansible-playbook
 
 - name: Bootstrap Python
-  hosts: all
+  hosts: vms:hypervisors:bastion
   gather_facts: false
   roles:
     - ../roles/bootstrap
 
-- name: Install packages and Docker
-  hosts: all
+- name: Install apt packages and docker
+  hosts: vms:hypervisors:bastion
   tasks:
     - name: Install required packages with apt
       apt:

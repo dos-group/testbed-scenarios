@@ -42,7 +42,6 @@
         volumes:
           - "{{ experiment_dir }}:/data"
         command: |
-          -XXXX # Fail on purpose for testing
           -api :5010
           -o /data/experiment.csv
           -default-enable-file-output
@@ -70,10 +69,10 @@
           - "{{ experiment_dir }}/../controller.jar:/injector/controller.jar"
         command: |
           java -jar /injector/controller.jar
-          -XXX # Fail on purpose
-          -i full.injector-experiment.yml
+          -i ./experiment.yml
           -n 5
-          -t_anomaly C5m
-          -t_load C2m
+          -t_anomaly C1s
+          -t_load C1s
           -auto_recovery_delay 20s
           -c http://localhost:5010
+          -run_mock_mode
