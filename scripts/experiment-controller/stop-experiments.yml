@@ -1,1 +1,14 @@
 #!/usr/bin/env ansible-playbook
+
+- name: Prepare and start experiments
+  hosts: experiment-controller
+  tasks:
+    - name: Stop experiment data collector
+      docker_container:
+        name: experiment-collector # Use fixed name so no two experiments are started at the same time
+        state: absent
+    - name: Stop experiment controller
+      docker_container:
+        name: experiment-controller
+        state: absent
+

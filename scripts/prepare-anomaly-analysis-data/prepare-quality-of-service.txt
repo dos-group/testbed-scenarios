@@ -1,0 +1,27 @@
+
+# Parse the target tag with the experimental plugin
+bitflow-pipeline -files-robust -p ~/software/go/go-bitflow-plugins/bitflow-plugin-experiments/bitflow-plugin-experiments experiment.csv ' -> split_target_tag() -> experiment-parsed-target-tag.bin'
+
+# VOD client data:
+bitflow-pipeline -files-robust $(find -type f) ' -> batch() { sort() } -> batch(flush-time-diff=5s) { aggregate(type=avg) } -> aggregated.bin'
+bitflow-pipeline '{ aggregated.bin -> tags(tags={type=client}) ; ../experiment-controller/experiment-parsed-target-tag.bin -> tags(tags={type=ref}) } -> synchronize_tags(num=1, identifier=type, reference=ref) -> filter(expr=`has_tag("anomaly") && tag("type")=="client"`) -> annotated.bin'
+
+bitflow-pipeline annotated.bin ' -> { remap(header=[openConnections]) -> plot(file=streams.png, color=anomaly) ; remap(header=[bytes/s]) -> plot(file=throughput.png, color=anomaly) ; remap(header=[bytes/pixel]) -> drop-invalid() -> plot(file=quality.png, color=anomaly) }'
+
+
+# SIPP client:
+cat $(find -type f -name '*_counts.csv') | sed 's/.$//' | bitflow-pipeline -p ~/software/go/go-bitflow-plugins/bitflow-plugin-experiments/bitflow-plugin-experiments sipp://- ' -> merge-sipp-header() -> batch() { sort() } -> slope(windowSize=1) -> include(m='_slope$') -> rename(metrics = {"_slope$" = ""}) -> aggregated.bin'
+
+
+cat $(find -type f -name '*_counts.csv') | sed 's/.$//' | bitflow-pipeline -p ~/software/go/go-bitflow-plugins/bitflow-plugin-experiments/bitflow-plugin-experiments sipp://- ' -> merge-sipp-header() -> batch() { sort() } -> aggregated.bin'
+
+
+cat $(find -type f -name '*_counts.csv') | sed 's/.$//' | bitflow-pipeline -p ~/software/go/go-bitflow-plugins/bitflow-plugin-experiments/bitflow-plugin-experiments sipp://- ' -> merge-sipp-header() -> fork_tag batch() { sort() } -> slope(windowSize=1) -> aggregated.bin'
+
+bitflow-pipeline '{ aggregated.bin -> tags(tags={type=client}) ; ../experiment-controller/experiment-parsed-target-tag.bin -> tags(tags={type=ref}) } -> synchronize_tags(num=1, identifier=type, reference=ref) -> filter(expr=`has_tag("anomaly") && tag("type")=="client"`) -> annotated.bin'
+
+bitflow-pipeline annotated.bin ' -> { remap(header=[good]) -> plot(file=good.png, color=anomaly) ; remap(header=[bad]) -> plot(file=bad.png, color=anomaly) ; remap(header=[ignore]) -> plot(file=ignore.png, color=anomaly) ; remap(header=[other]) -> plot(file=other.png, color=anomaly) }'
+
+bitflow-pipeline annotated.bin ' -> { remap(header=[good]) -> plot(file=good.png) ; remap(header=[bad]) -> plot(file=bad.png) ; remap(header=[ignore]) -> plot(file=ignore.png) ; remap(header=[other]) -> plot(file=other.png) }'
+
+bitflow-pipeline -p ~/software/go/go-bitflow-plugins/bitflow-plugin-experiments/bitflow-plugin-experiments sorted-0.bin ' -> add-sipp-stress(threshold=0.001, reference-metric=0) -> head(num=20000) -> remap(header=[good]) -> plot(file=good.png)'

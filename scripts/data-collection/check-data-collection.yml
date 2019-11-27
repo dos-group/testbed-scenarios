@@ -14,3 +14,12 @@
     max_file_age_seconds: 300
   tasks:
     - include_tasks: ../../ansible-common/check-output-directory.yml
+
+- name: Check data output of VOD clients
+  hosts: client
+  vars:
+    output_check_directory: "{{ rtmp.client_log_dir }}"
+    max_file_age_seconds: 300
+  tasks:
+    - include_tasks: ../../ansible-common/check-output-directory.yml
+

@@ -25,10 +25,8 @@ injector_groups=(
     #homesteadprov IMS "$vms_component_jq_query"
 
     #hypervisors HYPERVISORS ""
-    wally196 HYPERVISORS ""
-    wally180 HYPERVISORS ""
-    wally194 HYPERVISORS ""
-    wally179 HYPERVISORS ""
+    wally193 HYPERVISORS ""
+    wally178 HYPERVISORS ""
 )
 
 i=0
@@ -43,8 +41,10 @@ while [ $i -lt ${#injector_groups[@]} ]; do
     anomalyGroups: *$anomaly_group
     endpoints:"
 
-    ansible_hosts=$(ansible "$ansible_group" --list-hosts | sort | tail +2)
+    ansible_hosts=$(ansible "$ansible_group" --list-hosts | tail -n +2)
+    1>&2 echo "Hosts for group '$ansible_group': " $ansible_hosts
     for host in $ansible_hosts; do
+        1>&2 echo "Querying info for host '$host'"
         info=$(ansible-inventory --host "$host")
 
         port=$(echo "$info" | jq -r .injector.api_port)
@@ -60,6 +60,6 @@ while [ $i -lt ${#injector_groups[@]} ]; do
         name: $host
         endpoint: http://$(echo "$info" | jq -r .ansible_host):$port
         component: $component"
-
     done
 done
+
