@@ -6,17 +6,17 @@ vms_component_jq_query='.hypervisor + "-" + .libvirt_id'
 
 declare -a injector_groups
 injector_groups=(
-    load-balancer VOD "$vms_component_jq_query"
-    backend VOD "$vms_component_jq_query"
+    #load-balancer VOD "$vms_component_jq_query"
+    #backend VOD "$vms_component_jq_query"
     #client VOD "$vms_component_jq_query"
 
-    sprout IMS "$vms_component_jq_query"
-    bono IMS "$vms_component_jq_query"
-    cassandra IMS_NO_NET "$vms_component_jq_query"
-    homer IMS "$vms_component_jq_query"
-    homestead IMS "$vms_component_jq_query"
-    chronos IMS "$vms_component_jq_query"
-    astaire IMS "$vms_component_jq_query"
+    #sprout IMS "$vms_component_jq_query"
+    #bono IMS "$vms_component_jq_query"
+    #cassandra IMS_NO_NET "$vms_component_jq_query"
+    #homer IMS "$vms_component_jq_query"
+    #homestead IMS "$vms_component_jq_query"
+    #chronos IMS "$vms_component_jq_query"
+    #astaire IMS "$vms_component_jq_query"
     #ralf IMS "$vms_component_jq_query"
     #etcd IMS "$vms_component_jq_query"
     #sippstress IMS "$vms_component_jq_query"
@@ -27,6 +27,8 @@ injector_groups=(
     #hypervisors HYPERVISORS ""
     wally193 HYPERVISORS ""
     wally178 HYPERVISORS ""
+    #wally196 HYPERVISORS ""
+    #wally180 HYPERVISORS ""
 )
 
 i=0

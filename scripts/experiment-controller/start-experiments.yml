@@ -71,8 +71,8 @@
           java -jar /injector/controller.jar
           -i experiment.yml
           -n 5
-          -t_anomaly C5m
-          -t_load C2m
+          -t_anomaly C1s
+          -t_load C1s
           -auto_recovery_delay 20s
           -c http://localhost:5010
 

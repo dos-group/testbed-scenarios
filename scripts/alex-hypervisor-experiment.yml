@@ -1,0 +1,14 @@
+  - name: wally195
+    anomalyGroups: *HYPERVISORS
+    endpoints:
+      - !!anomaly.experiment.controller.objects.Endpoint
+        name: wally195
+        endpoint: http://wally195.cit.tu-berlin.de:7888
+        component: wally195
+  - name: wally192
+    anomalyGroups: *HYPERVISORS
+    endpoints:
+      - !!anomaly.experiment.controller.objects.Endpoint
+        name: wally192
+        endpoint: http://wally192.cit.tu-berlin.de:7888
+        component: wally192
