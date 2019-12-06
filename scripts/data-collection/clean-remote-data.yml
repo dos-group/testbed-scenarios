@@ -20,7 +20,7 @@
 - name: Delete SIPP logs
   hosts: sippstress
   vars:
-    cleaned_directory: "{{ sipp.load_log_dir }}"
+    cleaned_directory: "{{ sipp.output_dir }}"
   tasks:
     - include_tasks: ../../ansible-common/clean-directory-contents.yml
       become: true

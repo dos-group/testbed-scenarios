@@ -41,12 +41,12 @@
   hosts: sippstress
   tasks:
     - file:
-        path: "{{ sipp.load_log_dir }}/sip-stress.1.out"
+        path: "{{ sipp.output_dir }}/sip-stress.1.out"
         state: absent
     - synchronize:
         mode: pull
         use_ssh_args: yes
-        src: "{{ sipp.load_log_dir }}"
+        src: "{{ sipp.output_dir }}"
         dest: "{{ fetch_dir }}/{{ inventory_hostname }}/"
 
 - name: Fetch vod client statistics data

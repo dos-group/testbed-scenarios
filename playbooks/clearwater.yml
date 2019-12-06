@@ -40,8 +40,8 @@
         path: "{{ item }}"
         state: directory
       with_items:
-        - "{{ sipp.load_log_dir }}"
-        - "{{ sipp.load_config_dir }}"
+        - "{{ sipp.output_dir }}"
+        - "{{ sipp.base_dir }}/config"
 
 - name: Create Cassandra data directory
   hosts:
@@ -55,16 +55,9 @@
 - name: Bootstrap docker swarm cluster
   hosts: swarm_manager[0]
   become: yes
-  vars:
-    dockerfile_local: "./files/clearwater/{{ docker_file }}"
-    dockerfile_remote: "~/{{ docker_file }}"
   tasks:
-    - name: Copy docker compose file from local to remote host
-      copy:
-        src: "{{ dockerfile_local }}"
-        dest: "{{ dockerfile_remote }}"
-    - include_tasks: ../ansible-common/docker_swarm/bootstrap_swarm_cluster.yml
-    - include_tasks: ../ansible-common/docker_swarm/retrieve_join_tokens.yml
+    - include_tasks: docker-swarm/bootstrap_swarm_cluster.yml
+    - include_tasks: docker-swarm/retrieve_join_tokens.yml
     - set_fact: swarm_manager_token={{ swarm_manager_token }}
     - set_fact: swarm_worker_token={{ swarm_worker_token }}
 
@@ -72,17 +65,11 @@
   hosts: swarm_manager[1:]
   become: yes
   vars:
-    dockerfile_local: "./files/clearwater/{{ docker_file }}"
-    dockerfile_remote: "~/{{ docker_file }}"
     token_host: "{{ hostvars[inventory_hostname]['groups']['swarm_manager'][0] }}"
     token: "{{ hostvars[token_host]['swarm_manager_token'] }}"
     manager_ip: "{{ hostvars[token_host]['private_ip'] }}"
   tasks:
-    - name: Copy docker compose file from local to remote host
-      copy:
-        src: "{{ dockerfile_local }}"
-        dest: "{{ dockerfile_remote }}"
-    - include_tasks: ../ansible-common/docker_swarm/join_swarm.yml    
+    - include_tasks: docker-swarm/join_swarm.yml    
 
 - name: Join docker swarm worker nodes
   hosts:
@@ -93,20 +80,30 @@
     token: "{{ hostvars[token_host]['swarm_worker_token'] }}"
     manager_ip: "{{ hostvars[token_host]['private_ip'] }}"
   tasks:
-    - include_tasks: ../ansible-common/docker_swarm/join_swarm.yml
+    - include_tasks: docker-swarm/join_swarm.yml
 
 - name: Deploy docker swarm services
   hosts:
     - swarm_manager
   become: yes
   vars:
-    docker_file_path: "~/{{ docker_file }}"
+    docker_file: "docker-compose.yaml" # File name on the remote host
+    stack_name: "cw"
   environment:
-    ADDITIONAL_SHARED_CONFIG: "{{ shared_config }}"
+    ADDITIONAL_SHARED_CONFIG: "diameter_timeout_ms=600\nsprout_homestead_timeout_ms=550\nralf_threads=300\ndns_timeout=400"
   tasks:
-    - include_tasks: ../ansible-common/docker_swarm/set_leader_fact.yml
+    - name: Copy docker compose file from local to remote host
+      copy:
+        src: "clearwater/docker-compose.yaml"
+        dest: "{{ docker_file }}"
+
+    - name: Determine docker swarm manager node leader status
+      shell: "docker node inspect self -f '{{ '{{' }} .ManagerStatus.Leader {{ '}}' }}'"
+      register: leader_status
+    - set_fact: leader={{ leader_status.stdout }}
     - debug: msg={{ leader }}
-    - include_tasks: ../ansible-common/docker_swarm/set_hostname_label.yml
+    
+    - include_tasks: docker-swarm/set_hostname_label.yml
       when: leader
-    - include_tasks: ../ansible-common/docker_swarm/deploy_docker_swarm_services.yml
+    - include_tasks: docker-swarm/deploy_docker_swarm_services.yml
       when:  leader

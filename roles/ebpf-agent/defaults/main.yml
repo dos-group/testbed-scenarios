@@ -1,0 +1,4 @@
+
+ebpf_agent:
+    image: teambitflow/ebpf-prometheus-agent
+    container_name: ebpf-agent

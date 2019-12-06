@@ -4,4 +4,8 @@
   hosts: all
   tags: [ docker ]
   tasks:
-    - include_tasks: ../../Common/Ansible/restart-docker-tasks.yml
+    - name: Restart docker daemon
+      become: true
+      service:
+        name: docker
+        state: restarted

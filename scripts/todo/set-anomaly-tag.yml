@@ -5,5 +5,9 @@
   vars:
     anomaly_name: "cw-cassandra_node-0.ims4|corrupt_db"
   tasks:
-    - include_tasks: ../../Common/Ansible/set-anomaly-tag.yml
-
+    - name: Set collector anomaly tag
+      uri:
+        url: "{{ item }}"
+        method: PUT
+      with_items:
+        - "http://0.0.0.0:{{ collector.api_port }}/api/tags?target={{ anomaly_name }}"

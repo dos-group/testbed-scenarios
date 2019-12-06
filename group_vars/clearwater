@@ -1,19 +1,4 @@
 
-docker_file: "docker-compose.yaml"
-stack_name: "cw"
-
 sipp:
-  load_log_dir: /opt/bitflow/sipp-stress/logs
-  load_config_dir: /opt/bitflow/sipp-stress/config
-  load_script_args: "--min_users 8000 --max_users 9000 -d 36000 --t_load_change 1200"
-
-local_sip_stress_script: "clearwater/continous-stress-testing.sh"
-remote_sip_stress_script: "/opt/bitflow/sipp-stress/continous-stress-testing.sh"
-container_remote_sip_stress_script: "/usr/share/clearwater/bin/continous-stress-testing"
-
-local_sip_stress_run: "clearwater/sip-stress-infinite-pass"
-remote_sip_stress_run: "/opt/bitflow/sipp-stress/sip-stress-infinite-pass"
-container_remote_sip_stress_run: "/usr/share/clearwater/bin/sip-stress"
-
-# Docker Swarm config 
-shared_config: "diameter_timeout_ms=600\nsprout_homestead_timeout_ms=550\nralf_threads=300\ndns_timeout=400"
+  base_dir: /opt/bitflow/sipp-stress
+  output_dir: "{{ sipp.base_dir }}/logs"

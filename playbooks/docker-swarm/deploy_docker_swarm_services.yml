@@ -1,0 +1,3 @@
+
+- name: deploying docker swarm services
+  shell: docker stack deploy -c {{ docker_file }} {{ stack_name }} --with-registry-auth

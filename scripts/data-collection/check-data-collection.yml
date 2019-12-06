@@ -10,7 +10,7 @@
 - name: Check sipp data output
   hosts: sippstress
   vars:
-    output_check_directory: "{{ sipp.load_log_dir }}"
+    output_check_directory: "{{ sipp.output_dir }}"
     max_file_age_seconds: 300
   tasks:
     - include_tasks: ../../ansible-common/check-output-directory.yml

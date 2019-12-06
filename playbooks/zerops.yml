@@ -17,8 +17,8 @@
   roles:
     - ../roles/docker-events-exposer
 
-# TODO turn this into a role
-#tasks:
-#- include_tasks: ../../Common/Ansible/ebpf-agent-tasks.yml
-#      tags: [ docker, ebpf-agent ]
-#      become: true
+# TODO test this role/container and add the host-group
+- name: Install eBPF agent
+  hosts: ebpf-agent
+  roles:
+    - ../roles/ebpf-agent
