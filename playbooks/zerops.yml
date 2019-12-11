@@ -18,7 +18,7 @@
     - ../roles/docker-events-exposer
 
 # TODO test this role/container and add the host-group
-- name: Install eBPF agent
-  hosts: ebpf-agent
-  roles:
-    - ../roles/ebpf-agent
+#- name: Install eBPF agent
+#  hosts: ebpf-agent
+#  roles:
+#    - ../roles/ebpf-agent

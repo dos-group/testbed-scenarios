@@ -2,13 +2,13 @@
 - name: Run ebpf-agent docker container
   tags: [ docker, ebpf-agent ]
   docker_container:
-  name: "{{ ebpf_agent.container_name }}"
-  image: "{{ ebpf_agent.image }}"
-  pull: true
-  pid_mode: host
-  network_mode: host
-  privileged: yes
-  volumes:
-    - "/lib/modules:/lib/modules"
-    - "/usr/src:/usr/src" 
-    - "/sys:/sys"
+    name: "{{ ebpf_agent.container_name }}"
+    image: "{{ ebpf_agent.image }}"
+    pull: true
+    pid_mode: host
+    network_mode: host
+    privileged: yes
+    volumes:
+      - "/lib/modules:/lib/modules"
+      - "/usr/src:/usr/src" 
+      - "/sys:/sys"

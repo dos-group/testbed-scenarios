@@ -23,7 +23,7 @@
     state: started
     pid_mode: host
     network_mode: host
-    pull: "true"
+    pull: true
     privileged: "yes"
     restart_policy: always
     ports:
