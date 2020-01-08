@@ -1,4 +1,4 @@
 
 sipp:
   base_dir: /opt/bitflow/sipp-stress
-  output_dir: "{{ sipp.base_dir }}/logs"
+  output_dir: "/opt/bitflow/sipp-stress/logs"
