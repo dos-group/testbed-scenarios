@@ -40,6 +40,7 @@
         ports:
           - "5010:5010"
         volumes:
+          - "/etc/localtime:/etc/localtime:ro"
           - "{{ experiment_dir }}:/data"
         command: |
           -api :5010
@@ -67,12 +68,13 @@
         volumes:
           - "{{ experiment_dir }}:/injector/logs"
           - "{{ experiment_dir }}/../controller.jar:/injector/controller.jar"
+          - "/etc/localtime:/etc/localtime:ro"
         command: |
           java -jar /injector/controller.jar
           -i experiment.yml
-          -n 5
-          -t_anomaly C1s
-          -t_load C1s
+          -n 10
+          -t_anomaly C5m
+          -t_load C10m
           -auto_recovery_delay 20s
           -c http://localhost:5010
 

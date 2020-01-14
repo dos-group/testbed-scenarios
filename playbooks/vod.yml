@@ -45,6 +45,7 @@
         restart_policy: always
         volumes:
           - "{{ rtmp.server_video_dir }}:{{ rtmp.server_video_dir_mounted }}"
+          - "/etc/localtime:/etc/localtime:ro"
         ports:
           # The container ports are hardcoded because they cannot be configured
           - "{{ rtmp.backend_http_port }}:8080"
@@ -63,6 +64,7 @@
         restart_policy: always
         volumes:
           - "/dev/log:/dev/log"
+          - "/etc/localtime:/etc/localtime:ro"
         ports:
           - "{{ rtmp.port }}:{{ rtmp.port }}"
           - "{{ rtmp.balancer_stats_port }}:{{ rtmp.balancer_stats_port }}"
@@ -82,6 +84,12 @@
         image: antongulenko/stream-statistics-client:antontest
         pull: true
         restart_policy: always
+        volumes:
+          - "{{ rtmp.client_log_dir }}:{{ rtmp.client_log_dir_mounted }}"
+          - "/etc/localtime:/etc/localtime:ro"
+        ports:
+          - "{{ rtmp.client_data_port }}:{{ rtmp.client_data_port }}"
+          - "{{ rtmp.client_api_port }}:{{ rtmp.client_api_port }}"
         command: |
             -n 0
             -o {{ rtmp.client_log_dir_mounted }}/{{ rtmp.client_log_file }}
@@ -97,8 +105,4 @@
             "rtmp://{{ hostvars[host]['private_ip'] }}:{{ rtmp.port }}/vod/{{ rtmp.server_video_file_prefix }}-{{ video['name'] }}-{{ video['size'] }}mb-{{ video['resolution'] }}-{{ '{{' }}{{ 1 }} {{ rtmp.server_number_local_video_file_copies }}{{ '}}' }}.{{ video['format'] }}?pixels={{ video['pixel'] }}"
             {% endfor %}
             {% endfor %}
-        volumes:
-          - "{{ rtmp.client_log_dir }}:{{ rtmp.client_log_dir_mounted }}"
-        ports:
-          - "{{ rtmp.client_data_port }}:{{ rtmp.client_data_port }}"
-          - "{{ rtmp.client_api_port }}:{{ rtmp.client_api_port }}"
+

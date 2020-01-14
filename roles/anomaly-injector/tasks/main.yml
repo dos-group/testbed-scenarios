@@ -16,8 +16,10 @@
       pull: "true"
       privileged: "yes"
       restart_policy: always
+      volumes:
+        - /etc/localtime:/etc/localtime:ro
       ports:
-      - "{{ injector.api_port }}:{{ injector.api_port }}"
+        - "{{ injector.api_port }}:{{ injector.api_port }}"
       command: [
           "-api-port", "{{ injector.api_port }}",
           "-host", "{{ inventory_hostname }}",

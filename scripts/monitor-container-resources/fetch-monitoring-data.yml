@@ -1,0 +1,20 @@
+#!/usr/bin/env ansible-playbook
+
+# The variable 'fetch_dir' must be defined on the command line like so:
+# ansible-playbook fetch-monitoring-data.yml -e fetch_dir=DIR
+
+- name: Fetch container resource usage data
+  hosts:
+    - zerops-collector
+    - kubernetes
+  tasks:
+    - delegate_to: localhost
+      file:
+        path: "{{ fetch_dir }}/container-resource-usage/{{ inventory_hostname }}/"
+        state: directory
+    - synchronize:
+        mode: pull
+        use_ssh_args: yes
+        src: "/opt/monitor-container-resource/usage"
+        dest: "{{ fetch_dir }}/container-resource-usage/{{ inventory_hostname }}/"
+

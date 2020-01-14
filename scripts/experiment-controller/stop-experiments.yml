@@ -1,6 +1,6 @@
 #!/usr/bin/env ansible-playbook
 
-- name: Prepare and start experiments
+- name: Stop experiment controller and collector containers
   hosts: experiment-controller
   tasks:
     - name: Stop experiment data collector

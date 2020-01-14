@@ -1,0 +1,17 @@
+#!/bin/bash
+# This script should be placed in /etc/cron.hourly with execute permissions.
+
+# Delete all files older than 2 hours in the /var/log directories of all clearwater services.
+/usr/bin/find /var/lib/docker/overlay2 \
+    -mmin +120 -type f \
+    -path '*/*/var/log/*/*Z.txt' \
+    -print -delete |& tee -a /var/log/clean-clearwater-files.log
+
+# Logrotate Nginx logs (only exists on some containers)
+for container in $(docker ps -q --filter 'name=cw_*'); do
+    docker exec -ti "$container" logrotate --force /etc/logrotate.d/nginx
+done
+
+# Cleanup old Docker containers/volumes etc.
+docker system prune -f
+

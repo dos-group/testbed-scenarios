@@ -18,6 +18,8 @@
         recreate: true
         ports:
           - "{{ aggregation_port }}:{{ aggregation_port }}"
+        volumes:
+          - /etc/localtime:/etc/localtime:ro
         command: |
           {% for host in groups['client'] %}
           {{ hostvars[host]['ansible_host'] }}:{{ rtmp.client_data_port }}

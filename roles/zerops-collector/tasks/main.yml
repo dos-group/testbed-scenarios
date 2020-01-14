@@ -32,6 +32,7 @@
     volumes:
       - "{{ collector.libvirt.socket }}:{{ collector.libvirt.socket_mounted }}"
       - "{{ collector.path }}:{{ collector.path_mounted }}"
+      - "/etc/localtime:/etc/localtime:ro"
     # The component tag is created in the notify-zerops.bf script and results in a separate folder for each VM and hypervisor
     command: |
       -files-buf 256

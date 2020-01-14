@@ -1,0 +1,11 @@
+#!/usr/bin/env ansible-playbook
+
+- name: Stop monitoring container resource usage
+  hosts:
+    - zerops-collector
+    - kubernetes
+  tasks:
+    - docker_container:
+        name: monitor-container-resource-usage
+        state: absent
+

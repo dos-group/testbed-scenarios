@@ -1,0 +1,71 @@
+#!/usr/bin/env ansible-playbook
+
+- name: Collect resource usage metrics of local docker containers
+  hosts:
+  - zerops-collector
+  tasks:
+  - file:
+      path: /opt/monitor-container-resource/usage
+      state: directory
+  - become: true
+    ignore_errors: yes
+    docker_container:
+      image: docker
+      name: monitor-container-resource-usage
+      pull: true
+      recreate: true
+      privileged: true
+      restart_policy: always
+      volumes:
+          - /var/run/docker.sock:/var/run/docker.sock
+          - /opt/monitor-container-resource/usage:/output-data
+          - /etc/localtime:/etc/localtime:ro
+      entrypoint: sh
+      command: |
+          -c '
+          while true; do
+            time="$(date "+%Y-%m-%d %H:%M:%S")"
+            docker stats docker-events-exposer anomaly-injector zerops-collector --no-stream --no-trunc --format "$time,{{'{{.Name}},{{.CPUPerc}},{{.MemUsage}},{{.NetIO}},{{.BlockIO}}'}}" >> /output-data/usage.csv;
+            sleep 60;
+          done
+          '
+
+- name: Collect resource usage metrics of local docker containers
+  hosts:
+  - kubernetes
+  vars:
+    monitored_containers: ""
+  tasks:
+  - file:
+      path: /opt/monitor-container-resource/usage
+      state: directory
+  - become: true
+    ignore_errors: yes
+    docker_container:
+      image: docker
+      name: monitor-container-resource-usage
+      pull: true
+      recreate: true
+      privileged: true
+      restart_policy: always
+      volumes:
+          - /var/run/docker.sock:/var/run/docker.sock
+          - /opt/monitor-container-resource/usage:/output-data
+          - /etc/localtime:/etc/localtime:ro
+      entrypoint: sh
+      command: |
+          -c '
+
+          function take_measurement() {
+            time="$(date "+%Y-%m-%d %H:%M:%S")"
+            docker stats $(docker ps --filter "name=$@" --format="{{'{{.ID}}'}}") --no-stream --no-trunc --format "$time,{{'{{.Name}},{{.CPUPerc}},{{.MemUsage}},{{.NetIO}},{{.BlockIO}}'}}"
+          }
+
+          while true; do
+            take_measurement a-aapy >> /output-data/a-aapy.csv
+            take_measurement a-anomaly-detector >> /output-data/a-anomaly-detector.csv
+            take_measurement a-pre-proc >> /output-data/a-pre-proc.csv
+            sleep 60
+          done
+          '
+

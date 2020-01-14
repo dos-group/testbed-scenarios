@@ -30,6 +30,17 @@
         regexp: "^{{ env_var.name }}="
         line: "{{ env_var.name }}={{ env_var.value }}"
 
+- name: Copy log clean script
+  hosts: clearwater
+  become: true
+  tags: [ "clean-logs" ]
+  tasks:
+    - name: Copy script
+      copy:
+        mode: preserve
+        src: clearwater/clean-clearwater-docker-logs
+        dest: /etc/cron.hourly/clean-clearwater-docker-logs
+
 - name: Setup sipp stress VMs
   hosts:
     - sippstress

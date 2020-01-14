@@ -1,19 +1,23 @@
 #!/usr/bin/env ansible-playbook
 
 - name: Bootstrap Python
-  hosts: vms:hypervisors:bastion
+  hosts: all
   gather_facts: false
   roles:
     - ../roles/bootstrap
 
 - name: Install apt packages and docker
-  hosts: vms:hypervisors:bastion
+  hosts: all
   tasks:
     - name: Install required packages with apt
       apt:
         name: "{{ bootstrap_packages }}"
         state: present
         update_cache: yes
+      when: bootstrap_packages is defined
+    - name: Set timezone to "{{ bootstrap_timezone }}"
+      command: /usr/bin/timedatectl set-timezone "{{ bootstrap_timezone }}"
+      when: bootstrap_timezone is defined
   roles:
     - ../roles/docker
     - ../roles/docker-compose

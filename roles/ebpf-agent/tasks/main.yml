@@ -12,3 +12,4 @@
       - "/lib/modules:/lib/modules"
       - "/usr/src:/usr/src" 
       - "/sys:/sys"
+      - "/etc/localtime:/etc/localtime:ro"
