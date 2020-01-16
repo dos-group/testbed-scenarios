@@ -6,7 +6,7 @@
   roles:
     - ../roles/bootstrap
 
-- name: Install apt packages and docker
+- name: Install apt packages and configure time zone
   hosts: all
   tasks:
     - name: Install required packages with apt
@@ -18,6 +18,9 @@
     - name: Set timezone to "{{ bootstrap_timezone }}"
       command: /usr/bin/timedatectl set-timezone "{{ bootstrap_timezone }}"
       when: bootstrap_timezone is defined
+
+- name: Install docker
+  hosts: all:!kubernetes # Kubernetes nodes get Docker installed by Kubespray
   roles:
     - ../roles/docker
     - ../roles/docker-compose

@@ -7,5 +7,6 @@ docker_events_exposer:
 
 bootstrap_packages: [
   tree, curl, wget, git,
-  htop, bmon, iotop
+  htop, bmon, iotop, nethogs,
+  nfs-common
 ]
