@@ -1,4 +1,10 @@
-# Deployment of Testbed Scenarios and ZerOps components
+# Deployment of cloud workload scenarios and components of the ZerOps cloud platform
+
+This repository contains deployment artifacts for:
+- ZerOps data collector and anomaly injector
+- Cloud workload: Project Clearwater (IMS, IP Multimedia Subsystem)
+- Cloud workload: Video streaming server
+- Various scripts to perform experiments on the ZerOps cloud platform
 
 ## Heat installation:
 - In `projects/Clearwater/Heat` and `projects/VideoServer/Heat`, copy the respective `parameters.txt.template` file to `parameters.txt` and set the parameters to required values.
