@@ -5,7 +5,7 @@ tags(tags={ node='{{ ansible_hostname }}' })
         # With 'vm' tag
         '.+' 
             -> tags(tags={ layer=virtual, component='${node}-${vm}' }) 
-            -> zerops-notify(
+            -> notify-bitflow-controller(
                 kube-namespace={{ collector.kube_namespace }},
                 kube={{ collector.path }}/kube-config,
                 tag=component, 
@@ -17,7 +17,7 @@ tags(tags={ node='{{ ansible_hostname }}' })
         # Without 'vm' tag
         '^$'
             -> tags(tags={ layer=physical, component='${node}' })
-            -> zerops-notify(
+            -> notify-bitflow-controller(
                 kube-namespace={{ collector.kube_namespace }},
                 kube={{ collector.path }}/kube-config,
                 tag=component, 

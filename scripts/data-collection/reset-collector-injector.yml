@@ -1,13 +1,13 @@
 #!/usr/bin/env ansible-playbook
 
 - name: Unset collector tags, stop file outputs of collectors
-  hosts: zerops-collector
+  hosts: bitflow-collector
   tasks:
     - include_role:
-        name: ../../roles/zerops-collector
+        name: ../../roles/bitflow-collector
         tasks_from: disable-data-collection
     - include_role:
-        name: ../../roles/zerops-collector
+        name: ../../roles/bitflow-collector
         tasks_from: reset-tags
 
 - name: Stop all running anomalies

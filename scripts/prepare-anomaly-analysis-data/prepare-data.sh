@@ -10,12 +10,12 @@ home=`dirname $(readlink -e $0)`
 # Print all input file names, separated by ";" to read them in parallel
 # Append this script (prepare-data.bf) to the executed pipeline
 
-NUM_COMPONENTS=$(find "zerops-collector" -name 'data.bin' | wc -l)
+NUM_COMPONENTS=$(find "bitflow-collector" -name 'data.bin' | wc -l)
 
 docker run -w /data -v "$PWD:/data" -ti teambitflow/go-bitflow-plugins \
        -files-robust \
        " { experiment-controller/experiment.csv \
                 -> tags(tags={component=controller}) ; \
-         $(find "zerops-collector" -name '*.bin' -printf '%p ; ') } \
+         $(find "bitflow-collector" -name '*.bin' -printf '%p ; ') } \
          $(cat "$home/prepare-data.bf" | sed "s/NUMBER_OF_COMPONENTS/$NUM_COMPONENTS/g") "
 

@@ -1,10 +1,10 @@
 #!/usr/bin/env ansible-playbook
 
 - name: Check collector container status
-  hosts: zerops-collector
+  hosts: bitflow-collector
   tasks:
     - include_role:
-        name: ../../roles/zerops-collector
+        name: ../../roles/bitflow-collector
         tasks_from: check-container-status
 
 - name: Check injector container status

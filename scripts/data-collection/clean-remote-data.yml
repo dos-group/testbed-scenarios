@@ -3,10 +3,10 @@
 - import_playbook: reset-collector-injector.yml
 
 - name: Delete collector data
-  hosts: zerops-collector
+  hosts: bitflow-collector
   tasks:
     - include_role:
-        name: ../../roles/zerops-collector
+        name: ../../roles/bitflow-collector
         tasks_from: clean-data
 
 - name: Delete client statistics data

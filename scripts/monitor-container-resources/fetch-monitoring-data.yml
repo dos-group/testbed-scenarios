@@ -5,7 +5,7 @@
 
 - name: Fetch container resource usage data
   hosts:
-    - zerops-collector
+    - bitflow-collector
     - kubernetes
   tasks:
     - delegate_to: localhost

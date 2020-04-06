@@ -2,7 +2,7 @@
 
 - name: Delete remote resource usage data
   hosts:
-    - zerops-collector
+    - bitflow-collector
     - kubernetes
   vars:
     cleaned_directory: "/opt/monitor-container-resource/usage"

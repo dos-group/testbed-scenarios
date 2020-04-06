@@ -1,6 +1,6 @@
 galaxy_info:
   author: srnbckr
-  description: Installs zerops-collector
+  description: Installs the Bitflow Data Collector
   company: "TU Berlin, CIT"
   license: license (GPLv2, CC-BY, etc)
   min_ansible_version: 2.4

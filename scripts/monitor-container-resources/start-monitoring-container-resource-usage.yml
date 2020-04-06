@@ -2,7 +2,7 @@
 
 - name: Collect resource usage metrics of local docker containers
   hosts:
-  - zerops-collector
+  - bitflow-collector
   tasks:
   - file:
       path: /opt/monitor-container-resource/usage
@@ -25,7 +25,7 @@
           -c '
           while true; do
             time="$(date "+%Y-%m-%d %H:%M:%S")"
-            docker stats docker-events-exposer anomaly-injector zerops-collector --no-stream --no-trunc --format "$time,{{'{{.Name}},{{.CPUPerc}},{{.MemUsage}},{{.NetIO}},{{.BlockIO}}'}}" >> /output-data/usage.csv;
+            docker stats docker-events-exposer anomaly-injector bitflow-collector --no-stream --no-trunc --format "$time,{{'{{.Name}},{{.CPUPerc}},{{.MemUsage}},{{.NetIO}},{{.BlockIO}}'}}" >> /output-data/usage.csv;
             sleep 60;
           done
           '

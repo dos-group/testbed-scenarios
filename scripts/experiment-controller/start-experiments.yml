@@ -30,7 +30,7 @@
     
     - name: Start experiment data collector
       docker_container:
-        image: teambitflow/bitflow-collector
+        image: bitflowstream/bitflow-collector
         name: experiment-collector # Use fixed name so no two experiments are started at the same time
         hostname: "{{ inventory_hostname }}"
         state: started

@@ -7,7 +7,7 @@ SIPP load resumed:
 
 
 # Check data
-ansible hypervisors -i alexcloud.inventory -m shell -a 'tree /opt/zerops-collector/data'
+ansible hypervisors -i alexcloud.inventory -m shell -a 'tree /opt/bitflow-collector/data'
 
 # ENABLE COLLECTION
 ansible hypervisors -i alexcloud.inventory -m shell -a 'curl -X POST localhost:8051/api/file_output'

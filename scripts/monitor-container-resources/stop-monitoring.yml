@@ -2,7 +2,7 @@
 
 - name: Stop monitoring container resource usage
   hosts:
-    - zerops-collector
+    - bitflow-collector
     - kubernetes
   tasks:
     - docker_container:

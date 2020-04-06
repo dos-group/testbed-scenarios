@@ -2,10 +2,10 @@
 
 # TODO limit the vms that install collector/injector/exposer?
 
-- name: Install zerops-collector
-  hosts: zerops-collector
+- name: Install Bitflow collector
+  hosts: bitflow-collector
   roles:
-    - ../roles/zerops-collector
+    - ../roles/bitflow-collector
 
 - name: Install anomaly injector
   hosts: anomaly-injector

@@ -31,10 +31,10 @@
         state: directory
 
 - name: Fetch data collector data from remote hosts
-  hosts: zerops-collector
+  hosts: bitflow-collector
   tasks:
     - include_role:
-        name: ../../roles/zerops-collector
+        name: ../../roles/bitflow-collector
         tasks_from: fetch-data
 
 - name: Fetch sippstress statistics data

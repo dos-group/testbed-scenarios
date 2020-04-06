@@ -15,7 +15,7 @@
 
 # After this script:
 # - Clean container resource data: monitor-container-resources/clean-remote-data.yml
-# - Data in the local fetched data folder can be analysed: experiment-controller/evaluate-zerops-experiment.sh
+# - Data in the local fetched data folder can be analysed: experiment-controller/evaluate-experiment.sh
 
 home=`dirname $(readlink -e $0)`
 ansible_root=$(readlink -e "$home/../..")
@@ -33,16 +33,16 @@ fetched_folder="$fetched_root/$fetched_folder"
 echo "Latest fetched data folder locally: $fetched_folder"
 
 read -r -d '' commands << EOF
-    (cd "$fetched_folder" && mkdir -p experiment-controller hosts zerops-collector ims vod brain);
+    (cd "$fetched_folder" && mkdir -p experiment-controller hosts bitflow-collector ims vod brain);
     scp -r "$controller_ssh:$controller_folder/*" "$fetched_folder/experiment-controller/";
     cd "$ansible_root/scripts" && ./prepare-anomaly-analysis-data/extract-mapping-files.sh;
     cp -i "$ansible_root/ansible-inventory.ini" "$fetched_folder/hosts";
     (cd "$ansible_root/scripts/prepare-anomaly-analysis-data" && cp -i mapping-groups.json mapping-hosts.json mapping-anomalies.json "$fetched_folder/hosts");
-    mv -i "$fetched_folder"/wally* "$fetched_folder/zerops-collector"
+    mv -i "$fetched_folder"/wally* "$fetched_folder/bitflow-collector"
     mv -i "$fetched_folder"/cw-sippstress* "$fetched_folder/ims"
     mv -i "$fetched_folder"/vod-client* "$fetched_folder/vod"
     "$ansible_root/scripts/monitor-container-resources/fetch-monitoring-data.yml" -e "fetch_dir=$fetched_folder"
-    kubectl cp \$(kubectl get pod -l zerops-analysis-step=a-brain -o jsonpath='{.items[0].metadata.name}'):/zerops/brain-logs/ "$fetched_folder/brain/"
+    kubectl cp \$(kubectl get pod -l bitflow-step-name=a-brain -o jsonpath='{.items[0].metadata.name}'):/zerops/brain-logs/ "$fetched_folder/brain/"
 EOF
 
 echo -e "This script will execute the following commands:\n"

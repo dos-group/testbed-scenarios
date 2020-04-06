@@ -11,7 +11,7 @@
     - become: true
       ignore_errors: yes
       docker_container:
-        image: teambitflow/go-bitflow:latest
+        image: bitflowstream/go-bitflow:latest
         name: aggregate-rtmp-client-metrics
         tty: true
         pull: true
@@ -29,8 +29,8 @@
         msg:
           - "Some commands to perform data analysis:"
           - "ssh {{ ansible_host }} docker logs -f aggregate-rtmp-client-metrics"
-          - "docker run -ti teambitflow/go-bitflow '{{ ansible_host }}:{{ aggregation_port }} -> csv://-'"
-          - "docker run -ti teambitflow/go-bitflow 'wally181.cit.tu-berlin.de:{{ aggregation_port }} -> batch(flush-time-diff=2s) { aggregate(type=avg) } -> text://-'"
+          - "docker run -ti bitflowstream/go-bitflow '{{ ansible_host }}:{{ aggregation_port }} -> csv://-'"
+          - "docker run -ti bitflowstream/go-bitflow 'wally181.cit.tu-berlin.de:{{ aggregation_port }} -> batch(flush-time-diff=2s) { aggregate(type=avg) } -> text://-'"
 
 # - name: Make sure the temporary aggregation container is stopped
 #   hosts:

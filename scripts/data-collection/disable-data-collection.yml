@@ -1,10 +1,10 @@
 #!/usr/bin/env ansible-playbook
 
 - name: Disable file output of data collectors
-  hosts: zerops-collector
+  hosts: bitflow-collector
   tasks:
     - include_role:
-        name: ../../roles/zerops-collector
+        name: ../../roles/bitflow-collector
         tasks_from: disable-data-collection
 
 - name: Disable file output of client statistics

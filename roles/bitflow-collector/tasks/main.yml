@@ -9,12 +9,12 @@
       src: kube-config
       dest: "{{ collector.path }}/kube-config"
 
-- name: write notify-zerops bitflow script template
+- name: write bitflow script template
   template:
-    src: notify-zerops.bf.j2
-    dest: "{{ collector.path }}/notify-zerops.bf"
+    src: notify-controller.bf.j2
+    dest: "{{ collector.path }}/notify-controller.bf"
 
-- name: start zerops-collector docker container
+- name: start the collector docker container
   tags: [ docker-container, collector ]
   docker_container:
     image: "{{ collector.image }}"
@@ -33,13 +33,13 @@
       - "{{ collector.libvirt.socket }}:{{ collector.libvirt.socket_mounted }}"
       - "{{ collector.path }}:{{ collector.path_mounted }}"
       - "/etc/localtime:/etc/localtime:ro"
-    # The component tag is created in the notify-zerops.bf script and results in a separate folder for each VM and hypervisor
+    # The component tag is created in the notify-controller.bf script and results in a separate folder for each VM and hypervisor
     command: |
       -files-buf 256
       -files-check-output 2s
       -ci 500ms
       -si 500ms
       -api :{{ collector.api_port }}
-      -f {{ collector.path_mounted }}/notify-zerops.bf
+      -f {{ collector.path_mounted }}/notify-controller.bf
       -o files://{{ collector.path_mounted }}/data/${component}/data.bin
       {{ collector.extra_args }}

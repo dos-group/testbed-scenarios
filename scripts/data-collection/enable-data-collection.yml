@@ -1,10 +1,10 @@
 #!/usr/bin/env ansible-playbook
 
 - name: Enable file output of data collectors
-  hosts: zerops-collector
+  hosts: bitflow-collector
   tasks:
     - include_role:
-        name: ../../roles/zerops-collector
+        name: ../../roles/bitflow-collector
         tasks_from: enable-data-collection
 
 - name: Enable file output of client statistics
