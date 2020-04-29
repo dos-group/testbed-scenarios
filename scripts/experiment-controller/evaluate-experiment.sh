@@ -1,6 +1,6 @@
 #!/bin/bash
 
-docker run -ti -v "$PWD:/evaluate" -w /evaluate teambitflow/go-bitflow-plugins -files-robust \
+docker run -ti -v "$PWD:/evaluate" -w /evaluate teambitflow/zerops-analysis -files-robust \
     "{" \
         brain/events-* " -> batch() { sort() } -> tags(tags={zerops=brain}); " \
         experiment-controller/experiment.csv " -> batch() { sort() } -> tags(tags={zerops=controller});" \

@@ -12,7 +12,7 @@ home=`dirname $(readlink -e $0)`
 
 NUM_COMPONENTS=$(find "bitflow-collector" -name 'data.bin' | wc -l)
 
-docker run -w /data -v "$PWD:/data" -ti teambitflow/go-bitflow-plugins \
+docker run -w /data -v "$PWD:/data" -ti teambitflow/zerops-analysis \
        -files-robust \
        " { experiment-controller/experiment.csv \
                 -> tags(tags={component=controller}) ; \
